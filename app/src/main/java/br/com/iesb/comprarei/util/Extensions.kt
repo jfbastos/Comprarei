@@ -9,3 +9,11 @@ fun TextInputEditText.errorAnimation(){
     val error = AnimationUtils.loadAnimation(this.context, R.anim.shake)
     this.startAnimation(error)
 }
+
+fun View.setVisibility(visibiliy : Boolean){
+    if(visibiliy){
+        this.visibility = View.VISIBLE
+    }else{
+        this.visibility = View.GONE
+    }
+}

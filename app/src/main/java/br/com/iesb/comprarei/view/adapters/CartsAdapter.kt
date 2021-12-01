@@ -31,11 +31,7 @@ class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallb
 
 
             binding.checkForDelete.setOnClickListener {
-                if (binding.checkForDelete.isChecked) {
-                    selectedItems.add(cart)
-                } else if (selectedItems.contains(cart)) {
-                    selectedItems.remove(cart)
-                }
+                setCheckBox(cart)
             }
 
 
@@ -47,15 +43,23 @@ class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallb
                 if(selectionMode){
                     this.setOnClickListener {
                         binding.checkForDelete.isChecked = !binding.checkForDelete.isChecked
+                        setCheckBox(cart)
                     }
                 }
 
                 setOnLongClickListener {
                     clearSelectedItems()
-                    selectionMode = !selectionMode
                     onLongItemClickListener.invoke(cart)
                 }
             }
+        }
+    }
+
+    private fun CartsViewHolder.setCheckBox(cart: Cart) {
+        if (binding.checkForDelete.isChecked) {
+            selectedItems.add(cart)
+        } else if (selectedItems.contains(cart)) {
+            selectedItems.remove(cart)
         }
     }
 
