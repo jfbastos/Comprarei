@@ -8,7 +8,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
 
-class Repository {
+class CartRepository {
 
     fun getCarts(): LiveData<List<Cart>> {
         return MyApplication.database!!.CartDao().carts
@@ -29,6 +29,9 @@ class Repository {
             MyApplication.database!!.CartDao().delete(cartId)
         }
     }
+
+
+
 
 
 

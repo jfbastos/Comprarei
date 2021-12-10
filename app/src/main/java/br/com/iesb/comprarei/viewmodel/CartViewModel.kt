@@ -2,9 +2,9 @@ package br.com.iesb.comprarei.viewmodel
 
 import androidx.lifecycle.ViewModel
 import br.com.iesb.comprarei.model.Cart
-import br.com.iesb.comprarei.model.Repository
+import br.com.iesb.comprarei.model.CartRepository
 
-class MainViewModel(private val repository: Repository) : ViewModel() {
+class CartViewModel(private val repository: CartRepository) : ViewModel() {
 
     val listOfCarts = repository.getCarts()
 

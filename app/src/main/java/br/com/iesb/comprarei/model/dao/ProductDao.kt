@@ -1,20 +1,23 @@
 package br.com.iesb.comprarei.model.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import br.com.iesb.comprarei.model.Product
 
 
 @Dao
 interface ProductDao {
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertProduct(product : Product)
 
-    @get : Query("SELECT * FROM products")
-    val products: LiveData<List<Product>>
+    @Query("SELECT * FROM products WHERE cartId = :cartId")
+    fun getProducts(cartId : String) : List<Product>
+
+    @Query("DELETE FROM products WHERE id = :id")
+    fun delete(id : Int)
+
+    @Update
+    fun updateProduct(product : Product)
 
 }

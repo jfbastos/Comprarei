@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import br.com.iesb.comprarei.databinding.SortBottomSheetBinding
+import br.com.iesb.comprarei.view.adapters.BottomSheetAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.io.Serializable
@@ -17,6 +18,9 @@ class SortBottomSheet : BottomSheetDialogFragment() {
     private val binding: SortBottomSheetBinding get() = _binding!!
 
     private var onSelectionFinished: ((String) -> Unit)? = null
+
+    private lateinit var optionsAdapter : BottomSheetAdapter
+    private val list : ArrayList<String> = arrayListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,6 +34,7 @@ class SortBottomSheet : BottomSheetDialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         arguments?.let {
             onSelectionFinished = it.getSerializable(ON_SELECTION_KEY) as ((String) -> Unit)?
+            list.addAll(it.getSerializable(ITEMS_KEY) as ArrayList<String>)
         }
         return super.onCreateDialog(savedInstanceState)
     }
@@ -41,38 +46,28 @@ class SortBottomSheet : BottomSheetDialogFragment() {
         val dialog = requireView().parent as View
         val behavior = BottomSheetBehavior.from(dialog)
 
-
-
-        binding.btnAlphabetical.setOnClickListener { btn ->
-            onSelectionFinished?.let {
-                it(binding.btnAlphabetical.text.toString())
-                behavior.state = BottomSheetBehavior.STATE_HIDDEN
-            }
+        recyclerViewSetup()
+        optionsAdapter.setOnClickLister { filter ->
+            onSelectionFinished?.let { it(filter) }
+            behavior.state = BottomSheetBehavior.STATE_HIDDEN
         }
+    }
 
-        binding.btnInverseAlphabetical.setOnClickListener { btn ->
-            onSelectionFinished?.let {
-                it(binding.btnInverseAlphabetical.text.toString())
-                behavior.state = BottomSheetBehavior.STATE_HIDDEN
-            }
-        }
-
-        binding.btnOriginal.setOnClickListener { btn ->
-            onSelectionFinished?.let {
-                it(binding.btnOriginal.text.toString())
-                behavior.state = BottomSheetBehavior.STATE_HIDDEN
-            }
-        }
-
+    private fun recyclerViewSetup() {
+        optionsAdapter = BottomSheetAdapter()
+        binding.optionsLayoutRv.adapter = optionsAdapter
+        optionsAdapter.differ.submitList(list)
     }
 
     companion object {
 
+        private const val ITEMS_KEY = "items"
         private const val ON_SELECTION_KEY = "selection"
 
-        fun Fragment.openBottomSheetDialog(onSelectionFinished: (String) -> Unit) {
+        fun Fragment.openSortBottomSheetDialog(items : ArrayList<String>, onSelectionFinished: (String) -> Unit) {
 
             val bundle = Bundle().apply {
+                putSerializable(ITEMS_KEY, items)
                 putSerializable(ON_SELECTION_KEY, onSelectionFinished as Serializable)
             }
 

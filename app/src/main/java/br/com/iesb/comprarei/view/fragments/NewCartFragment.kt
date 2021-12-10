@@ -6,12 +6,12 @@ import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import br.com.iesb.comprarei.databinding.FragmentNewCartBinding
-import br.com.iesb.comprarei.model.Repository
+import br.com.iesb.comprarei.model.CartRepository
 import br.com.iesb.comprarei.util.FormatFrom
 import br.com.iesb.comprarei.util.Validator
 import br.com.iesb.comprarei.util.errorAnimation
-import br.com.iesb.comprarei.viewmodel.MainViewModel
-import br.com.iesb.comprarei.viewmodel.ViewModelFactory
+import br.com.iesb.comprarei.viewmodel.CartViewModel
+import br.com.iesb.comprarei.viewmodel.factories.CartViewModelFactory
 import java.time.Instant
 import java.util.*
 
@@ -21,9 +21,9 @@ class NewCartFragment : DialogFragment() {
     private var _binding: FragmentNewCartBinding? = null
     private val binding: FragmentNewCartBinding get() = _binding!!
 
-    private val viewModel: MainViewModel by lazy {
-        val viewModelProviderFactory = ViewModelFactory(Repository())
-        ViewModelProvider(this, viewModelProviderFactory)[MainViewModel::class.java]
+    private val viewModel: CartViewModel by lazy {
+        val viewModelProviderFactory = CartViewModelFactory(CartRepository())
+        ViewModelProvider(this, viewModelProviderFactory)[CartViewModel::class.java]
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -36,16 +36,12 @@ class NewCartFragment : DialogFragment() {
         binding.btnOk.setOnClickListener {
             when {
                 binding.cartName.text.isNullOrBlank() -> {
-                    binding.cartName.apply {
-                        errorAnimation()
-                        error = "Can't be blank!"
-                    }
+                    binding.cartName.errorAnimation("Can't be blank!")
+
                 }
                 binding.cartDate.text.isNullOrBlank() -> {
-                    binding.cartDate.apply {
-                        errorAnimation()
-                        error = "Can't be blank!"
-                    }
+                    binding.cartDate.errorAnimation("Can't be blank!")
+
                 }
                 Validator.validateDate(binding.cartDate.text.toString()) -> {
                     viewModel.saveCart(
@@ -55,10 +51,7 @@ class NewCartFragment : DialogFragment() {
                     this.dismiss()
                 }
                 else -> {
-                    binding.cartDate.apply {
-                        errorAnimation()
-                        error = "Invalid date!"
-                    }
+                    binding.cartDate.errorAnimation("Invalid date!")
                 }
             }
         }

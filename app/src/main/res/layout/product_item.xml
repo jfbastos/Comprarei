@@ -58,13 +58,21 @@
             android:textColor="@color/green_dark" />
 
         <TextView
+            android:id="@+id/product_total"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/product_name"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="12dp"
+            android:layout_alignBottom="@id/product_value"
+            android:layout_toStartOf="@+id/check_for_delete"
             android:text="R$ 100,00"
             android:textSize="16sp" />
+
+        <CheckBox
+            android:id="@+id/check_for_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:visibility="invisible" />
 
 
     </RelativeLayout>

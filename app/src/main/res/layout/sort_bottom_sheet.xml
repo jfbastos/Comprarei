@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -18,43 +20,21 @@
             android:text="Sort type: "
             android:textSize="16sp"/>
 
-        <LinearLayout
-            android:id="@+id/options_layout"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/options_layout_rv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/title_bottom_sheet"
-            android:gravity="center">
-
-
-            <Button
-                android:id="@+id/btn_alphabetical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:text="Name"/>
-
-            <Button
-                android:id="@+id/btn_inverse_alphabetical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:text="Data"/>
-
-            <Button
-                android:id="@+id/btn_original"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:text="Original"/>
-
-        </LinearLayout>
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:isScrollContainer="false"
+            tools:listitem="@layout/bottom_sheet_item_rv"/>
 
         <Button
             android:id="@+id/btn_cancel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.Button"
-            android:layout_below="@id/options_layout"
+            android:layout_below="@id/options_layout_rv"
             android:text="Cancel"/>
 
     </RelativeLayout>

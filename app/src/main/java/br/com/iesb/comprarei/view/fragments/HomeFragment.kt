@@ -3,18 +3,21 @@ package br.com.iesb.comprarei.view.fragments
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
+import android.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import br.com.iesb.comprarei.R
 import br.com.iesb.comprarei.databinding.FragmentHomeBinding
 import br.com.iesb.comprarei.model.Cart
-import br.com.iesb.comprarei.model.Repository
+import br.com.iesb.comprarei.model.CartRepository
 import br.com.iesb.comprarei.util.setVisibility
+import br.com.iesb.comprarei.util.toggleVisibility
 import br.com.iesb.comprarei.view.adapters.CartsAdapter
-import br.com.iesb.comprarei.view.components.SortBottomSheet.Companion.openBottomSheetDialog
-import br.com.iesb.comprarei.viewmodel.MainViewModel
-import br.com.iesb.comprarei.viewmodel.ViewModelFactory
+import br.com.iesb.comprarei.view.components.SortBottomSheet.Companion.openSortBottomSheetDialog
+import br.com.iesb.comprarei.viewmodel.CartViewModel
+import br.com.iesb.comprarei.viewmodel.factories.CartViewModelFactory
 
 
 class HomeFragment : Fragment() {
@@ -23,13 +26,14 @@ class HomeFragment : Fragment() {
     private val binding: FragmentHomeBinding get() = _binding!!
     private lateinit var cartsAdapter: CartsAdapter
 
-    private var deleteMenu: MenuItem? = null
-    private var sortMenu: MenuItem? = null
+    private lateinit var deleteMenu: MenuItem
+    private lateinit var sortMenu: MenuItem
+    private lateinit var searchMenu: MenuItem
     private var originalList: List<Cart> = listOf()
 
-    private val viewModel: MainViewModel by lazy {
-        val viewModelProviderFactory = ViewModelFactory(Repository())
-        ViewModelProvider(this, viewModelProviderFactory)[MainViewModel::class.java]
+    private val viewModel: CartViewModel by lazy {
+        val viewModelProviderFactory = CartViewModelFactory(CartRepository())
+        ViewModelProvider(this, viewModelProviderFactory)[CartViewModel::class.java]
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,10 +64,12 @@ class HomeFragment : Fragment() {
 
         setItemsSelectable()
 
-        sortMenu?.setOnMenuItemClickListener {
+        sortMenu.setOnMenuItemClickListener {
             sortList()
             return@setOnMenuItemClickListener true
         }
+
+        doSearch()
 
         binding.closeSelection.setOnClickListener {
             changeSelectState()
@@ -77,8 +83,44 @@ class HomeFragment : Fragment() {
 
         viewModel.listOfCarts.observe(viewLifecycleOwner) { cartsList ->
             showCartsItems(cartsList)
-
         }
+
+
+    }
+
+    private fun doSearch() {
+        searchMenu.setOnMenuItemClickListener {
+            binding.searchView.setQuery("", false)
+            if (binding.searchView.isVisible) {
+                binding.searchView.setVisibility(false)
+            } else {
+                binding.searchView.setVisibility(true)
+            }
+            return@setOnMenuItemClickListener true
+        }
+
+
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+
+                val searched = originalList.filter {
+                    it.name.uppercase().contains(query.uppercase()) ||
+                            it.data.contains(query)
+                }
+
+                cartsAdapter.differ.submitList(searched)
+                return false
+            }
+
+            override fun onQueryTextChange(nextText: String): Boolean {
+                val searched = originalList.filter {
+                    it.name.uppercase().contains(nextText.uppercase()) ||
+                            it.data.contains(nextText)
+                }
+                cartsAdapter.differ.submitList(searched)
+                return false
+            }
+        })
     }
 
     private fun showCartsItems(cartsList: List<Cart>) {
@@ -92,23 +134,22 @@ class HomeFragment : Fragment() {
     }
 
     private fun deleteItems() {
-        deleteMenu?.setOnMenuItemClickListener { menu ->
+        deleteMenu.setOnMenuItemClickListener {
             deleteSelectedItems()
-            menu.isVisible = false
             return@setOnMenuItemClickListener true
         }
     }
 
     private fun setItemsSelectable() {
-        cartsAdapter.setOnLongItemClickListener { cart ->
+        cartsAdapter.setOnLongItemClickListener {
             changeSelectState()
             return@setOnLongItemClickListener true
         }
     }
 
     private fun changeSelectState() {
-        deleteMenu?.let { delete ->
-            delete.isVisible = !delete.isVisible
+        deleteMenu.let { delete ->
+            delete.toggleVisibility()
             if (delete.isVisible) {
                 binding.addCart.setVisibility(false)
                 binding.closeSelection.setVisibility(true)
@@ -116,8 +157,11 @@ class HomeFragment : Fragment() {
                 binding.addCart.setVisibility(true)
                 binding.closeSelection.setVisibility(false)
             }
-            cartsAdapter.selectionMode = !cartsAdapter.selectionMode
-            cartsAdapter.notifyDataSetChanged()
+            cartsAdapter.apply {
+                selectionMode = !cartsAdapter.selectionMode
+                notifyDataSetChanged()
+            }
+
         }
     }
 
@@ -141,7 +185,8 @@ class HomeFragment : Fragment() {
     }
 
     private fun sortList() {
-        openBottomSheetDialog { option ->
+        val options = arrayListOf("Name", "Date", "Original")
+        openSortBottomSheetDialog(options) { option ->
             cartsAdapter.differ.submitList(viewModel.sortList(option, originalList))
         }
     }
@@ -149,7 +194,8 @@ class HomeFragment : Fragment() {
     private fun setupMenuItems() {
         deleteMenu = binding.toolbar.menu.findItem(R.id.delete_menu)
         sortMenu = binding.toolbar.menu.findItem(R.id.sort_menu)
-        deleteMenu?.isVisible = false
+        searchMenu = binding.toolbar.menu.findItem(R.id.search_menu)
+        deleteMenu.toggleVisibility()
     }
 
     private fun deleteSelectedItems() {
@@ -158,8 +204,6 @@ class HomeFragment : Fragment() {
         if (deleteQuantity != 0) {
             confirmDeletion(deleteQuantity, actualList)
         }
-        changeSelectState()
-
     }
 
     private fun confirmDeletion(
@@ -173,12 +217,14 @@ class HomeFragment : Fragment() {
             .setPositiveButton("Yes") { _, _ ->
                 cartsAdapter.getSelectedItems().forEach { cart ->
                     viewModel.deleteCart(cart)
+                    cartsAdapter.notifyItemRemoved(actualList.indexOf(cart))
                     actualList.remove(cart)
                 }
+                changeSelectState()
                 cartsAdapter.differ.submitList(actualList)
             }
             .setNegativeButton("Cancel") { _, _ ->
-
+                changeSelectState()
             }
             .show()
     }

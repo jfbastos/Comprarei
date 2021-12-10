@@ -6,8 +6,11 @@ import java.util.*
 
 @Entity(tableName = "products")
 data class Product(
-    @PrimaryKey val id : String,
-    val name : String,
-    val price : Double,
-    val quantity : Int
-)
+    var name : String,
+    var brand: String = "",
+    var price : Double,
+    var quantity : Int,
+    val cartId : String
+): java.io.Serializable {
+    @PrimaryKey(autoGenerate = true) var id : Int = 0
+}
