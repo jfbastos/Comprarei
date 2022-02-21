@@ -1,23 +1,24 @@
 package br.com.iesb.comprarei.view.fragments
 
 import android.app.AlertDialog
+import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import br.com.iesb.comprarei.R
 import br.com.iesb.comprarei.databinding.FragmentHomeBinding
 import br.com.iesb.comprarei.model.Cart
-import br.com.iesb.comprarei.model.CartRepository
 import br.com.iesb.comprarei.util.setVisibility
+import br.com.iesb.comprarei.util.show
 import br.com.iesb.comprarei.util.toggleVisibility
 import br.com.iesb.comprarei.view.adapters.CartsAdapter
 import br.com.iesb.comprarei.view.components.SortBottomSheet.Companion.openSortBottomSheetDialog
 import br.com.iesb.comprarei.viewmodel.CartViewModel
-import br.com.iesb.comprarei.viewmodel.factories.CartViewModelFactory
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class HomeFragment : Fragment() {
@@ -31,14 +32,12 @@ class HomeFragment : Fragment() {
     private lateinit var searchMenu: MenuItem
     private var originalList: List<Cart> = listOf()
 
-    private val viewModel: CartViewModel by lazy {
-        val viewModelProviderFactory = CartViewModelFactory(CartRepository())
-        ViewModelProvider(this, viewModelProviderFactory)[CartViewModel::class.java]
-    }
+    private val viewModel: CartViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
     }
 
 
@@ -55,50 +54,48 @@ class HomeFragment : Fragment() {
 
         setupMenuItems()
 
-
         setupAdapter()
 
-        cartsAdapter.setOnItemClickListener { cart ->
-            goToProduct(cart, view)
-        }
+        deleteItems()
 
         setItemsSelectable()
+
+        doSearch()
+
+        cartsAdapter.setOnItemClickListener { cart ->
+            goToProduct(cart)
+        }
 
         sortMenu.setOnMenuItemClickListener {
             sortList()
             return@setOnMenuItemClickListener true
         }
 
-        doSearch()
-
         binding.closeSelection.setOnClickListener {
             changeSelectState()
         }
-
-        deleteItems()
 
         binding.addCart.setOnClickListener {
             NewCartFragment().show(parentFragmentManager, "NewCart")
         }
 
-        viewModel.listOfCarts.observe(viewLifecycleOwner) { cartsList ->
-            showCartsItems(cartsList)
+        viewModel.listOfCarts.observe(viewLifecycleOwner) { carts ->
+            showCartsItems(carts)
         }
-
-
     }
 
     private fun doSearch() {
         searchMenu.setOnMenuItemClickListener {
-            binding.searchView.setQuery("", false)
+            binding.searchView.show(requireContext())
+
             if (binding.searchView.isVisible) {
                 binding.searchView.setVisibility(false)
             } else {
                 binding.searchView.setVisibility(true)
             }
+
             return@setOnMenuItemClickListener true
         }
-
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
@@ -123,6 +120,7 @@ class HomeFragment : Fragment() {
         })
     }
 
+
     private fun showCartsItems(cartsList: List<Cart>) {
         if (cartsList.isEmpty()) {
             showEmptyMessage(true)
@@ -130,13 +128,6 @@ class HomeFragment : Fragment() {
             showEmptyMessage(false)
             originalList = cartsList
             cartsAdapter.differ.submitList(cartsList)
-        }
-    }
-
-    private fun deleteItems() {
-        deleteMenu.setOnMenuItemClickListener {
-            deleteSelectedItems()
-            return@setOnMenuItemClickListener true
         }
     }
 
@@ -156,6 +147,7 @@ class HomeFragment : Fragment() {
             } else {
                 binding.addCart.setVisibility(true)
                 binding.closeSelection.setVisibility(false)
+                cartsAdapter.clearSelectedItems()
             }
             cartsAdapter.apply {
                 selectionMode = !cartsAdapter.selectionMode
@@ -170,22 +162,27 @@ class HomeFragment : Fragment() {
         binding.cartsRv.adapter = cartsAdapter
     }
 
-    private fun goToProduct(cart: Cart, view: View) {
+    private fun goToProduct(cart: Cart) {
         val args = Bundle()
+
         args.putString("cartName", cart.name)
         args.putString("cartId", cart.id)
         arguments = args
-        Navigation.findNavController(view)
-            .navigate(R.id.action_homeFragment_to_productsFragment, args)
+
+        findNavController().navigate(R.id.action_homeFragment_to_productsFragment, args)
     }
 
-    private fun showEmptyMessage(visibity: Boolean) {
-        binding.cartsRv.setVisibility(!visibity)
-        binding.emptyMessage.root.setVisibility(visibity)
+    private fun showEmptyMessage(visibility: Boolean) {
+        binding.cartsRv.setVisibility(!visibility)
+        binding.emptyMessagePlaceholder.root.setVisibility(visibility)
     }
 
     private fun sortList() {
-        val options = arrayListOf("Name", "Date", "Original")
+        val options = arrayListOf(
+            getString(R.string.cart_sort_name_option),
+            getString(R.string.cart_sort_date_option),
+            "Original"
+        )
         openSortBottomSheetDialog(options) { option ->
             cartsAdapter.differ.submitList(viewModel.sortList(option, originalList))
         }
@@ -195,7 +192,16 @@ class HomeFragment : Fragment() {
         deleteMenu = binding.toolbar.menu.findItem(R.id.delete_menu)
         sortMenu = binding.toolbar.menu.findItem(R.id.sort_menu)
         searchMenu = binding.toolbar.menu.findItem(R.id.search_menu)
+        binding.toolbar.menu.findItem(R.id.share_menu).isVisible = false
         deleteMenu.toggleVisibility()
+    }
+
+
+    private fun deleteItems() {
+        deleteMenu.setOnMenuItemClickListener {
+            deleteSelectedItems()
+            return@setOnMenuItemClickListener true
+        }
     }
 
     private fun deleteSelectedItems() {
@@ -211,10 +217,14 @@ class HomeFragment : Fragment() {
         actualList: MutableList<Cart>
     ) {
         AlertDialog.Builder(context)
-            .setTitle("Are you sure?")
-            .setMessage("Do you really want to delete $deleteQuantity ${if (deleteQuantity == 1) "item" else "items"}?")
+            .setTitle(getString(R.string.title_confirmation))
+            .setMessage(
+                getString(R.string.message_confirmation) + deleteQuantity + " " + (if (deleteQuantity == 1) getString(
+                    R.string.single_item_confirmation
+                ) else getString(R.string.multiple_items_confirmation)) + " ?"
+            )
             .setIcon(R.drawable.ic_info_24)
-            .setPositiveButton("Yes") { _, _ ->
+            .setPositiveButton(getString(R.string.positive_confirmation)) { _, _ ->
                 cartsAdapter.getSelectedItems().forEach { cart ->
                     viewModel.deleteCart(cart)
                     cartsAdapter.notifyItemRemoved(actualList.indexOf(cart))
@@ -223,7 +233,7 @@ class HomeFragment : Fragment() {
                 changeSelectState()
                 cartsAdapter.differ.submitList(actualList)
             }
-            .setNegativeButton("Cancel") { _, _ ->
+            .setNegativeButton(getString(R.string.negative_confirmation)) { _, _ ->
                 changeSelectState()
             }
             .show()
@@ -232,5 +242,44 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        cancelActionsOnBackPressed()
+    }
+
+
+    private fun cancelActionsOnBackPressed() {
+        if (view == null) return
+
+        requireView().isFocusableInTouchMode = true
+        requireView().requestFocus()
+        requireView().setOnKeyListener { v, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+                when {
+                    cartsAdapter.selectionMode -> {
+                        changeSelectState()
+                    }
+                    binding.searchView.isVisible -> {
+                        binding.searchView.setVisibility(false)
+                    }
+                    else -> {
+                        activity?.finish()
+                    }
+                }
+                true
+            } else false
+        }
+
+        KeyboardVisibilityEvent.setEventListener(
+            requireActivity(),
+            viewLifecycleOwner
+        ) { isOpen ->
+            if (binding.searchView.isVisible && !isOpen) {
+                binding.searchView.clearFocus()
+                requireView().requestFocus()
+            }
+        }
     }
 }

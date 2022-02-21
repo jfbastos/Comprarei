@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 data class Cart(
     @PrimaryKey val id: String,
     val name: String,
-    val data: String
+    val data: String,
+    val total : String
 ): java.io.Serializable

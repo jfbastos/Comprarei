@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
@@ -19,8 +20,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_margin="12dp"
-            android:text="Product"
-            android:textColor="@color/green_dark"
+            android:text="@string/product"
             android:textSize="24sp"
             android:textStyle="bold"/>
 
@@ -31,9 +31,8 @@
             android:layout_below="@id/product_name"
             android:layout_marginStart="12dp"
             android:layout_marginBottom="12dp"
-            android:text="02"
-            android:textSize="16sp"
-            android:textColor="@color/green_dark" />
+            tools:text="02"
+            android:textSize="16sp"/>
 
         <TextView
             android:id="@+id/x_text"
@@ -42,9 +41,8 @@
             android:layout_alignStart="@id/product_quantity"
             android:layout_below="@id/product_name"
             android:layout_marginStart="24dp"
-            android:text="x"
-            android:textSize="16sp"
-            android:textColor="@color/green_dark" />
+            android:text="@string/x"
+            android:textSize="16sp"/>
 
         <TextView
             android:id="@+id/product_value"
@@ -53,9 +51,8 @@
             android:layout_alignStart="@id/x_text"
             android:layout_below="@id/product_name"
             android:layout_marginStart="12dp"
-            android:text="R$ 20,00"
-            android:textSize="16sp"
-            android:textColor="@color/green_dark" />
+            tools:text="R$ 20,00"
+            android:textSize="16sp"/>
 
         <TextView
             android:id="@+id/product_total"
@@ -63,8 +60,8 @@
             android:layout_height="wrap_content"
             android:layout_alignBottom="@id/product_value"
             android:layout_toStartOf="@+id/check_for_delete"
-            android:text="R$ 100,00"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            tools:text="R$ 100,00" />
 
         <CheckBox
             android:id="@+id/check_for_delete"

@@ -1,5 +1,39 @@
 <resources>
-    <string name="app_name">Comprarei</string>
+    <string name="app_name" translatable="false">Comprarei</string>
+    <string name="cart_sort_name_option">Name</string>
+    <string name="cart_sort_date_option">Date</string>
+    <string name="title_confirmation">Are you sure?</string>
+    <string name="message_confirmation">Do you really want to delete\u0020</string>
+    <string name="single_item_confirmation">item</string>
+    <string name="multiple_items_confirmation">items</string>
+    <string name="positive_confirmation">Yes</string>
+    <string name="negative_confirmation">Cancel</string>
+    <string name="blank_error_message">Can\'t be blank!</string>
+    <string name="invalid_date_error_message">Invalid date!</string>
+    <string name="no_data_error">No date</string>
+    <string name="invalid_price_error_message">Invalid price</string>
+    <string name="invalid_quantity_error_message">Invalid quantity</string>
+    <string name="product_sort_name">Name</string>
+    <string name="product_sort_price">Price (by lowest)</string>
+    <string name="product_sort_total">Total (by lowest)</string>
+    <string name="new_product">New product</string>
+    <string name="name">Name</string>
+    <string name="brand">Brand</string>
+    <string name="optional">(Optional)</string>
+    <string name="price">Price</string>
+    <string name="quantity">Quantity</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">SAVE</string>
+    <string name="empty_list_message">Ops, nothing here yet…</string>
+    <string name="new_cart">New cart</string>
+    <string name="date_dd_mm_yyyy">Date (dd/mm/yyyy)</string>
+    <string name="product">Product</string>
+    <string name="x" translatable="false">x</string>
+    <string name="sort_type">Sort by:</string>
+    <string name="search">search</string>
+    <string name="delete">Delete</string>
+    <string name="sort">Sort</string>
+    <string name="share">Share</string>
+    <string name="quantity_label">"Quantity: "</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -4,14 +4,16 @@
 
     <application
         android:allowBackup="true"
-        android:name=".MyApplication"
-        android:icon="@mipmap/ic_launcher"
+        android:name=".di.MyApplication"
+        android:icon="@mipmap/ic_launcher_comprarei"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_launcher_comprarei_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Comprarei">
+        android:theme="@style/Theme.AppCompat.Starting">
         <activity
             android:name=".view.activity.MainActivity"
+            android:windowSoftInputMode="stateAlwaysHidden"
+            android:theme="@style/Theme.AppCompat.Starting"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

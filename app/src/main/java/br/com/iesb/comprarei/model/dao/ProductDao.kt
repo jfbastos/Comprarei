@@ -12,7 +12,7 @@ interface ProductDao {
     fun insertProduct(product : Product)
 
     @Query("SELECT * FROM products WHERE cartId = :cartId")
-    fun getProducts(cartId : String) : List<Product>
+    fun getProducts(cartId : String) : LiveData<List<Product>>
 
     @Query("DELETE FROM products WHERE id = :id")
     fun delete(id : Int)

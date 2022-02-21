@@ -1,21 +1,19 @@
 package br.com.iesb.comprarei.view.activity
 
 import android.os.Bundle
-import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
-import androidx.navigation.ui.NavigationUI
-import br.com.iesb.comprarei.R
 import br.com.iesb.comprarei.databinding.ActivityMainBinding
 import android.content.Intent
+import android.view.KeyEvent
+import android.widget.Toast
 
 import androidx.core.app.NavUtils
-
-
-
-
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,26 +22,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installSplashScreen().apply {
+            CoroutineScope(Dispatchers.IO).launch{
+                delay(3000)
+            }
+        }
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         (this as? AppCompatActivity)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
     }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                val parentIntent = NavUtils.getParentActivityIntent(this)
-                parentIntent!!.flags =
-                    Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                startActivity(parentIntent)
-                finish()
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-
 }

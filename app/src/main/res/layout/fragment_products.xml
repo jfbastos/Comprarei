@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:iconifiedByDefault="false"
-        android:background="@drawable/search_view_backgroud"
+        android:background="@drawable/search_view_background"
         android:layout_margin="8dp"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
@@ -33,7 +33,7 @@
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/products_rv"
+        android:id="@+id/productsRv"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         tools:listitem="@layout/product_item"
@@ -63,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
-                android:text="R$ 0,00"
+                tools:text="R$ 0,00"
                 android:textColor="@color/white"
                 android:textSize="32sp"
                 android:textStyle="bold" />
@@ -75,16 +75,17 @@
                 android:layout_below="@id/total_cart"
                 android:layout_alignStart="@id/total_cart"
                 android:layout_marginTop="6dp"
-                android:text="Quantidade: "
+                android:text="@string/quantity_label"
                 android:textColor="@color/white"
                 android:textSize="16sp" />
 
             <TextView
+                android:id="@+id/totalQuantity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@id/label_quantity"
                 android:layout_toEndOf="@id/label_quantity"
-                android:text="0"
+                tools:text="0"
                 android:textColor="@color/white"
                 android:textSize="16sp" />
 
@@ -92,20 +93,18 @@
     </androidx.cardview.widget.CardView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/new_product"
+        android:id="@+id/newProduct"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.9"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.88"
+        android:layout_marginEnd="48dp"
+        android:layout_marginBottom="64dp"
         app:tint="@color/white" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/close_selection"
+        android:id="@+id/closeSelection"
         android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -113,13 +112,10 @@
         app:tint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.9"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.88"/>
+        android:layout_marginEnd="48dp"
+        android:layout_marginBottom="64dp"/>
 
     <include
-        android:id="@+id/empty_message"
         layout="@layout/empty_list"
         android:visibility="gone"/>
 

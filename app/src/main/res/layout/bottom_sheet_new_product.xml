@@ -19,7 +19,7 @@
             android:id="@+id/dialog_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New product"
+            android:text="@string/new_product"
             android:textColor="@color/green_dark"
             android:textSize="24sp"
             android:layout_margin="12dp"/>
@@ -28,16 +28,16 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/product_name_layout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/MyInputTextStyle"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_marginHorizontal="12dp"
         android:layout_marginTop="16dp"
-        android:hint="Name"
+        android:hint="@string/name"
         app:endIconMode="clear_text"
         app:boxStrokeColor="@color/green_dark"
         app:hintTextColor="@color/green_dark"
-        android:outlineAmbientShadowColor="@color/green_dark"
+        app:placeholderTextColor="@color/green_dark"
         app:layout_constraintStart_toStartOf="parent"
        app:layout_constraintTop_toBottomOf="@id/frame_title">
 
@@ -49,25 +49,14 @@
             android:layout_height="wrap_content"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <TextView
-        android:id="@+id/required_name_error"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Name can't be blank"
-        android:textColor="@color/design_default_color_error"
-        android:layout_marginStart="4dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/product_name_layout"
-        app:layout_constraintStart_toStartOf="@id/product_name_layout"/>
-
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/product_brand_layout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/MyInputTextStyle"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_marginHorizontal="12dp"
         android:layout_marginTop="32dp"
-        android:hint="Brand"
+        android:hint="@string/brand"
         app:endIconMode="clear_text"
         app:boxStrokeColor="@color/green_dark"
         app:hintTextColor="@color/green_dark"
@@ -75,7 +64,7 @@
         app:layout_constraintTop_toBottomOf="@id/product_name_layout">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/product_brand"
+            android:id="@+id/productBrand"
             android:imeOptions="actionNext"
             android:singleLine="true"
             android:layout_width="match_parent"
@@ -84,23 +73,22 @@
 
 
     <TextView
-        android:id="@+id/optional_brand"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="(Optional)"
+        android:text="@string/optional"
         android:layout_marginStart="4dp"
         app:layout_constraintBottom_toTopOf="@id/product_brand_layout"
         app:layout_constraintEnd_toEndOf="@id/product_brand_layout"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/product_price_layout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/MyInputTextStyle"
         android:layout_width="0dp"
         android:layout_height="60dp"
         app:layout_constraintHorizontal_weight="2"
         android:layout_marginHorizontal="12dp"
         android:layout_marginTop="32dp"
-        android:hint="Price"
+        android:hint="@string/price"
         app:prefixText="R$"
         app:boxStrokeColor="@color/green_dark"
         app:hintTextColor="@color/green_dark"
@@ -109,7 +97,7 @@
         app:layout_constraintTop_toBottomOf="@id/product_brand_layout">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/product_price"
+            android:id="@+id/productPrice"
             android:imeOptions="actionNext"
             android:singleLine="true"
             android:layout_width="match_parent"
@@ -119,13 +107,13 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/product_quantity_layout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/MyInputTextStyle"
         android:layout_width="0dp"
         android:layout_height="60dp"
         app:layout_constraintHorizontal_weight="1"
         android:layout_marginHorizontal="12dp"
         android:layout_marginTop="32dp"
-        android:hint="Qnt"
+        android:hint="@string/quantity"
         app:boxStrokeColor="@color/green_dark"
         app:hintTextColor="@color/green_dark"
         app:layout_constraintStart_toEndOf="@id/product_price_layout"
@@ -153,11 +141,11 @@
 
         <Button
             android:id="@+id/btn_cancel"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:textColor="@color/green_dark"
-            android:text="CANCEL"/>
+            android:text="@string/cancel"
+            android:textColor="@color/gray" />
 
         <Button
             android:id="@+id/btn_save"
@@ -165,7 +153,7 @@
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:textColor="@color/green_dark"
-            android:text="SAVE"/>
+            android:text="@string/save"/>
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

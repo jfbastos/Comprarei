@@ -2,10 +2,9 @@ package br.com.iesb.comprarei.view.fragments
 
 import android.app.Dialog
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import br.com.iesb.comprarei.R
@@ -23,9 +22,9 @@ class NewProductFragment : BottomSheetDialogFragment() {
     private var _binding: BottomSheetNewProductBinding? = null
     private val binding: BottomSheetNewProductBinding get() = _binding!!
 
-    private var onFormFinish : ((product : Product) -> Unit)? = null
-    private var product : Product? = null
-    private var cartId : String = ""
+    private var onFormFinish: ((product: Product) -> Unit)? = null
+    private var product: Product? = null
+    private var cartId: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,11 +36,11 @@ class NewProductFragment : BottomSheetDialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         arguments?.let {
-            onFormFinish = it.getSerializable(ON_FORM_FINISH_KEY) as? ((product : Product) -> Unit)?
-            if(it.containsKey(CARTID_KEY)){
+            onFormFinish = it.getSerializable(ON_FORM_FINISH_KEY) as? ((product: Product) -> Unit)?
+            if (it.containsKey(CARTID_KEY)) {
                 cartId = it.getString(CARTID_KEY) as String
             }
-            if(it.containsKey(PRODUCT_KEY)){
+            if (it.containsKey(PRODUCT_KEY)) {
                 product = it.getSerializable(PRODUCT_KEY) as Product
             }
         }
@@ -51,25 +50,34 @@ class NewProductFragment : BottomSheetDialogFragment() {
         return super.onCreateDialog(savedInstanceState)
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        dialog!!.setOnKeyListener { dialog, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
+                isCancelable = true
+                dismiss()
+                true
+            } else false
+        }
+
+    }
+
     override fun onStart() {
         super.onStart()
 
-        val dialog = requireView().parent as View
-        dialog.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
 
-        val behavior = BottomSheetBehavior.from(dialog)
+        val behavior = BottomSheetBehavior.from(requireView().parent as View)
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
         behavior.isDraggable = false
         behavior.isHideable = false
         isCancelable = false
 
         binding.btnCancel.setOnClickListener {
-            isCancelable = true
-            behavior.state = BottomSheetBehavior.STATE_HIDDEN
+            dismiss()
         }
 
         product?.let {
-            println("#########${it.id}#########")
             binding.productName.setText(it.name)
             binding.productPrice.setText(it.price.toString())
             binding.productBrand.setText(it.brand)
@@ -79,11 +87,11 @@ class NewProductFragment : BottomSheetDialogFragment() {
 
         binding.btnSave.setOnClickListener {
             if (binding.productName.text.isNullOrEmpty()) {
-                binding.productName.errorAnimation("Name can't be empty")
+                binding.productName.errorAnimation()
             } else if (binding.productPrice.text.isNullOrEmpty() || isZero(binding.productPrice.text.toString())) {
-                binding.productPrice.errorAnimation("Invalid price")
+                binding.productPrice.errorAnimation()
             } else if (binding.productQuantity.text.isNullOrEmpty() || isZero(binding.productQuantity.text.toString())) {
-                binding.productQuantity.errorAnimation("Invalid quantity")
+                binding.productQuantity.errorAnimation()
             } else {
                 onFormFinish?.let {
 
@@ -108,7 +116,7 @@ class NewProductFragment : BottomSheetDialogFragment() {
                     it(product!!)
 
                     isCancelable = true
-                    behavior.state = BottomSheetBehavior.STATE_HIDDEN
+                    dismiss()
                 }
             }
         }
@@ -131,7 +139,10 @@ class NewProductFragment : BottomSheetDialogFragment() {
         private const val PRODUCT_KEY = "Product"
         private const val CARTID_KEY = "CartId"
 
-        fun Fragment.openNewProductBottomSheet(cartId : String,onFormFinish: (product : Product) -> Unit) {
+        fun Fragment.openNewProductBottomSheet(
+            cartId: String,
+            onFormFinish: (product: Product) -> Unit
+        ) {
 
             val bundle = Bundle().apply {
                 putSerializable(ON_FORM_FINISH_KEY, onFormFinish as Serializable)
@@ -143,7 +154,10 @@ class NewProductFragment : BottomSheetDialogFragment() {
             bottomSheetFragment.show(parentFragmentManager, "BOTTOMNEWPRODUCT")
         }
 
-        fun Fragment.openEditProductBottomSheet(product : Product,onFormFinish: (product : Product) -> Unit) {
+        fun Fragment.openEditProductBottomSheet(
+            product: Product,
+            onFormFinish: (product: Product) -> Unit
+        ) {
 
             val bundle = Bundle().apply {
                 putSerializable(ON_FORM_FINISH_KEY, onFormFinish as Serializable)
@@ -155,5 +169,6 @@ class NewProductFragment : BottomSheetDialogFragment() {
             bottomSheetFragment.show(parentFragmentManager, "BOTTOMNEWPRODUCT")
         }
     }
+
 
 }

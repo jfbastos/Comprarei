@@ -17,7 +17,7 @@ class SortBottomSheet : BottomSheetDialogFragment() {
     private var _binding: SortBottomSheetBinding? = null
     private val binding: SortBottomSheetBinding get() = _binding!!
 
-    private var onSelectionFinished: ((String) -> Unit)? = null
+    private var onSelectionFinished: ((Int) -> Unit)? = null
 
     private lateinit var optionsAdapter : BottomSheetAdapter
     private val list : ArrayList<String> = arrayListOf()
@@ -33,7 +33,7 @@ class SortBottomSheet : BottomSheetDialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         arguments?.let {
-            onSelectionFinished = it.getSerializable(ON_SELECTION_KEY) as ((String) -> Unit)?
+            onSelectionFinished = it.getSerializable(ON_SELECTION_KEY) as ((Int) -> Unit)?
             list.addAll(it.getSerializable(ITEMS_KEY) as ArrayList<String>)
         }
         return super.onCreateDialog(savedInstanceState)
@@ -51,6 +51,10 @@ class SortBottomSheet : BottomSheetDialogFragment() {
             onSelectionFinished?.let { it(filter) }
             behavior.state = BottomSheetBehavior.STATE_HIDDEN
         }
+
+        binding.btnCancel.setOnClickListener {
+            behavior.state = BottomSheetBehavior.STATE_HIDDEN
+        }
     }
 
     private fun recyclerViewSetup() {
@@ -64,7 +68,7 @@ class SortBottomSheet : BottomSheetDialogFragment() {
         private const val ITEMS_KEY = "items"
         private const val ON_SELECTION_KEY = "selection"
 
-        fun Fragment.openSortBottomSheetDialog(items : ArrayList<String>, onSelectionFinished: (String) -> Unit) {
+        fun Fragment.openSortBottomSheetDialog(items : ArrayList<String>, onSelectionFinished: (Int) -> Unit) {
 
             val bundle = Bundle().apply {
                 putSerializable(ITEMS_KEY, items)

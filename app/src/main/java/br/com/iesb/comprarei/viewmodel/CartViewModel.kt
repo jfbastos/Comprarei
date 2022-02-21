@@ -1,6 +1,7 @@
 package br.com.iesb.comprarei.viewmodel
 
 import androidx.lifecycle.ViewModel
+import br.com.iesb.comprarei.R
 import br.com.iesb.comprarei.model.Cart
 import br.com.iesb.comprarei.model.CartRepository
 
@@ -16,16 +17,20 @@ class CartViewModel(private val repository: CartRepository) : ViewModel() {
         repository.deleteCart(cart.id)
     }
 
-    fun sortList(option : String, list : List<Cart>) : List<Cart>{
-        when (option) {
-            "Name" -> {
-               return list.sortedBy { it.name }
+    fun updateTotal(total : String, id : String){
+        repository.updateTotal(total, id)
+    }
+
+    fun sortList(option : Int, list : List<Cart>) : List<Cart>{
+        return when (option) {
+            0 -> {
+                list.sortedBy { it.name }
             }
-            "Data" -> {
-                return list.sortedBy { it.data }
+            1 -> {
+                list.sortedBy { it.data }
             }
             else -> {
-                return list
+                list
             }
         }
     }

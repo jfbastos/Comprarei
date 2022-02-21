@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import br.com.iesb.comprarei.databinding.ProductItemBinding
 import br.com.iesb.comprarei.model.Product
+import br.com.iesb.comprarei.util.FormatFrom
 
 class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>(differCallback) {
 
@@ -20,29 +21,24 @@ class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>
         RecyclerView.ViewHolder(binding.root) {
         fun bind(product: Product) {
             binding.productName.text = product.name
-            binding.productQuantity.text = if(product.quantity < 10) "0${product.quantity}" else product.quantity.toString()
-            binding.productValue.text = "R$ ${product.price}"
-            binding.productTotal.text = "R$ ${product.price * product.quantity}"
+            binding.productQuantity.text =
+                if (product.quantity < 10) "0${product.quantity}" else product.quantity.toString()
+            binding.productValue.text = FormatFrom.doubleToMonetary("R$", product.price)
+            binding.productTotal.text =
+                FormatFrom.doubleToMonetary("R$", product.price * product.quantity)
 
-            if (selectionMode) {
-                binding.checkForDelete.visibility = View.VISIBLE
-            } else {
-                binding.checkForDelete.isChecked = false
-                binding.checkForDelete.visibility = View.INVISIBLE
-            }
-
+            checkSelectionMode()
 
             binding.checkForDelete.setOnClickListener {
                 setCheckBox(product)
             }
-
 
             binding.root.apply {
                 this.setOnClickListener {
                     onItemClickListener?.invoke(product, adapterPosition)
                 }
 
-                if(selectionMode){
+                if (selectionMode) {
                     this.setOnClickListener {
                         binding.checkForDelete.isChecked = !binding.checkForDelete.isChecked
                         setCheckBox(product)
@@ -50,9 +46,19 @@ class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>
                 }
 
                 setOnLongClickListener {
-                    clearSelectedItems()
+                    binding.checkForDelete.isChecked = !binding.checkForDelete.isChecked
+                    setCheckBox(product)
                     onLongItemClickListener.invoke(product)
                 }
+            }
+        }
+
+        private fun checkSelectionMode() {
+            if (selectionMode) {
+                binding.checkForDelete.visibility = View.VISIBLE
+            } else {
+                binding.checkForDelete.isChecked = false
+                binding.checkForDelete.visibility = View.INVISIBLE
             }
         }
     }
@@ -64,7 +70,6 @@ class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>
             selectedItems.remove(product)
         }
     }
-
 
     companion object {
         private val differCallback: DiffUtil.ItemCallback<Product> =
@@ -90,15 +95,13 @@ class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>
 
     override fun onBindViewHolder(holder: ProductsViewHolder, position: Int) {
         holder.bind(differ.currentList[position])
-
-
     }
 
     fun getSelectedItems(): List<Product> {
         return selectedItems
     }
 
-    fun clearSelectedItems(){
+    fun clearSelectedItems() {
         selectedItems.clear()
     }
 

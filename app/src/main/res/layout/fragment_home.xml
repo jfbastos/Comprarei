@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,41 +8,28 @@
     tools:context=".view.fragments.HomeFragment">
 
 
-
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
+        style="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:title="@string/app_name"
-        style="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"
         android:background="@color/green_dark"
-        app:titleTextColor="@color/white"
-        app:menu="@menu/menu"/>
+        app:menu="@menu/menu"
+        app:title="@string/app_name"
+        app:titleTextColor="@color/white" />
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white_green">
-
-
-<!--        <include-->
-<!--            android:id="@+id/search_view"-->
-<!--            layout="@layout/search_layout"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:visibility="gone"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="parent" />-->
+        android:layout_height="match_parent">
 
         <SearchView
             android:id="@+id/search_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:iconifiedByDefault="false"
-            android:background="@drawable/search_view_backgroud"
             android:layout_margin="8dp"
+            android:background="@drawable/search_view_background"
+            android:iconifiedByDefault="false"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -51,38 +37,40 @@
 
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/carts_rv"
+            android:id="@+id/cartsRv"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            tools:listitem="@layout/cart_item"
+            android:background="@color/white_green"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toBottomOf="@id/search_view"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:listitem="@layout/cart_item" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/add_cart"
+            android:id="@+id/addCart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="24dp"
             android:src="@drawable/ic_new_list"
-            app:tint="@color/white"
-            android:layout_margin="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@color/white" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/close_selection"
-            android:visibility="gone"
+            android:id="@+id/closeSelection"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_baseline_close_24"
-            app:tint="@color/white"
             android:layout_margin="24dp"
+            android:src="@drawable/ic_baseline_close_24"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@color/white" />
 
         <include
-            android:id="@+id/empty_message"
+            android:id="@+id/emptyMessage_placeholder"
             layout="@layout/empty_list"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -17,7 +17,7 @@
             android:id="@+id/title_bottom_sheet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sort type: "
+            android:text="@string/sort_type"
             android:textSize="16sp"/>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.Button"
             android:layout_below="@id/options_layout_rv"
-            android:text="Cancel"/>
+            android:text="@string/cancel"/>
 
     </RelativeLayout>
 

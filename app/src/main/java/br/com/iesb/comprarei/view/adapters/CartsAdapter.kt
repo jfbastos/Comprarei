@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import br.com.iesb.comprarei.databinding.CartItemBinding
 import br.com.iesb.comprarei.model.Cart
+import br.com.iesb.comprarei.util.FormatFrom
 
 class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallback) {
 
@@ -21,26 +22,25 @@ class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallb
         fun bind(cart: Cart) {
             binding.cartName.text = cart.name
             binding.cartDate.text = cart.data
+            binding.totalCart.text = cart.total
 
             if (selectionMode) {
                 binding.checkForDelete.visibility = View.VISIBLE
             } else {
                 binding.checkForDelete.isChecked = false
-                binding.checkForDelete.visibility = View.GONE
+                binding.checkForDelete.visibility = View.INVISIBLE
             }
-
 
             binding.checkForDelete.setOnClickListener {
                 setCheckBox(cart)
             }
-
 
             binding.root.apply {
                 this.setOnClickListener {
                     onItemClickListener?.invoke(cart)
                 }
 
-                if(selectionMode){
+                if (selectionMode) {
                     this.setOnClickListener {
                         binding.checkForDelete.isChecked = !binding.checkForDelete.isChecked
                         setCheckBox(cart)
@@ -48,7 +48,8 @@ class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallb
                 }
 
                 setOnLongClickListener {
-                    clearSelectedItems()
+                    binding.checkForDelete.isChecked = !binding.checkForDelete.isChecked
+                    setCheckBox(cart)
                     onLongItemClickListener.invoke(cart)
                 }
             }
@@ -62,7 +63,6 @@ class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallb
             selectedItems.remove(cart)
         }
     }
-
 
     companion object {
         private val differCallback: DiffUtil.ItemCallback<Cart> =
@@ -88,15 +88,13 @@ class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallb
 
     override fun onBindViewHolder(holder: CartsViewHolder, position: Int) {
         holder.bind(differ.currentList[position])
-
-
     }
 
     fun getSelectedItems(): List<Cart> {
         return selectedItems
     }
 
-    fun clearSelectedItems(){
+    fun clearSelectedItems() {
         selectedItems.clear()
     }
 

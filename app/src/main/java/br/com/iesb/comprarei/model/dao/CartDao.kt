@@ -18,5 +18,8 @@ interface CartDao {
     @Query("DELETE FROM carts WHERE id = :id")
     fun delete(id : String)
 
+    @Query("UPDATE carts SET total = :total WHERE id = :id")
+    fun updateTotal(total : String, id : String)
+
 
 }

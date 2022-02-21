@@ -1,32 +1,38 @@
 package br.com.iesb.comprarei.model
 
 import androidx.lifecycle.LiveData
-import br.com.iesb.comprarei.MyApplication
+import br.com.iesb.comprarei.model.dao.CartDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
 
-class CartRepository {
+class CartRepository(private val cartDao : CartDao) {
 
     fun getCarts(): LiveData<List<Cart>> {
-        return MyApplication.database!!.CartDao().carts
+        return cartDao.carts
     }
 
     fun saveCart(name : String, data : String){
         val id = UUID.randomUUID().toString()
-        val cart = Cart(id, name, data)
+        val cart = Cart(id, name, data, "R$ 0,00")
         CoroutineScope(Dispatchers.Main).launch {
             withContext(Dispatchers.Default){
-                MyApplication.database!!.CartDao().insertCart(cart)
+                cartDao.insertCart(cart)
             }
         }
     }
 
     fun deleteCart(cartId : String){
         CoroutineScope(Dispatchers.IO).launch {
-            MyApplication.database!!.CartDao().delete(cartId)
+            cartDao.delete(cartId)
+        }
+    }
+
+    fun updateTotal(total : String, id: String){
+        CoroutineScope(Dispatchers.IO).launch {
+            cartDao.updateTotal(total, id)
         }
     }
 

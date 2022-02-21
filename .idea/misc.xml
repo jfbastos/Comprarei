@@ -3,22 +3,30 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/drawable-v24/ic_launcher_comprarei.xml" value="0.2585" />
+        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.21875" />
+        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/drawable/calendar_background.xml" value="0.203" />
+        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/drawable/ic_search_24.xml" value="0.3135" />
         <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/drawable/new_product_bottom_sheet_confirmation_background.xml" value="0.37864583333333335" />
         <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/drawable/search_view_backgroud.xml" value="0.32407407407407407" />
+        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/drawable/search_view_background.xml" value="0.1475" />
+        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/drawable/splash_icon.xml" value="0.2195" />
         <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/bottom_sheet_fragment_new_product.xml" value="0.29814814814814816" />
         <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/bottom_sheet_item_rv.xml" value="0.29814814814814816" />
-        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/bottom_sheet_new_product.xml" value="0.5" />
+        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/bottom_sheet_new_product.xml" value="0.3625" />
         <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/cart_item.xml" value="0.3625" />
+        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/date_picker.xml" value="0.3037037037037037" />
         <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/empty_list.xml" value="0.3625" />
-        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/fragment_home.xml" value="0.13202247191011235" />
-        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/fragment_new_cart.xml" value="0.5" />
+        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/fragment_home.xml" value="0.33" />
+        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/fragment_new_cart.xml" value="0.3159420289855073" />
         <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/fragment_new_product.xml" value="0.5" />
-        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/fragment_products.xml" value="0.3388888888888889" />
-        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/product_item.xml" value="0.5" />
+        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/fragment_products.xml" value="0.33" />
+        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/product_item.xml" value="0.29375" />
         <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/search_layout.xml" value="0.15210355987055016" />
         <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/layout/sort_bottom_sheet.xml" value="0.3625" />
         <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/menu/menu.xml" value="0.3625" />
+        <entry key="..\:/Users/jfbas/AndroidStudioProjects/Comprarei/app/src/main/res/mipmap-anydpi-v26/ic_launcher_comprarei.xml" value="0.2585" />
       </map>
     </option>
   </component>

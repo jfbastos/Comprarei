@@ -7,15 +7,6 @@ import java.util.*
 
 object FormatFrom {
 
-    fun stringToData(date : Date) : String{
-        return try {
-            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR"))
-            sdf.format(date)
-        }catch (e : Exception){
-            return "No date"
-        }
-    }
-
     fun stringToDouble(value : String) : Double{
         return try{
             value.toDouble()
@@ -30,6 +21,10 @@ object FormatFrom {
         }catch (e : Exception){
             0
         }
+    }
+
+    fun doubleToMonetary(currency : String, value : Double) : String{
+        return "$currency ${String.format("%.2f",value)}"
     }
 
 }

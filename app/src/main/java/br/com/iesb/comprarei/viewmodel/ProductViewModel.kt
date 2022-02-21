@@ -11,16 +11,14 @@ import kotlinx.coroutines.launch
 
 class ProductViewModel(private val cartRepository: ProductRepository) : ViewModel() {
 
-    private val _productsLiveData = MutableLiveData<List<Product>>()
-    val productsLiveData : LiveData<List<Product>> get() = _productsLiveData
+    //private val listOfProducts = MutableLiveData<List<Product>>()
+    lateinit var productsLiveData: LiveData<List<Product>>
 
     fun getProducts(cartId: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            _productsLiveData.postValue(cartRepository.getProducts(cartId))
-        }
+         productsLiveData = cartRepository.getProducts(cartId)
     }
 
-    fun updateProduct(product : Product){
+    fun updateProduct(product: Product) {
         cartRepository.updateProduct(product)
     }
 
@@ -33,19 +31,19 @@ class ProductViewModel(private val cartRepository: ProductRepository) : ViewMode
         cartRepository.deleteProduct(product.id)
     }
 
-    fun sortList(option: String, list: List<Product>): List<Product> {
-        when (option) {
-            "Name" -> {
-                return list.sortedBy { it.name }
+    fun sortList(option: Int, list: List<Product>): List<Product> {
+        return when (option) {
+            0 -> {
+                list.sortedBy { it.name }
             }
-            "Price" -> {
-                return list.sortedBy { it.price }
+            1 -> {
+                list.sortedBy { it.price }
             }
-            "Total" -> {
-                return list.sortedBy { (it.price * it.quantity) }
+            2 -> {
+                list.sortedBy { (it.price * it.quantity) }
             }
             else -> {
-                return list
+                list
             }
         }
     }
