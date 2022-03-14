@@ -1,5 +1,6 @@
 package br.com.iesb.comprarei.view.adapters
 
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.iesb.comprarei.databinding.ProductItemBinding
 import br.com.iesb.comprarei.model.Product
 import br.com.iesb.comprarei.util.FormatFrom
+import br.com.iesb.comprarei.util.setVisibility
 
 class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>(differCallback) {
 
@@ -21,11 +23,24 @@ class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>
         RecyclerView.ViewHolder(binding.root) {
         fun bind(product: Product) {
             binding.productName.text = product.name
-            binding.productQuantity.text =
-                if (product.quantity < 10) "0${product.quantity}" else product.quantity.toString()
-            binding.productValue.text = FormatFrom.doubleToMonetary("R$", product.price)
-            binding.productTotal.text =
-                FormatFrom.doubleToMonetary("R$", product.price * product.quantity)
+
+            if(product.quantity == 0 ){
+                binding.productQuantity.visibility = View.INVISIBLE
+            }else{
+                binding.productQuantity.text =
+                    if (product.quantity < 10) "0${product.quantity}" else product.quantity.toString()
+            }
+
+            if(product.price == 0.0){
+                binding.productTotal.visibility = View.INVISIBLE
+                binding.productValue.visibility = View.INVISIBLE
+                binding.xText.visibility = View.INVISIBLE
+            }else{
+                binding.productValue.text = FormatFrom.doubleToMonetary("R$", product.price)
+                binding.productTotal.text =
+                    FormatFrom.doubleToMonetary("R$", product.price * product.quantity)
+            }
+
 
             checkSelectionMode()
 

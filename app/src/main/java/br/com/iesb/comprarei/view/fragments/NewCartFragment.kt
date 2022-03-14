@@ -3,7 +3,6 @@ package br.com.iesb.comprarei.view.fragments
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
-import br.com.iesb.comprarei.R
 import br.com.iesb.comprarei.databinding.FragmentNewCartBinding
 import br.com.iesb.comprarei.util.Validator
 import br.com.iesb.comprarei.util.errorAnimation

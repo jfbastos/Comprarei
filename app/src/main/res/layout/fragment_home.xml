@@ -28,9 +28,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:background="@drawable/search_view_background"
             android:iconifiedByDefault="false"
             android:visibility="gone"
+            android:background="@drawable/search_view_background"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -40,7 +40,6 @@
             android:id="@+id/cartsRv"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@color/white_green"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toBottomOf="@id/search_view"
             app:layout_constraintBottom_toBottomOf="parent"

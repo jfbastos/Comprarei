@@ -1,13 +1,15 @@
 package br.com.iesb.comprarei.view.fragments
 
 import android.app.AlertDialog
-import android.graphics.Color
+import android.graphics.Canvas
 import android.os.Bundle
 import android.view.*
 import android.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import br.com.iesb.comprarei.R
 import br.com.iesb.comprarei.databinding.FragmentHomeBinding
 import br.com.iesb.comprarei.model.Cart
@@ -23,6 +25,9 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class HomeFragment : Fragment() {
 
+
+    private val NEW_CART_KEY = "NewCart"
+
     private var _binding: FragmentHomeBinding? = null
     private val binding: FragmentHomeBinding get() = _binding!!
     private lateinit var cartsAdapter: CartsAdapter
@@ -37,7 +42,6 @@ class HomeFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-
     }
 
 
@@ -62,6 +66,8 @@ class HomeFragment : Fragment() {
 
         doSearch()
 
+        swipeToRemove()
+
         cartsAdapter.setOnItemClickListener { cart ->
             goToProduct(cart)
         }
@@ -76,12 +82,66 @@ class HomeFragment : Fragment() {
         }
 
         binding.addCart.setOnClickListener {
-            NewCartFragment().show(parentFragmentManager, "NewCart")
+            NewCartFragment().show(parentFragmentManager, NEW_CART_KEY)
         }
 
         viewModel.listOfCarts.observe(viewLifecycleOwner) { carts ->
             showCartsItems(carts)
         }
+    }
+
+    private fun swipeToRemove() {
+        ItemTouchHelper(object :
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ) = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val cart = cartsAdapter.differ.currentList[position]
+                deleteOneItem(cart)
+                cartsAdapter.notifyItemChanged(position)
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                super.onChildDraw(
+                    c,
+                    recyclerView,
+                    viewHolder,
+                    dX / 4,
+                    dY,
+                    actionState,
+                    isCurrentlyActive
+                )
+            }
+        }).apply {
+            attachToRecyclerView(binding.cartsRv)
+        }
+    }
+
+    fun deleteOneItem(cart: Cart) {
+        AlertDialog.Builder(context)
+            .setTitle(getString(R.string.title_confirmation))
+            .setMessage(getString(R.string.message_confirmation) + cart.name + "?")
+            .setIcon(R.drawable.ic_info_24)
+            .setPositiveButton(getString(R.string.positive_confirmation)) { _, _ ->
+                viewModel.deleteCart(cart)
+            }
+            .setNegativeButton(getString(R.string.negative_confirmation)) { _, _ ->
+
+            }
+            .show()
     }
 
     private fun doSearch() {
@@ -163,13 +223,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun goToProduct(cart: Cart) {
-        val args = Bundle()
+        arguments = Bundle().apply {
+            putString("cartName", cart.name)
+            putString("cartId", cart.id)
+        }
 
-        args.putString("cartName", cart.name)
-        args.putString("cartId", cart.id)
-        arguments = args
-
-        findNavController().navigate(R.id.action_homeFragment_to_productsFragment, args)
+        findNavController().navigate(R.id.action_homeFragment_to_productsFragment, arguments)
     }
 
     private fun showEmptyMessage(visibility: Boolean) {

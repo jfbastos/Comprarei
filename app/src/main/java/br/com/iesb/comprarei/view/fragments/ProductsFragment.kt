@@ -2,6 +2,7 @@ package br.com.iesb.comprarei.view.fragments
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Canvas
 import android.os.Bundle
 import android.view.*
 import android.widget.SearchView
@@ -9,6 +10,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import br.com.iesb.comprarei.R
 import br.com.iesb.comprarei.databinding.FragmentProductsBinding
 import br.com.iesb.comprarei.model.Product
@@ -31,14 +34,12 @@ class ProductsFragment : Fragment() {
     private var _binding: FragmentProductsBinding? = null
     private val binding: FragmentProductsBinding get() = _binding!!
 
-
     private lateinit var deleteMenu: MenuItem
     private lateinit var sortMenu: MenuItem
     private lateinit var searchMenu: MenuItem
     private lateinit var shareMenu: MenuItem
     private var originalList: List<Product> = listOf()
     private lateinit var productsAdapter: ProductsAdapter
-
 
     private val viewModelProduct: ProductViewModel by viewModel()
 
@@ -65,9 +66,11 @@ class ProductsFragment : Fragment() {
 
         setItemsSelectable()
 
-        deleteItems(cartId)
+        deleteItems()
 
         doSearch()
+
+        swipeToRemove()
 
         viewModelProduct.getProducts(cartId)
 
@@ -79,15 +82,14 @@ class ProductsFragment : Fragment() {
         }
 
         viewModelProduct.productsLiveData.observe(viewLifecycleOwner) { products ->
+            shareMenu.isVisible = products.isNotEmpty()
             productsAdapter.differ.submitList(products)
             fillSummary(products, cartId)
             showProductsList(products)
         }
 
         shareMenu.setOnMenuItemClickListener {
-
             share(cartName)
-
             return@setOnMenuItemClickListener true
         }
 
@@ -108,8 +110,48 @@ class ProductsFragment : Fragment() {
         }
     }
 
+    private fun swipeToRemove() {
+        ItemTouchHelper(object :
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ) = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val product = productsAdapter.differ.currentList[position]
+                productsAdapter.notifyItemChanged(position)
+                deleteOneItem(product)
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                super.onChildDraw(
+                    c,
+                    recyclerView,
+                    viewHolder,
+                    dX / 4,
+                    dY,
+                    actionState,
+                    isCurrentlyActive
+                )
+            }
+        }).apply {
+            attachToRecyclerView(binding.productsRv)
+        }
+    }
+
     private fun share(cartName: String?) {
-        val sendIntent: Intent = Intent().apply {
+        val sendIntent = Intent().apply {
             action = Intent.ACTION_SEND
             putExtra(Intent.EXTRA_TEXT, createShareText(cartName).toString())
             type = "text/plain"
@@ -139,7 +181,7 @@ class ProductsFragment : Fragment() {
         return text
     }
 
-    private fun fillSummary(products: List<Product>, id : String) {
+    private fun fillSummary(products: List<Product>, id: String) {
         var totalCart = 0.0
         binding.totalQuantity.text = products.size.toString()
         products.forEach { product ->
@@ -190,9 +232,9 @@ class ProductsFragment : Fragment() {
         }
     }
 
-    private fun deleteItems(id : String) {
+    private fun deleteItems() {
         deleteMenu.setOnMenuItemClickListener {
-            deleteSelectedItems(id)
+            deleteSelectedItems()
             return@setOnMenuItemClickListener true
         }
     }
@@ -225,14 +267,19 @@ class ProductsFragment : Fragment() {
         binding.productsRv.adapter = productsAdapter
     }
 
-
     private fun showEmptyMessage(visibility: Boolean) {
         binding.productsRv.setVisibility(!visibility)
     }
 
     private fun sortList() {
-        val options = arrayListOf(getString(R.string.product_sort_name), getString(R.string.product_sort_price), getString(
-                    R.string.product_sort_total), "Original")
+        val options = arrayListOf(
+            getString(R.string.product_sort_name),
+            getString(R.string.product_sort_price),
+            getString(
+                R.string.product_sort_total
+            ),
+            "Original"
+        )
         openSortBottomSheetDialog(options) { option ->
             productsAdapter.differ.submitList(viewModelProduct.sortList(option, originalList))
         }
@@ -246,33 +293,27 @@ class ProductsFragment : Fragment() {
         deleteMenu.toggleVisibility()
     }
 
-    private fun deleteSelectedItems(id : String) {
-        val actualList = productsAdapter.differ.currentList.toMutableList()
+    private fun deleteSelectedItems() {
         val deleteQuantity = productsAdapter.getSelectedItems().size
         if (deleteQuantity != 0) {
-            confirmDeletion(deleteQuantity, actualList, id)
+            confirmDeletion(deleteQuantity)
         }
     }
 
-    private fun confirmDeletion(
-        deleteQuantity: Int,
-        actualList: MutableList<Product>,
-        id : String
-    ) {
+    private fun confirmDeletion(deleteQuantity: Int) {
         AlertDialog.Builder(context)
             .setTitle(getString(R.string.title_confirmation))
-            .setMessage(getString(R.string.message_confirmation) + deleteQuantity + " " + if (deleteQuantity == 1) getString(
-                R.string.single_item_confirmation) else getString(R.string.multiple_items_confirmation) + "?")
+            .setMessage(
+                getString(R.string.message_confirmation) + deleteQuantity + " " + if (deleteQuantity == 1) getString(
+                    R.string.single_item_confirmation
+                ) else getString(R.string.multiple_items_confirmation) + "?"
+            )
             .setIcon(R.drawable.ic_info_24)
             .setPositiveButton(getString(R.string.positive_confirmation)) { _, _ ->
                 productsAdapter.getSelectedItems().forEach { product ->
                     viewModelProduct.deleteProduct(product)
-                    productsAdapter.notifyItemRemoved(actualList.indexOf(product))
-                    actualList.remove(product)
                 }
                 changeSelectState()
-                productsAdapter.differ.submitList(actualList)
-                fillSummary(actualList, id)
             }
             .setNegativeButton(getString(R.string.negative_confirmation)) { _, _ ->
                 changeSelectState()
@@ -298,7 +339,7 @@ class ProductsFragment : Fragment() {
 
         requireView().isFocusableInTouchMode = true
         requireView().requestFocus()
-        requireView().setOnKeyListener { v, keyCode, event ->
+        requireView().setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
                 when {
                     productsAdapter.selectionMode -> {
@@ -329,4 +370,17 @@ class ProductsFragment : Fragment() {
             }
         }
     }
+
+    fun deleteOneItem(product: Product) {
+        AlertDialog.Builder(context)
+            .setTitle(getString(R.string.title_confirmation))
+            .setMessage(getString(R.string.message_confirmation) + product.name + "?")
+            .setIcon(R.drawable.ic_info_24)
+            .setPositiveButton(getString(R.string.positive_confirmation)) { _, _ ->
+                viewModelProduct.deleteProduct(product)
+            }
+            .setNegativeButton(getString(R.string.negative_confirmation)) { _, _ ->}
+            .show()
+    }
+
 }

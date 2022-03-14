@@ -2,9 +2,10 @@ package br.com.iesb.comprarei.view.fragments
 
 import android.app.Dialog
 import android.os.Bundle
-import android.view.*
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatDelegate
+import android.view.KeyEvent
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import br.com.iesb.comprarei.R
@@ -17,7 +18,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.io.Serializable
 
 class NewProductFragment : BottomSheetDialogFragment() {
-
 
     private var _binding: BottomSheetNewProductBinding? = null
     private val binding: BottomSheetNewProductBinding get() = _binding!!
@@ -88,45 +88,66 @@ class NewProductFragment : BottomSheetDialogFragment() {
         binding.btnSave.setOnClickListener {
             if (binding.productName.text.isNullOrEmpty()) {
                 binding.productName.errorAnimation()
-            } else if (binding.productPrice.text.isNullOrEmpty() || isZero(binding.productPrice.text.toString())) {
+            } else if (isLessThenZero(binding.productPrice.text.toString())) {
                 binding.productPrice.errorAnimation()
-            } else if (binding.productQuantity.text.isNullOrEmpty() || isZero(binding.productQuantity.text.toString())) {
+            } else if (isLessThenZero(binding.productQuantity.text.toString())) {
                 binding.productQuantity.errorAnimation()
             } else {
                 onFormFinish?.let {
-
                     product?.let { product ->
-                        product.name = binding.productName.text.toString()
-                        product.brand = binding.productBrand.text.toString()
-                        product.price =
-                            FormatFrom.stringToDouble(binding.productPrice.text.toString())
-                        product.quantity =
-                            FormatFrom.stringToInt(binding.productQuantity.text.toString())
+                        if (binding.productPrice.text.toString().ifBlank { "0.0" }.toDouble() != 0.0 && binding.productQuantity.text.toString().ifBlank { "0" }.toInt() == 0) {
+                            binding.productQuantity.errorAnimation()
+                        } else if (binding.productPrice.text.toString().ifBlank { "0.0" }.toDouble() == 0.0 &&  binding.productQuantity.text.toString().ifBlank { "0" }.toInt() != 0) {
+                            binding.productPrice.errorAnimation()
+                        } else {
+                            product.name = binding.productName.text.toString()
+                            product.brand = binding.productBrand.text.toString()
+                            product.price =
+                                FormatFrom.stringToDouble(binding.productPrice.text.toString())
+                            product.quantity =
+                                FormatFrom.stringToInt(binding.productQuantity.text.toString())
 
+                            it(product)
+
+                            isCancelable = true
+                            dismiss()
+                        }
                     } ?: run {
-                        product = Product(
-                            binding.productName.text.toString(),
-                            binding.productBrand.text.toString(),
-                            FormatFrom.stringToDouble(binding.productPrice.text.toString()),
-                            FormatFrom.stringToInt(binding.productQuantity.text.toString()),
-                            cartId
-                        )
+                        if (binding.productPrice.text.toString().ifBlank { "0.0" }.toDouble() != 0.0 && binding.productQuantity.text.toString().ifBlank { "0" }.toInt() == 0) {
+                            binding.productQuantity.errorAnimation()
+                        } else if (binding.productPrice.text.toString().ifBlank { "0.0" }.toDouble() == 0.0 &&  binding.productQuantity.text.toString().ifBlank { "0" }.toInt() != 0) {
+                            binding.productPrice.errorAnimation()
+                        } else {
+                            it(
+                                Product(
+                                    binding.productName.text.toString(),
+                                    binding.productBrand.text.toString(),
+                                    FormatFrom.stringToDouble(
+                                        binding.productPrice.text.toString().ifBlank { "0.0" }),
+                                    FormatFrom.stringToInt(
+                                        binding.productQuantity.text.toString().ifBlank { "0" }),
+                                    cartId
+                                )
+                            )
+                            isCancelable = true
+                            dismiss()
+                        }
                     }
-
-                    it(product!!)
-
-                    isCancelable = true
-                    dismiss()
                 }
             }
         }
     }
 
-    private fun isZero(text: String): Boolean {
+    private fun isLessThenZero(text: String): Boolean {
         try {
-            val value = text.toDouble()
-            if (value <= 0) {
-                return true
+            if (text.isEmpty()) {
+                return false
+            } else {
+                val value = text.toDouble()
+
+                if (value < 0) {
+                    return true
+                }
             }
             return false
         } catch (e: Exception) {

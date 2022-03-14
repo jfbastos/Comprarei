@@ -5,7 +5,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
-import android.widget.DatePicker
 import br.com.iesb.comprarei.R
 import com.google.android.material.textfield.TextInputEditText
 
@@ -14,8 +13,8 @@ fun TextInputEditText.errorAnimation(){
     this.startAnimation(error)
 }
 
-fun View.setVisibility(visibiliy : Boolean){
-    if(visibiliy){
+fun View.setVisibility(visibility : Boolean){
+    if(visibility){
         this.visibility = View.VISIBLE
     }else{
         this.visibility = View.GONE
