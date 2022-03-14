@@ -31,5 +31,6 @@ O app ainda está em fase de desenvolvimento e irá para a Playstore logo mais! 
 - Arquitetura MVVM
 - Listas performáticas utilizando RecyclerViewer e DiffUtil
 - Interface utilizando material design
+- Injeção de dependência com Koin
 
 
