@@ -20,9 +20,9 @@ O app ainda está em fase de desenvolvimento e irá para a Playstore logo mais! 
 - :heavy_check_mark: Adicionar produtos informando nome, marca(opcional), preço e quantidade;
 - :heavy_check_mark: Calcular o total da compra e a quantidade de itens;
 - :heavy_check_mark: Compartilhar a compra como texto via share nativo;
-- :construction: "tickar" os itens já comprados assim tendo uma relação do que falta e o que já comprou;
+- :heavy_check_mark: Tema dark.
 - :construction: Login com conta google para armazenamento em nuvem das listas;
-- :construction: Tema dark.
+
 
 ### Tecnologias utilizadas
 
