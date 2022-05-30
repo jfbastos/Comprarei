@@ -78,6 +78,7 @@ class NewProductFragment : BottomSheetDialogFragment() {
         }
 
         product?.let {
+            binding.dialogTitle.text = it.name
             binding.productName.setText(it.name)
             binding.productPrice.setText(it.price.toString())
             binding.productBrand.setText(it.brand)
@@ -95,9 +96,15 @@ class NewProductFragment : BottomSheetDialogFragment() {
             } else {
                 onFormFinish?.let {
                     product?.let { product ->
-                        if (binding.productPrice.text.toString().ifBlank { "0.0" }.toDouble() != 0.0 && binding.productQuantity.text.toString().ifBlank { "0" }.toInt() == 0) {
+                        if (binding.productPrice.text.toString().ifBlank { "0.0" }
+                                .toDouble() != 0.0 && binding.productQuantity.text.toString()
+                                .ifBlank { "0" }.toInt() == 0
+                        ) {
                             binding.productQuantity.errorAnimation()
-                        } else if (binding.productPrice.text.toString().ifBlank { "0.0" }.toDouble() == 0.0 &&  binding.productQuantity.text.toString().ifBlank { "0" }.toInt() != 0) {
+                        } else if (binding.productPrice.text.toString().ifBlank { "0.0" }
+                                .toDouble() == 0.0 && binding.productQuantity.text.toString()
+                                .ifBlank { "0" }.toInt() != 0
+                        ) {
                             binding.productPrice.errorAnimation()
                         } else {
                             product.name = binding.productName.text.toString()
@@ -113,9 +120,15 @@ class NewProductFragment : BottomSheetDialogFragment() {
                             dismiss()
                         }
                     } ?: run {
-                        if (binding.productPrice.text.toString().ifBlank { "0.0" }.toDouble() != 0.0 && binding.productQuantity.text.toString().ifBlank { "0" }.toInt() == 0) {
+                        if (binding.productPrice.text.toString().ifBlank { "0.0" }
+                                .toDouble() != 0.0 && binding.productQuantity.text.toString()
+                                .ifBlank { "0" }.toInt() == 0
+                        ) {
                             binding.productQuantity.errorAnimation()
-                        } else if (binding.productPrice.text.toString().ifBlank { "0.0" }.toDouble() == 0.0 &&  binding.productQuantity.text.toString().ifBlank { "0" }.toInt() != 0) {
+                        } else if (binding.productPrice.text.toString().ifBlank { "0.0" }
+                                .toDouble() == 0.0 && binding.productQuantity.text.toString()
+                                .ifBlank { "0" }.toInt() != 0
+                        ) {
                             binding.productPrice.errorAnimation()
                         } else {
                             it(

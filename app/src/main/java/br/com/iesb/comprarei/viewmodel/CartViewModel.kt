@@ -1,24 +1,38 @@
 package br.com.iesb.comprarei.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import br.com.iesb.comprarei.R
 import br.com.iesb.comprarei.model.Cart
 import br.com.iesb.comprarei.model.CartRepository
+import br.com.iesb.comprarei.model.ProductRepository
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class CartViewModel(private val repository: CartRepository) : ViewModel() {
+class CartViewModel(private val repository: CartRepository, private val productsRepository: ProductRepository) : ViewModel() {
 
     val listOfCarts = repository.getCarts()
 
-    fun saveCart(name : String, date : String){
-        repository.saveCart(name, date)
+    fun saveCart(name : String, date : String) {
+        viewModelScope.launch {
+            repository.saveCart(name, date)
+        }
+
     }
 
     fun deleteCart(cart : Cart){
-        repository.deleteCart(cart.id)
+        viewModelScope.launch{
+            repository.deleteCart(cart.id)
+            productsRepository.deleteProducts(cart.id)
+        }
+
     }
 
     fun updateTotal(total : String, id : String){
-        repository.updateTotal(total, id)
+        viewModelScope.launch {
+            repository.updateTotal(total, id)
+        }
+
     }
 
     fun sortList(option : Int, list : List<Cart>) : List<Cart>{

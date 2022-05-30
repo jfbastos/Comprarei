@@ -17,6 +17,9 @@ interface ProductDao {
     @Query("DELETE FROM products WHERE id = :id")
     fun delete(id : Int)
 
+    @Query("DELETE FROM products WHERE cartId = :cartId")
+    fun deleteProductsFromCart(cartId : String)
+
     @Update
     fun updateProduct(product : Product)
 

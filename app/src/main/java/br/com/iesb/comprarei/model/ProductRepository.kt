@@ -1,31 +1,21 @@
 package br.com.iesb.comprarei.model
 
 import androidx.lifecycle.LiveData
+import br.com.iesb.comprarei.di.dispachersModule
 import br.com.iesb.comprarei.model.dao.ProductDao
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
-class ProductRepository(private val productDao : ProductDao) {
+class ProductRepository(private val productDao : ProductDao, private val dispacher : CoroutineDispatcher) {
 
     fun getProducts(cartId : String) : LiveData<List<Product>> = productDao.getProducts(cartId)
 
-    fun saveProduct(product: Product){
-        CoroutineScope(Dispatchers.IO).launch {
-            productDao.insertProduct(product)
-        }
-    }
+    suspend fun saveProduct(product: Product) = withContext(dispacher) {  productDao.insertProduct(product) }
 
-    fun updateProduct(product : Product){
-        CoroutineScope(Dispatchers.IO).launch {
-            productDao.updateProduct(product)
-        }
-    }
+    suspend fun updateProduct(product : Product) = withContext(dispacher) { productDao.updateProduct(product) }
 
-    fun deleteProduct(id : Int) {
-        CoroutineScope(Dispatchers.IO).launch {
-            productDao.delete(id)
-        }
-    }
+    suspend fun deleteProducts(cartId : String) = withContext(dispacher) { productDao.deleteProductsFromCart(cartId) }
+
+    suspend fun deleteProduct(id : Int) = withContext(dispacher) { productDao.delete(id) }
+
 
 }

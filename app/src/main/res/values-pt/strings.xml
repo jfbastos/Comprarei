@@ -26,7 +26,7 @@
     <string name="save">Salvar</string>
     <string name="empty_list_message">Ops, nada aqui, ainda…</string>
     <string name="new_cart">Nova Compra</string>
-    <string name="date_dd_mm_yyyy">Data (dd/mm/yyyy)</string>
+    <string name="date_dd_mm_yyyy">Data (dd/mm/aaaa)</string>
     <string name="product">Produto</string>
     <string name="sort_type">Ordenar por:</string>
     <string name="search">pesquisa</string>

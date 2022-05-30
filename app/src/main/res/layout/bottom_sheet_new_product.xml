@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/new_product_bottom_sheet_confirmation_background"
         app:layout_constraintTop_toTopOf="parent"
+        android:backgroundTint="@color/green_dark"
         app:layout_constraintStart_toStartOf="parent">
 
         <TextView
@@ -20,7 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/new_product"
-            android:textColor="@color/green_dark"
+            android:textColor="@color/white"
             android:textSize="24sp"
             android:layout_margin="12dp"/>
 
