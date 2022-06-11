@@ -122,8 +122,9 @@ class ProductsFragment : Fragment() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
                 val product = productsAdapter.differ.currentList[position]
+                product.done = !product.done
                 productsAdapter.notifyItemChanged(position)
-                deleteOneItem(product)
+                //deleteOneItem(product)
             }
 
             override fun onChildDraw(

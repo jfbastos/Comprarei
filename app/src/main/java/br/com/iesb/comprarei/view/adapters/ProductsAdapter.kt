@@ -41,6 +41,10 @@ class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>
                     FormatFrom.doubleToMonetary("R$", product.price * product.quantity)
             }
 
+            if(product.done){
+                binding.productName.paintFlags = binding.productName.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            }
+
 
             checkSelectionMode()
 
