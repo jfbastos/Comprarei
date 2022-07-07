@@ -60,12 +60,10 @@ class NewProductFragment : BottomSheetDialogFragment() {
                 true
             } else false
         }
-
     }
 
     override fun onStart() {
         super.onStart()
-
 
         val behavior = BottomSheetBehavior.from(requireView().parent as View)
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -101,12 +99,7 @@ class NewProductFragment : BottomSheetDialogFragment() {
                                 .ifBlank { "0" }.toInt() == 0
                         ) {
                             binding.productQuantity.errorAnimation()
-                        } else if (binding.productPrice.text.toString().ifBlank { "0.0" }
-                                .toDouble() == 0.0 && binding.productQuantity.text.toString()
-                                .ifBlank { "0" }.toInt() != 0
-                        ) {
-                            binding.productPrice.errorAnimation()
-                        } else {
+                        }  else {
                             product.name = binding.productName.text.toString()
                             product.brand = binding.productBrand.text.toString()
                             product.price =
@@ -125,11 +118,6 @@ class NewProductFragment : BottomSheetDialogFragment() {
                                 .ifBlank { "0" }.toInt() == 0
                         ) {
                             binding.productQuantity.errorAnimation()
-                        } else if (binding.productPrice.text.toString().ifBlank { "0.0" }
-                                .toDouble() == 0.0 && binding.productQuantity.text.toString()
-                                .ifBlank { "0" }.toInt() != 0
-                        ) {
-                            binding.productPrice.errorAnimation()
                         } else {
                             it(
                                 Product(
@@ -138,7 +126,7 @@ class NewProductFragment : BottomSheetDialogFragment() {
                                     FormatFrom.stringToDouble(
                                         binding.productPrice.text.toString().ifBlank { "0.0" }),
                                     FormatFrom.stringToInt(
-                                        binding.productQuantity.text.toString().ifBlank { "0" }),
+                                        binding.productQuantity.text.toString().ifBlank { "1" }),
                                     cartId
                                 )
                             )

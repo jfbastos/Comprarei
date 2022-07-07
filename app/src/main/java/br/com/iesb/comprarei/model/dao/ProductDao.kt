@@ -23,4 +23,7 @@ interface ProductDao {
     @Update
     fun updateProduct(product : Product)
 
+    @Query("UPDATE products SET done=:isDone WHERE id = :id")
+    fun updateDone(isDone : Boolean, id : Int)
+
 }

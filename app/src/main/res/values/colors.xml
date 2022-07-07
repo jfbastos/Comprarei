@@ -11,4 +11,5 @@
     <color name="green_dark">#003800</color>
     <color name="gray">#7A807B</color>
     <color name="dark_gray">#333333</color>
+    <color name="delete_red">#BF0000</color>
 </resources>

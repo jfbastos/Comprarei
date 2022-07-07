@@ -1,43 +1,46 @@
 package br.com.iesb.comprarei.viewmodel
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.iesb.comprarei.model.Product
 import br.com.iesb.comprarei.model.ProductRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ProductViewModel(private val cartRepository: ProductRepository) : ViewModel() {
+class ProductViewModel(private val productRepository: ProductRepository) : ViewModel() {
 
     //private val listOfProducts = MutableLiveData<List<Product>>()
     lateinit var productsLiveData: LiveData<List<Product>>
 
     fun getProducts(cartId: String) {
         viewModelScope.launch {
-            productsLiveData = cartRepository.getProducts(cartId)
+            productsLiveData = productRepository.getProducts(cartId)
         }
 
     }
 
     fun updateProduct(product: Product) {
         viewModelScope.launch {
-            cartRepository.updateProduct(product)
+            productRepository.updateProduct(product)
+        }
+    }
+
+    fun updateDone(isDone : Boolean, id : Int){
+        viewModelScope.launch {
+            productRepository.updateDone(isDone, id)
         }
     }
 
 
     fun saveProduct(product: Product) {
         viewModelScope.launch {
-            cartRepository.saveProduct(product)
+            productRepository.saveProduct(product)
         }
     }
 
     fun deleteProduct(product: Product) {
         viewModelScope.launch {
-            cartRepository.deleteProduct(product.id)
+            productRepository.deleteProduct(product.id)
         }
     }
 

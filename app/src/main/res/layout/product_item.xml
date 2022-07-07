@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+
         <TextView
             android:id="@+id/product_name"
             android:layout_width="wrap_content"
@@ -31,8 +32,8 @@
             android:layout_below="@id/product_name"
             android:layout_marginStart="12dp"
             android:layout_marginBottom="12dp"
-            tools:text="02"
-            android:textSize="16sp"/>
+            android:textSize="16sp"
+            tools:text="02" />
 
         <TextView
             android:id="@+id/x_text"
@@ -59,7 +60,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@id/product_value"
-            android:layout_toStartOf="@+id/check_for_delete"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="12dp"
             android:textSize="16sp"
             tools:text="R$ 100,00" />
 
@@ -68,9 +70,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:visibility="invisible" />
-
+            android:layout_margin="6dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:visibility="gone"
+            tools:visibility="visible"/>
 
     </RelativeLayout>
 

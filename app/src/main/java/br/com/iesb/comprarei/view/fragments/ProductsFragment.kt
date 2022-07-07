@@ -3,9 +3,13 @@ package br.com.iesb.comprarei.view.fragments
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Color.red
 import android.os.Bundle
 import android.view.*
 import android.widget.SearchView
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -25,6 +29,7 @@ import br.com.iesb.comprarei.view.fragments.NewProductFragment.Companion.openEdi
 import br.com.iesb.comprarei.view.fragments.NewProductFragment.Companion.openNewProductBottomSheet
 import br.com.iesb.comprarei.viewmodel.CartViewModel
 import br.com.iesb.comprarei.viewmodel.ProductViewModel
+import com.kevincodes.recyclerview.ItemDecorator
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -122,9 +127,14 @@ class ProductsFragment : Fragment() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
                 val product = productsAdapter.differ.currentList[position]
-                product.done = !product.done
+                when (direction){
+                    ItemTouchHelper.RIGHT -> {
+                        product.done = !product.done
+                        viewModelProduct.updateDone(product.done, product.id)
+                    }
+                    ItemTouchHelper.LEFT -> deleteOneItem(product)
+                }
                 productsAdapter.notifyItemChanged(position)
-                //deleteOneItem(product)
             }
 
             override fun onChildDraw(
@@ -136,6 +146,20 @@ class ProductsFragment : Fragment() {
                 actionState: Int,
                 isCurrentlyActive: Boolean
             ) {
+                // This is where to start decorating
+                ItemDecorator.Builder(c, recyclerView, viewHolder, dX, actionState).set(
+                    backgroundColorFromStartToEnd = ContextCompat.getColor(requireContext(), R.color.green_dark),
+                    backgroundColorFromEndToStart = ContextCompat.getColor(requireContext(), R.color.delete_red),
+                    textFromStartToEnd = "Done",
+                    textFromEndToStart = "Delete",
+                    textColorFromStartToEnd = ContextCompat.getColor(requireContext(), R.color.white),
+                    textColorFromEndToStart = ContextCompat.getColor(requireContext(), R.color.white),
+                    iconTintColorFromStartToEnd = ContextCompat.getColor(requireContext(), R.color.white),
+                    iconTintColorFromEndToStart = ContextCompat.getColor(requireContext(), R.color.white),
+                    iconResIdFromStartToEnd = R.drawable.ic_baseline_done_24,
+                    iconResIdFromEndToStart = R.drawable.ic_delete_24
+                )
+
                 super.onChildDraw(
                     c,
                     recyclerView,
@@ -181,6 +205,8 @@ class ProductsFragment : Fragment() {
         text.append("\nTotal : ${FormatFrom.doubleToMonetary("R$", total)}")
         return text
     }
+
+
 
     private fun fillSummary(products: List<Product>, id: String) {
         var totalCart = 0.0

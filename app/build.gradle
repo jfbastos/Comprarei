@@ -78,6 +78,7 @@ dependencies {
 
     //ThirdPartLibrary
     implementation("net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent:3.0.0-RC3")
+    implementation 'com.github.kevingermainbusiness:ItemDecorator:1.0.15'
 
 
     //Injection

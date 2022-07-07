@@ -17,5 +17,6 @@ class ProductRepository(private val productDao : ProductDao, private val dispach
 
     suspend fun deleteProduct(id : Int) = withContext(dispacher) { productDao.delete(id) }
 
+    suspend fun updateDone(isDone : Boolean, id : Int) = withContext(dispacher) {productDao.updateDone(isDone, id)}
 
 }
