@@ -34,5 +34,11 @@
     <string name="sort">Ordenar</string>
     <string name="share">Compartilhar</string>
     <string name="quantity_label">"Quantidade: "</string>
+    <string name="night_mode">Modo noturno</string>
+    <string name="night_off_msg">Modo noturno desligado</string>
+    <string name="night_on_msg">Modo noturno ligado</string>
+    <string name="swipe_delete_msg">Deletar</string>
+    <string name="done_swipe_msg">Marcar</string>
+    <string name="undo_swipe_msg">Desmarcar</string>
 
 </resources>

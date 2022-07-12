@@ -1,10 +1,15 @@
 package br.com.iesb.comprarei.view.fragments
 
 import android.app.AlertDialog
+import android.content.Context
 import android.graphics.Canvas
 import android.os.Bundle
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.SearchView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -16,15 +21,16 @@ import br.com.iesb.comprarei.model.Cart
 import br.com.iesb.comprarei.util.setVisibility
 import br.com.iesb.comprarei.util.show
 import br.com.iesb.comprarei.util.toggleVisibility
+import br.com.iesb.comprarei.view.activity.MainActivity
 import br.com.iesb.comprarei.view.adapters.CartsAdapter
 import br.com.iesb.comprarei.view.components.SortBottomSheet.Companion.openSortBottomSheetDialog
 import br.com.iesb.comprarei.viewmodel.CartViewModel
+import com.kevincodes.recyclerview.ItemDecorator
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class HomeFragment : Fragment() {
-
 
     private val NEW_CART_KEY = "NewCart"
 
@@ -35,6 +41,7 @@ class HomeFragment : Fragment() {
     private lateinit var deleteMenu: MenuItem
     private lateinit var sortMenu: MenuItem
     private lateinit var searchMenu: MenuItem
+    private lateinit var nightModeMenu: MenuItem
     private var originalList: List<Cart> = listOf()
 
     private val viewModel: CartViewModel by viewModel()
@@ -43,7 +50,6 @@ class HomeFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -68,6 +74,8 @@ class HomeFragment : Fragment() {
 
         swipeToRemove()
 
+        nightModeSettings()
+
         cartsAdapter.setOnItemClickListener { cart ->
             goToProduct(cart)
         }
@@ -87,6 +95,23 @@ class HomeFragment : Fragment() {
 
         viewModel.listOfCarts.observe(viewLifecycleOwner) { carts ->
             showCartsItems(carts)
+        }
+    }
+
+    private fun nightModeSettings() {
+        nightModeMenu.setOnMenuItemClickListener {
+            //Mudando para modo claro
+            if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+                (requireActivity() as MainActivity).saveShared(AppCompatDelegate.MODE_NIGHT_NO)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                Toast.makeText(requireContext(), getString(R.string.night_off_msg), Toast.LENGTH_SHORT).show()
+            } else {
+                //Mudando para modo escuro
+                (requireActivity() as MainActivity).saveShared(AppCompatDelegate.MODE_NIGHT_YES)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                Toast.makeText(requireContext(), getString(R.string.night_on_msg), Toast.LENGTH_SHORT).show()
+            }
+            return@setOnMenuItemClickListener true
         }
     }
 
@@ -115,6 +140,38 @@ class HomeFragment : Fragment() {
                 actionState: Int,
                 isCurrentlyActive: Boolean
             ) {
+
+                ItemDecorator.Builder(c, recyclerView, viewHolder, dX, actionState).set(
+                    backgroundColorFromStartToEnd = ContextCompat.getColor(
+                        requireContext(),
+                        R.color.delete_red
+                    ),
+                    backgroundColorFromEndToStart = ContextCompat.getColor(
+                        requireContext(),
+                        R.color.delete_red
+                    ),
+                    textFromStartToEnd = getString(R.string.swipe_delete_msg),
+                    textFromEndToStart = getString(R.string.swipe_delete_msg),
+                    textColorFromStartToEnd = ContextCompat.getColor(
+                        requireContext(),
+                        R.color.white
+                    ),
+                    textColorFromEndToStart = ContextCompat.getColor(
+                        requireContext(),
+                        R.color.white
+                    ),
+                    iconTintColorFromStartToEnd = ContextCompat.getColor(
+                        requireContext(),
+                        R.color.white
+                    ),
+                    iconTintColorFromEndToStart = ContextCompat.getColor(
+                        requireContext(),
+                        R.color.white
+                    ),
+                    iconResIdFromStartToEnd = R.drawable.ic_delete_24,
+                    iconResIdFromEndToStart = R.drawable.ic_delete_24
+                )
+
                 super.onChildDraw(
                     c,
                     recyclerView,
@@ -147,7 +204,6 @@ class HomeFragment : Fragment() {
     private fun doSearch() {
         searchMenu.setOnMenuItemClickListener {
             binding.searchView.show(requireContext())
-
             if (binding.searchView.isVisible) {
                 binding.searchView.setVisibility(false)
             } else {
@@ -179,7 +235,6 @@ class HomeFragment : Fragment() {
             }
         })
     }
-
 
     private fun showCartsItems(cartsList: List<Cart>) {
         if (cartsList.isEmpty()) {
@@ -213,7 +268,6 @@ class HomeFragment : Fragment() {
                 selectionMode = !cartsAdapter.selectionMode
                 notifyDataSetChanged()
             }
-
         }
     }
 
@@ -226,6 +280,10 @@ class HomeFragment : Fragment() {
         arguments = Bundle().apply {
             putString("cartName", cart.name)
             putString("cartId", cart.id)
+        }
+
+        if(KeyboardVisibilityEvent.isKeyboardVisible(requireActivity())){
+            (requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
         }
 
         findNavController().navigate(R.id.action_homeFragment_to_productsFragment, arguments)
@@ -251,10 +309,10 @@ class HomeFragment : Fragment() {
         deleteMenu = binding.toolbar.menu.findItem(R.id.delete_menu)
         sortMenu = binding.toolbar.menu.findItem(R.id.sort_menu)
         searchMenu = binding.toolbar.menu.findItem(R.id.search_menu)
+        nightModeMenu = binding.toolbar.menu.findItem(R.id.night_mode)
         binding.toolbar.menu.findItem(R.id.share_menu).isVisible = false
         deleteMenu.toggleVisibility()
     }
-
 
     private fun deleteItems() {
         deleteMenu.setOnMenuItemClickListener {
@@ -307,7 +365,6 @@ class HomeFragment : Fragment() {
         super.onResume()
         cancelActionsOnBackPressed()
     }
-
 
     private fun cancelActionsOnBackPressed() {
         if (view == null) return

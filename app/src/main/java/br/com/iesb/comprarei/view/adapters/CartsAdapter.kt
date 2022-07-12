@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import br.com.iesb.comprarei.databinding.CartItemBinding
 import br.com.iesb.comprarei.model.Cart
-import br.com.iesb.comprarei.util.FormatFrom
 
 class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallback) {
 

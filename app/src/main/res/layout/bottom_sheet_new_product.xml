@@ -36,9 +36,6 @@
         android:layout_marginTop="16dp"
         android:hint="@string/name"
         app:endIconMode="clear_text"
-        app:boxStrokeColor="@color/green_dark"
-        app:hintTextColor="@color/green_dark"
-        app:placeholderTextColor="@color/green_dark"
         app:layout_constraintStart_toStartOf="parent"
        app:layout_constraintTop_toBottomOf="@id/frame_title">
 
@@ -59,8 +56,6 @@
         android:layout_marginTop="32dp"
         android:hint="@string/brand"
         app:endIconMode="clear_text"
-        app:boxStrokeColor="@color/green_dark"
-        app:hintTextColor="@color/green_dark"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/product_name_layout">
 
@@ -91,8 +86,6 @@
         android:layout_marginTop="32dp"
         android:hint="@string/price"
         app:prefixText="R$"
-        app:boxStrokeColor="@color/green_dark"
-        app:hintTextColor="@color/green_dark"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/product_quantity_layout"
         app:layout_constraintTop_toBottomOf="@id/product_brand_layout">
@@ -115,8 +108,6 @@
         android:layout_marginHorizontal="12dp"
         android:layout_marginTop="32dp"
         android:hint="@string/quantity"
-        app:boxStrokeColor="@color/green_dark"
-        app:hintTextColor="@color/green_dark"
         app:layout_constraintStart_toEndOf="@id/product_price_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/product_brand_layout">
@@ -142,18 +133,16 @@
 
         <Button
             android:id="@+id/btn_cancel"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/MyCancelButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/cancel"
-            android:textColor="@color/gray" />
+            android:text="@string/cancel" />
 
         <Button
             android:id="@+id/btn_save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:textColor="@color/green_dark"
+            style="@style/MyOkButtonStyle"
             android:text="@string/save"/>
 
     </LinearLayout>

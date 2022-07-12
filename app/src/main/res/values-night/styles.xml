@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="BottomSheetDialogThemeNoFloating" parent="Theme.Design.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize|stateVisible</item>
+    </style>
+
+    <style name="MyInputTextStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="colorAccent">@color/green_light</item>
+        <item name="prefixTextColor">@color/green_light</item>
+        <item name="hintTextColor">@color/green_light</item>
+        <item name="placeholderTextColor">@color/green_light</item>
+        <item name="boxStrokeColor">@color/green_light</item>
+    </style>
+
+    <style name="MyCancelButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/light_gray</item>
+    </style>
+
+    <style name="MyOkButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/green_light</item>
+    </style>
+
+
+</resources>

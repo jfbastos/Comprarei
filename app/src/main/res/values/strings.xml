@@ -35,5 +35,11 @@
     <string name="sort">Sort</string>
     <string name="share">Share</string>
     <string name="quantity_label">"Quantity: "</string>
+    <string name="night_mode">Night mode</string>
+    <string name="night_off_msg">Night mode off</string>
+    <string name="night_on_msg">Night mode on</string>
+    <string name="swipe_delete_msg">Delete</string>
+    <string name="undo_swipe_msg">Undo</string>
+    <string name="done_swipe_msg">Done</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

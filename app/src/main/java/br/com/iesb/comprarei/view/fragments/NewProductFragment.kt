@@ -83,7 +83,6 @@ class NewProductFragment : BottomSheetDialogFragment() {
             binding.productQuantity.setText(it.quantity.toString())
         }
 
-
         binding.btnSave.setOnClickListener {
             if (binding.productName.text.isNullOrEmpty()) {
                 binding.productName.errorAnimation()
@@ -99,7 +98,7 @@ class NewProductFragment : BottomSheetDialogFragment() {
                                 .ifBlank { "0" }.toInt() == 0
                         ) {
                             binding.productQuantity.errorAnimation()
-                        }  else {
+                        } else {
                             product.name = binding.productName.text.toString()
                             product.brand = binding.productBrand.text.toString()
                             product.price =
@@ -165,7 +164,6 @@ class NewProductFragment : BottomSheetDialogFragment() {
             cartId: String,
             onFormFinish: (product: Product) -> Unit
         ) {
-
             val bundle = Bundle().apply {
                 putSerializable(ON_FORM_FINISH_KEY, onFormFinish as Serializable)
                 putString(CARTID_KEY, cartId)
@@ -180,7 +178,6 @@ class NewProductFragment : BottomSheetDialogFragment() {
             product: Product,
             onFormFinish: (product: Product) -> Unit
         ) {
-
             val bundle = Bundle().apply {
                 putSerializable(ON_FORM_FINISH_KEY, onFormFinish as Serializable)
                 putSerializable(PRODUCT_KEY, product)
@@ -191,6 +188,4 @@ class NewProductFragment : BottomSheetDialogFragment() {
             bottomSheetFragment.show(parentFragmentManager, "BOTTOMNEWPRODUCT")
         }
     }
-
-
 }

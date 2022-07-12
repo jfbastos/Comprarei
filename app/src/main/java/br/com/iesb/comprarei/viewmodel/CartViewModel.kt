@@ -2,12 +2,10 @@ package br.com.iesb.comprarei.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.iesb.comprarei.R
 import br.com.iesb.comprarei.model.Cart
 import br.com.iesb.comprarei.model.CartRepository
 import br.com.iesb.comprarei.model.ProductRepository
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class CartViewModel(private val repository: CartRepository, private val productsRepository: ProductRepository) : ViewModel() {
 

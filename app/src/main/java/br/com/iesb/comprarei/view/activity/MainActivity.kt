@@ -1,10 +1,11 @@
 package br.com.iesb.comprarei.view.activity
 
 import android.app.Activity
-import android.content.Intent
-import android.net.Uri
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import br.com.iesb.comprarei.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
@@ -20,6 +21,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         installSplashScreen().apply {
             CoroutineScope(Dispatchers.IO).launch{
                 delay(3000)
@@ -28,6 +30,27 @@ class MainActivity : AppCompatActivity() {
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setDarkMode()
+
         (this as? Activity)?.actionBar?.setDisplayHomeAsUpEnabled(true)
     }
+
+    fun saveShared(modeNightMode: Int){
+        val sharedPreferences = this.getPreferences(Context.MODE_PRIVATE)
+        with (sharedPreferences.edit()){
+            putInt("DARK_MODE", modeNightMode)
+            apply()
+        }
+    }
+
+    private fun setDarkMode() {
+        val sharedPreferences = this.getPreferences(Context.MODE_PRIVATE)
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+            AppCompatDelegate.setDefaultNightMode(sharedPreferences.getInt("DARK_MODE", -1))
+        }else{
+            AppCompatDelegate.setDefaultNightMode(sharedPreferences.getInt("DARK_MODE", 0))
+        }
+
+    }
+
 }

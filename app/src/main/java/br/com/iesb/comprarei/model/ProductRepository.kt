@@ -1,9 +1,9 @@
 package br.com.iesb.comprarei.model
 
 import androidx.lifecycle.LiveData
-import br.com.iesb.comprarei.di.dispachersModule
 import br.com.iesb.comprarei.model.dao.ProductDao
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 
 class ProductRepository(private val productDao : ProductDao, private val dispacher : CoroutineDispatcher) {
 

@@ -6,11 +6,10 @@ import br.com.iesb.comprarei.model.CartRepository
 import br.com.iesb.comprarei.model.ProductRepository
 import br.com.iesb.comprarei.viewmodel.CartViewModel
 import br.com.iesb.comprarei.viewmodel.ProductViewModel
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import org.koin.dsl.module
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
+import org.koin.dsl.module
 
 
 val dispachersModule = module {

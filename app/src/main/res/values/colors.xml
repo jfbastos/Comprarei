@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
@@ -7,9 +7,13 @@
     <color name="white">#FFFFFFFF</color>
     <color name="green">#226327</color>
     <color name="green_light">#529151</color>
+    <color name="green_light_transparent">#4D529151</color>
     <color name="white_green">#4DDCE3DD</color>
     <color name="green_dark">#003800</color>
     <color name="gray">#7A807B</color>
     <color name="dark_gray">#333333</color>
     <color name="delete_red">#BF0000</color>
+    <color name="light_gray">#B1B3B1</color>
+
+    <color name="mtrl_textinput_default_box_stroke_color" tools:override="true">@color/green_light_transparent</color>
 </resources>

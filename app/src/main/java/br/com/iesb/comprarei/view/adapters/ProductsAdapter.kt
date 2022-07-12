@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.iesb.comprarei.databinding.ProductItemBinding
 import br.com.iesb.comprarei.model.Product
 import br.com.iesb.comprarei.util.FormatFrom
-import br.com.iesb.comprarei.util.setVisibility
 
 class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>(differCallback) {
 

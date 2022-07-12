@@ -1,10 +1,5 @@
 package br.com.iesb.comprarei.util
 
-import java.lang.Exception
-import java.math.BigDecimal
-import java.text.SimpleDateFormat
-import java.util.*
-
 object FormatFrom {
 
     fun stringToDouble(value : String) : Double{
@@ -17,9 +12,9 @@ object FormatFrom {
 
     fun stringToInt(value : String) : Int{
         return try {
-            value.toInt()
+            if(value.toInt() == 0) 1 else value.toInt()
         }catch (e : Exception){
-            0
+            1
         }
     }
 

@@ -10,11 +10,11 @@
 
     <DatePicker
         android:id="@+id/date_picker"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white"
-        android:theme="@style/MyTimePickerDialogTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:headerBackground="@color/green_dark"
         android:visibility="gone"
+        tools:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,12 +39,12 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/cart_name_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/MyInputTextStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="12dp"
             android:layout_marginTop="8dp"
-            app:boxStrokeErrorColor="@color/green_dark"
+            app:boxStrokeErrorColor="@color/delete_red"
             app:endIconMode="clear_text"
             app:layout_constraintStart_toStartOf="@id/dialog_title"
             app:layout_constraintTop_toBottomOf="@id/dialog_title">
@@ -59,12 +59,13 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/cart_date_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/MyInputTextStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="12dp"
             android:layout_marginTop="8dp"
             app:endIconDrawable="@drawable/ic_baseline_date_range_24"
+            app:boxStrokeErrorColor="@color/delete_red"
             app:endIconMode="custom"
             app:layout_constraintStart_toStartOf="@id/cart_name_layout"
             app:layout_constraintTop_toBottomOf="@id/cart_name_layout">

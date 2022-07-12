@@ -1,14 +1,14 @@
 package br.com.iesb.comprarei.view.fragments
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Color.red
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.SearchView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -79,6 +79,20 @@ class ProductsFragment : Fragment() {
 
         viewModelProduct.getProducts(cartId)
 
+        binding.toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+        binding.toolbar.setNavigationOnClickListener {
+            if(KeyboardVisibilityEvent.isKeyboardVisible(requireActivity())){
+                (requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
+            }
+
+            this.parentFragmentManager.popBackStack(
+                null,
+                FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+            findNavController().navigateUp()
+
+        }
+
         productsAdapter.setOnItemClickListener { product, position ->
             openEditProductBottomSheet(product) { productEdited ->
                 viewModelProduct.updateProduct(productEdited)
@@ -118,6 +132,7 @@ class ProductsFragment : Fragment() {
     private fun swipeToRemove() {
         ItemTouchHelper(object :
             ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -148,23 +163,42 @@ class ProductsFragment : Fragment() {
             ) {
                 // This is where to start decorating
                 ItemDecorator.Builder(c, recyclerView, viewHolder, dX, actionState).set(
-                    backgroundColorFromStartToEnd = ContextCompat.getColor(requireContext(), R.color.green_dark),
-                    backgroundColorFromEndToStart = ContextCompat.getColor(requireContext(), R.color.delete_red),
-                    textFromStartToEnd = "Done",
-                    textFromEndToStart = "Delete",
-                    textColorFromStartToEnd = ContextCompat.getColor(requireContext(), R.color.white),
-                    textColorFromEndToStart = ContextCompat.getColor(requireContext(), R.color.white),
-                    iconTintColorFromStartToEnd = ContextCompat.getColor(requireContext(), R.color.white),
-                    iconTintColorFromEndToStart = ContextCompat.getColor(requireContext(), R.color.white),
-                    iconResIdFromStartToEnd = R.drawable.ic_baseline_done_24,
-                    iconResIdFromEndToStart = R.drawable.ic_delete_24
+                    backgroundColorFromStartToEnd = ContextCompat.getColor(
+                        requireContext(),
+                        R.color.green_dark
+                    ),
+                    backgroundColorFromEndToStart = ContextCompat.getColor(
+                        requireContext(),
+                        R.color.delete_red
+                    ),
+                    textFromStartToEnd = "",
+                    textFromEndToStart = "",
+                    textColorFromStartToEnd = ContextCompat.getColor(
+                        requireContext(),
+                        R.color.white
+                    ),
+                    textColorFromEndToStart = ContextCompat.getColor(
+                        requireContext(),
+                        R.color.white
+                    ),
+                    iconTintColorFromStartToEnd = ContextCompat.getColor(
+                        requireContext(),
+                        R.color.white
+                    ),
+                    iconTintColorFromEndToStart = ContextCompat.getColor(
+                        requireContext(),
+                        R.color.white
+                    ),
+                    iconResIdFromStartToEnd = if(productsAdapter.differ.currentList[viewHolder.adapterPosition].done) R.drawable.ic_baseline_close_24 else R.drawable.ic_baseline_done_24,
+                    iconResIdFromEndToStart = R.drawable.ic_delete_24,
+                    typeFaceFromStartToEnd = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
                 )
 
                 super.onChildDraw(
                     c,
                     recyclerView,
                     viewHolder,
-                    dX / 4,
+                    dX / 6,
                     dY,
                     actionState,
                     isCurrentlyActive
@@ -205,8 +239,6 @@ class ProductsFragment : Fragment() {
         text.append("\nTotal : ${FormatFrom.doubleToMonetary("R$", total)}")
         return text
     }
-
-
 
     private fun fillSummary(products: List<Product>, id: String) {
         var totalCart = 0.0
@@ -317,6 +349,7 @@ class ProductsFragment : Fragment() {
         sortMenu = binding.toolbar.menu.findItem(R.id.sort_menu)
         searchMenu = binding.toolbar.menu.findItem(R.id.search_menu)
         shareMenu = binding.toolbar.menu.findItem(R.id.share_menu)
+        binding.toolbar.menu.findItem(R.id.night_mode).isVisible = false
         deleteMenu.toggleVisibility()
     }
 
@@ -409,5 +442,4 @@ class ProductsFragment : Fragment() {
             .setNegativeButton(getString(R.string.negative_confirmation)) { _, _ ->}
             .show()
     }
-
 }
