@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import br.com.iesb.comprarei.databinding.SortBottomSheetBinding
+import br.com.iesb.comprarei.util.Constants
 import br.com.iesb.comprarei.view.adapters.BottomSheetAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -47,6 +48,7 @@ class SortBottomSheet : BottomSheetDialogFragment() {
         val behavior = BottomSheetBehavior.from(dialog)
 
         recyclerViewSetup()
+
         optionsAdapter.setOnClickLister { filter ->
             onSelectionFinished?.let { it(filter) }
             behavior.state = BottomSheetBehavior.STATE_HIDDEN
@@ -77,7 +79,7 @@ class SortBottomSheet : BottomSheetDialogFragment() {
 
             val bottomSheetFragment = SortBottomSheet()
             bottomSheetFragment.arguments = bundle
-            bottomSheetFragment.show(parentFragmentManager, "BOTTOMSHEET")
+            bottomSheetFragment.show(parentFragmentManager, Constants.SORT_TAG)
         }
 
     }

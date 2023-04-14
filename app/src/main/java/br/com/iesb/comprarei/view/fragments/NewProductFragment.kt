@@ -12,6 +12,8 @@ import br.com.iesb.comprarei.R
 import br.com.iesb.comprarei.databinding.BottomSheetNewProductBinding
 import br.com.iesb.comprarei.model.Product
 import br.com.iesb.comprarei.util.FormatFrom
+import br.com.iesb.comprarei.util.MoneyTextWatcher
+import br.com.iesb.comprarei.util.convertMonetaryToDouble
 import br.com.iesb.comprarei.util.errorAnimation
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -53,7 +55,7 @@ class NewProductFragment : BottomSheetDialogFragment() {
     override fun onResume() {
         super.onResume()
 
-        dialog!!.setOnKeyListener { dialog, keyCode, event ->
+        dialog!!.setOnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
                 isCancelable = true
                 dismiss()
@@ -75,85 +77,71 @@ class NewProductFragment : BottomSheetDialogFragment() {
             dismiss()
         }
 
+        binding.productPrice.addTextChangedListener(MoneyTextWatcher(binding.productPrice))
+
         product?.let {
-            binding.dialogTitle.text = it.name
-            binding.productName.setText(it.name)
-            binding.productPrice.setText(it.price.toString())
-            binding.productBrand.setText(it.brand)
-            binding.productQuantity.setText(it.quantity.toString())
+            setValuesOfProduct(it)
         }
 
         binding.btnSave.setOnClickListener {
-            if (binding.productName.text.isNullOrEmpty()) {
-                binding.productName.errorAnimation()
-            } else if (isLessThenZero(binding.productPrice.text.toString())) {
-                binding.productPrice.errorAnimation()
-            } else if (isLessThenZero(binding.productQuantity.text.toString())) {
-                binding.productQuantity.errorAnimation()
-            } else {
-                onFormFinish?.let {
-                    product?.let { product ->
-                        if (binding.productPrice.text.toString().ifBlank { "0.0" }
-                                .toDouble() != 0.0 && binding.productQuantity.text.toString()
-                                .ifBlank { "0" }.toInt() == 0
-                        ) {
-                            binding.productQuantity.errorAnimation()
-                        } else {
-                            product.name = binding.productName.text.toString()
-                            product.brand = binding.productBrand.text.toString()
-                            product.price =
-                                FormatFrom.stringToDouble(binding.productPrice.text.toString())
-                            product.quantity =
-                                FormatFrom.stringToInt(binding.productQuantity.text.toString())
+            saveProduct()
+        }
+    }
 
-                            it(product)
+    private fun setValuesOfProduct(it: Product) {
+        binding.dialogTitle.text = it.name
+        binding.productName.setText(it.name)
+        binding.productPrice.setText(it.price.toString())
+        binding.productBrand.setText(it.brand)
+        binding.productQuantity.setText(it.quantity.toString())
+    }
 
-                            isCancelable = true
-                            dismiss()
-                        }
-                    } ?: run {
-                        if (binding.productPrice.text.toString().ifBlank { "0.0" }
-                                .toDouble() != 0.0 && binding.productQuantity.text.toString()
-                                .ifBlank { "0" }.toInt() == 0
-                        ) {
-                            binding.productQuantity.errorAnimation()
-                        } else {
-                            it(
-                                Product(
-                                    binding.productName.text.toString(),
-                                    binding.productBrand.text.toString(),
-                                    FormatFrom.stringToDouble(
-                                        binding.productPrice.text.toString().ifBlank { "0.0" }),
-                                    FormatFrom.stringToInt(
-                                        binding.productQuantity.text.toString().ifBlank { "1" }),
-                                    cartId
-                                )
+    private fun saveProduct() {
+        if (binding.productName.text.isNullOrEmpty()) {
+            binding.productName.errorAnimation()
+        } else {
+            onFormFinish?.let {
+                product?.let { product ->
+                    if (validateValueQuantity()
+                    ) {
+                        binding.productQuantity.errorAnimation()
+                    } else {
+                        product.name = binding.productName.text.toString()
+                        product.brand = binding.productBrand.text.toString()
+                        product.price = binding.productPrice.text.convertMonetaryToDouble()
+                        product.quantity =
+                            FormatFrom.stringToInt(binding.productQuantity.text.toString())
+
+                        it(product)
+
+                        isCancelable = true
+                        dismiss()
+                    }
+                } ?: run {
+                    if (validateValueQuantity()) {
+                        binding.productQuantity.errorAnimation()
+                    } else {
+                        it(
+                            Product(
+                                binding.productName.text.toString(),
+                                binding.productBrand.text.toString(),
+                                binding.productPrice.text.convertMonetaryToDouble(),
+                                FormatFrom.stringToInt(
+                                    binding.productQuantity.text.toString().ifBlank { "1" }),
+                                cartId
                             )
-                            isCancelable = true
-                            dismiss()
-                        }
+                        )
+                        isCancelable = true
+                        dismiss()
                     }
                 }
             }
         }
     }
 
-    private fun isLessThenZero(text: String): Boolean {
-        try {
-            if (text.isEmpty()) {
-                return false
-            } else {
-                val value = text.toDouble()
-
-                if (value < 0) {
-                    return true
-                }
-            }
-            return false
-        } catch (e: Exception) {
-            return true
-        }
-    }
+    private fun validateValueQuantity() =
+        binding.productPrice.text.convertMonetaryToDouble() != 0.0 && binding.productQuantity.text.toString()
+            .ifBlank { "0" }.toInt() == 0
 
     companion object {
         private const val ON_FORM_FINISH_KEY = "OnFormFinish"

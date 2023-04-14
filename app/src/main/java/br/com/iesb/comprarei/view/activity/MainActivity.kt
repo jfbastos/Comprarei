@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import br.com.iesb.comprarei.databinding.ActivityMainBinding
+import br.com.iesb.comprarei.util.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -27,6 +28,7 @@ class MainActivity : AppCompatActivity() {
                 delay(3000)
             }
         }
+
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -38,7 +40,7 @@ class MainActivity : AppCompatActivity() {
     fun saveShared(modeNightMode: Int){
         val sharedPreferences = this.getPreferences(Context.MODE_PRIVATE)
         with (sharedPreferences.edit()){
-            putInt("DARK_MODE", modeNightMode)
+            putInt(Constants.DARK_MODE, modeNightMode)
             apply()
         }
     }
@@ -46,9 +48,9 @@ class MainActivity : AppCompatActivity() {
     private fun setDarkMode() {
         val sharedPreferences = this.getPreferences(Context.MODE_PRIVATE)
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-            AppCompatDelegate.setDefaultNightMode(sharedPreferences.getInt("DARK_MODE", -1))
+            AppCompatDelegate.setDefaultNightMode(sharedPreferences.getInt(Constants.DARK_MODE, -1))
         }else{
-            AppCompatDelegate.setDefaultNightMode(sharedPreferences.getInt("DARK_MODE", 0))
+            AppCompatDelegate.setDefaultNightMode(sharedPreferences.getInt(Constants.DARK_MODE, 0))
         }
 
     }

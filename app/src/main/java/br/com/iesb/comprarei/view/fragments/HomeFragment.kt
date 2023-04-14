@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.iesb.comprarei.R
 import br.com.iesb.comprarei.databinding.FragmentHomeBinding
 import br.com.iesb.comprarei.model.Cart
+import br.com.iesb.comprarei.util.Constants
 import br.com.iesb.comprarei.util.setVisibility
 import br.com.iesb.comprarei.util.show
 import br.com.iesb.comprarei.util.toggleVisibility
@@ -28,12 +29,9 @@ import br.com.iesb.comprarei.viewmodel.CartViewModel
 import com.kevincodes.recyclerview.ItemDecorator
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import org.koin.androidx.viewmodel.ext.android.viewModel
-
+import java.util.*
 
 class HomeFragment : Fragment() {
-
-    private val NEW_CART_KEY = "NewCart"
-
     private var _binding: FragmentHomeBinding? = null
     private val binding: FragmentHomeBinding get() = _binding!!
     private lateinit var cartsAdapter: CartsAdapter
@@ -43,6 +41,7 @@ class HomeFragment : Fragment() {
     private lateinit var searchMenu: MenuItem
     private lateinit var nightModeMenu: MenuItem
     private var originalList: List<Cart> = listOf()
+    private var selectionMode = false
 
     private val viewModel: CartViewModel by viewModel()
 
@@ -53,9 +52,10 @@ class HomeFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater)
+        viewModel.getCarts()
         return binding.root
     }
 
@@ -77,7 +77,12 @@ class HomeFragment : Fragment() {
         nightModeSettings()
 
         cartsAdapter.setOnItemClickListener { cart ->
-            goToProduct(cart)
+            if(selectionMode){
+                if(cartsAdapter.selectedItems.contains(cart)) cartsAdapter.selectedItems.remove(cart) else  cartsAdapter.selectedItems.add(cart)
+                cartsAdapter.notifyItemChanged(cartsAdapter.differ.currentList.indexOf(cart))
+            }else{
+                goToProduct(cart)
+            }
         }
 
         sortMenu.setOnMenuItemClickListener {
@@ -90,7 +95,7 @@ class HomeFragment : Fragment() {
         }
 
         binding.addCart.setOnClickListener {
-            NewCartFragment().show(parentFragmentManager, NEW_CART_KEY)
+            NewCartFragment().show(parentFragmentManager, Constants.NEW_CART_KEY)
         }
 
         viewModel.listOfCarts.observe(viewLifecycleOwner) { carts ->
@@ -100,29 +105,37 @@ class HomeFragment : Fragment() {
 
     private fun nightModeSettings() {
         nightModeMenu.setOnMenuItemClickListener {
-            //Mudando para modo claro
-            if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
-                (requireActivity() as MainActivity).saveShared(AppCompatDelegate.MODE_NIGHT_NO)
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                Toast.makeText(requireContext(), getString(R.string.night_off_msg), Toast.LENGTH_SHORT).show()
-            } else {
-                //Mudando para modo escuro
-                (requireActivity() as MainActivity).saveShared(AppCompatDelegate.MODE_NIGHT_YES)
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                Toast.makeText(requireContext(), getString(R.string.night_on_msg), Toast.LENGTH_SHORT).show()
-            }
+            toggleNightMode()
             return@setOnMenuItemClickListener true
+        }
+    }
+
+    private fun toggleNightMode() {
+        //Mudando para modo claro
+        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+            (requireActivity() as MainActivity).saveShared(AppCompatDelegate.MODE_NIGHT_NO)
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            Toast.makeText(requireContext(), getString(R.string.night_off_msg), Toast.LENGTH_SHORT)
+                .show()
+        } else {
+            //Mudando para modo escuro
+            (requireActivity() as MainActivity).saveShared(AppCompatDelegate.MODE_NIGHT_YES)
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            Toast.makeText(requireContext(), getString(R.string.night_on_msg), Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
     private fun swipeToRemove() {
         ItemTouchHelper(object :
-            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder
-            ) = false
+            ) : Boolean {
+                return true
+            }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
@@ -138,7 +151,7 @@ class HomeFragment : Fragment() {
                 dX: Float,
                 dY: Float,
                 actionState: Int,
-                isCurrentlyActive: Boolean
+                isCurrentlyActive: Boolean,
             ) {
 
                 ItemDecorator.Builder(c, recyclerView, viewHolder, dX, actionState).set(
@@ -247,8 +260,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun setItemsSelectable() {
-        cartsAdapter.setOnLongItemClickListener {
+        cartsAdapter.setOnLongItemClickListener { cart ->
             changeSelectState()
+            if(selectionMode){
+                if(cartsAdapter.selectedItems.contains(cart)) cartsAdapter.selectedItems.remove(cart) else cartsAdapter.selectedItems.add(cart)
+                cartsAdapter.notifyItemChanged(cartsAdapter.differ.currentList.indexOf(cart))
+            }
             return@setOnLongItemClickListener true
         }
     }
@@ -256,17 +273,16 @@ class HomeFragment : Fragment() {
     private fun changeSelectState() {
         deleteMenu.let { delete ->
             delete.toggleVisibility()
-            if (delete.isVisible) {
+            selectionMode = if (delete.isVisible) {
                 binding.addCart.setVisibility(false)
                 binding.closeSelection.setVisibility(true)
+                true
             } else {
                 binding.addCart.setVisibility(true)
                 binding.closeSelection.setVisibility(false)
-                cartsAdapter.clearSelectedItems()
-            }
-            cartsAdapter.apply {
-                selectionMode = !cartsAdapter.selectionMode
-                notifyDataSetChanged()
+                cartsAdapter.selectedItems.clear()
+                cartsAdapter.notifyDataSetChanged()
+                false
             }
         }
     }
@@ -323,7 +339,7 @@ class HomeFragment : Fragment() {
 
     private fun deleteSelectedItems() {
         val actualList = cartsAdapter.differ.currentList.toMutableList()
-        val deleteQuantity = cartsAdapter.getSelectedItems().size
+        val deleteQuantity = cartsAdapter.selectedItems.size
         if (deleteQuantity != 0) {
             confirmDeletion(deleteQuantity, actualList)
         }
@@ -331,7 +347,7 @@ class HomeFragment : Fragment() {
 
     private fun confirmDeletion(
         deleteQuantity: Int,
-        actualList: MutableList<Cart>
+        actualList: MutableList<Cart>,
     ) {
         AlertDialog.Builder(context)
             .setTitle(getString(R.string.title_confirmation))
@@ -342,7 +358,7 @@ class HomeFragment : Fragment() {
             )
             .setIcon(R.drawable.ic_info_24)
             .setPositiveButton(getString(R.string.positive_confirmation)) { _, _ ->
-                cartsAdapter.getSelectedItems().forEach { cart ->
+                cartsAdapter.selectedItems.forEach { cart ->
                     viewModel.deleteCart(cart)
                     cartsAdapter.notifyItemRemoved(actualList.indexOf(cart))
                     actualList.remove(cart)
@@ -374,9 +390,7 @@ class HomeFragment : Fragment() {
         requireView().setOnKeyListener { v, keyCode, event ->
             if (event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
                 when {
-                    cartsAdapter.selectionMode -> {
-                        changeSelectState()
-                    }
+                    selectionMode -> { changeSelectState() }
                     binding.searchView.isVisible -> {
                         binding.searchView.setVisibility(false)
                     }

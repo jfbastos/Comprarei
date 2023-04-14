@@ -4,6 +4,8 @@ import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -43,22 +45,27 @@ class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>
             }
 
             binding.root.apply {
+               setListeners(product)
+            }
+        }
+
+        //Region Selection
+        private fun ConstraintLayout.setListeners(product: Product) {
+            this.setOnClickListener {
+                onItemClickListener?.invoke(product, adapterPosition)
+            }
+
+            if (selectionMode) {
                 this.setOnClickListener {
-                    onItemClickListener?.invoke(product, adapterPosition)
-                }
-
-                if (selectionMode) {
-                    this.setOnClickListener {
-                        binding.checkForDelete.isChecked = !binding.checkForDelete.isChecked
-                        setCheckBox(product)
-                    }
-                }
-
-                setOnLongClickListener {
                     binding.checkForDelete.isChecked = !binding.checkForDelete.isChecked
                     setCheckBox(product)
-                    onLongItemClickListener.invoke(product)
                 }
+            }
+
+            setOnLongClickListener {
+                binding.checkForDelete.isChecked = !binding.checkForDelete.isChecked
+                setCheckBox(product)
+                onLongItemClickListener.invoke(product)
             }
         }
 
@@ -70,15 +77,18 @@ class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>
                 binding.checkForDelete.visibility = View.INVISIBLE
             }
         }
+
+        private fun setCheckBox(product: Product) {
+            if (binding.checkForDelete.isChecked) {
+                selectedItems.add(product)
+            } else if (selectedItems.contains(product)) {
+                selectedItems.remove(product)
+            }
+        }
+        //endregion
     }
 
-    private fun ProductsViewHolder.setCheckBox(product: Product) {
-        if (binding.checkForDelete.isChecked) {
-            selectedItems.add(product)
-        } else if (selectedItems.contains(product)) {
-            selectedItems.remove(product)
-        }
-    }
+
 
     companion object {
         private val differCallback: DiffUtil.ItemCallback<Product> =

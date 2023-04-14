@@ -227,15 +227,9 @@ class ProductsFragment : Fragment() {
         text.append("$cartName \n\n")
         originalList.forEach { product ->
             total += product.price * product.quantity
-            text.append(
-                "* ${product.name} - ${
-                    FormatFrom.doubleToMonetary(
-                        "R$",
-                        product.price
-                    )
-                } x ${if (product.quantity < 10) "0${product.quantity}" else product.quantity.toString()}\n"
-            )
-        }
+                text.append("* ${product.name} ${if (product.brand != "") "- ${product.brand} - " else "- "}" +
+                            "${FormatFrom.doubleToMonetary("R$", product.price)} x " +
+                            "${if (product.quantity < 10) "0${product.quantity}" else product.quantity.toString()}\n")}
         text.append("\nTotal : ${FormatFrom.doubleToMonetary("R$", total)}")
         return text
     }

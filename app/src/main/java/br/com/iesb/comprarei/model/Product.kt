@@ -2,6 +2,7 @@ package br.com.iesb.comprarei.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 
 @Entity(tableName = "products")
 data class Product(
@@ -11,6 +12,6 @@ data class Product(
     var quantity : Int,
     val cartId : String,
     var done : Boolean = false
-): java.io.Serializable {
+): Serializable {
     @PrimaryKey(autoGenerate = true) var id : Int = 0
 }

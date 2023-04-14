@@ -76,7 +76,6 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/date_dd_mm_yyyy"
                 android:inputType="date"
-
                 android:maxLength="10" />
         </com.google.android.material.textfield.TextInputLayout>
 

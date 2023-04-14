@@ -2,7 +2,7 @@ package br.com.iesb.comprarei
 
 import android.app.Application
 import br.com.iesb.comprarei.di.dataBaseModule
-import br.com.iesb.comprarei.di.dispachersModule
+import br.com.iesb.comprarei.di.dispatcherModule
 import br.com.iesb.comprarei.di.repositoryModule
 import br.com.iesb.comprarei.di.viewModelModule
 import org.koin.android.ext.koin.androidContext
@@ -17,7 +17,7 @@ class MyApplication : Application() {
             androidContext(applicationContext)
             modules(
                 listOf(
-                    dispachersModule, dataBaseModule, repositoryModule,
+                    dispatcherModule, dataBaseModule, repositoryModule,
                     viewModelModule
                 )
             )

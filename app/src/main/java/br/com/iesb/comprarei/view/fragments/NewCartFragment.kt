@@ -4,7 +4,8 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
 import br.com.iesb.comprarei.databinding.FragmentNewCartBinding
-import br.com.iesb.comprarei.util.Validator
+import br.com.iesb.comprarei.util.DateInputMask
+import br.com.iesb.comprarei.util.DateUtil
 import br.com.iesb.comprarei.util.errorAnimation
 import br.com.iesb.comprarei.util.setVisibility
 import br.com.iesb.comprarei.viewmodel.CartViewModel
@@ -35,7 +36,8 @@ class NewCartFragment : androidx.fragment.app.DialogFragment() {
                 binding.cartDate.text.isNullOrBlank() -> {
                     binding.cartDate.errorAnimation()
                 }
-                Validator.validateDate(binding.cartDate.text.toString()) -> {
+
+                DateUtil.validateDate(binding.cartDate.text.toString()) -> {
                     viewModel.saveCart(
                         binding.cartName.text.toString(),
                         binding.cartDate.text.toString()
@@ -56,6 +58,8 @@ class NewCartFragment : androidx.fragment.app.DialogFragment() {
     }
 
     private fun dateHandler() {
+
+        DateInputMask(binding.cartDate).listen()
 
         binding.datePicker.init(
             Calendar.getInstance().get(Calendar.YEAR),
@@ -84,5 +88,7 @@ class NewCartFragment : androidx.fragment.app.DialogFragment() {
         _binding = null
     }
 }
+
+
 
 

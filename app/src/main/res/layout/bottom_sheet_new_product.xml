@@ -85,7 +85,6 @@
         android:layout_marginHorizontal="12dp"
         android:layout_marginTop="32dp"
         android:hint="@string/price"
-        app:prefixText="R$"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/product_quantity_layout"
         app:layout_constraintTop_toBottomOf="@id/product_brand_layout">

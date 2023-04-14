@@ -2,6 +2,7 @@ package br.com.iesb.comprarei.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 
 @Entity(tableName = "carts")
 data class Cart(
@@ -9,4 +10,4 @@ data class Cart(
     val name: String,
     val data: String,
     val total : String
-): java.io.Serializable
+): Serializable
