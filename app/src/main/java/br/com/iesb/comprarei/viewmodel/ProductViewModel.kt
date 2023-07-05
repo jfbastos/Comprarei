@@ -1,23 +1,17 @@
 package br.com.iesb.comprarei.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import br.com.iesb.comprarei.model.Product
 import br.com.iesb.comprarei.model.ProductRepository
+import br.com.iesb.comprarei.view.components.StateUi
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class ProductViewModel(private val productRepository: ProductRepository) : ViewModel() {
 
-    //private val listOfProducts = MutableLiveData<List<Product>>()
-    lateinit var productsLiveData: LiveData<List<Product>>
+    var cartId : Int = -1
 
-    fun getProducts(cartId: String) {
-        viewModelScope.launch {
-            productsLiveData = productRepository.getProducts(cartId)
-        }
-
-    }
+    val products : LiveData<List<Product>> = productRepository.products.map { it.filter { product -> product.cartId == cartId} }.asLiveData()
 
     fun updateProduct(product: Product) {
         viewModelScope.launch {
@@ -25,12 +19,11 @@ class ProductViewModel(private val productRepository: ProductRepository) : ViewM
         }
     }
 
-    fun updateDone(isDone : Boolean, id : Int){
+    fun updateDone(isDone: Boolean, id: Int) {
         viewModelScope.launch {
             productRepository.updateDone(isDone, id)
         }
     }
-
 
     fun saveProduct(product: Product) {
         viewModelScope.launch {
@@ -41,6 +34,18 @@ class ProductViewModel(private val productRepository: ProductRepository) : ViewM
     fun deleteProduct(product: Product) {
         viewModelScope.launch {
             productRepository.deleteProduct(product.id)
+        }
+    }
+
+    fun reorderList(currentList: List<Product>) {
+        viewModelScope.launch {
+           productRepository.updateAll(currentList)
+        }
+    }
+
+    fun deleteProducts(cartId: Int) {
+        viewModelScope.launch {
+            productRepository.deleteProducts(cartId)
         }
     }
 

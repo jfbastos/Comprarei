@@ -6,8 +6,9 @@ import java.io.Serializable
 
 @Entity(tableName = "carts")
 data class Cart(
-    @PrimaryKey val id: String,
-    val name: String,
-    val data: String,
+    var name: String,
+    var data: String,
     val total : String
-): Serializable
+): Serializable {
+    @PrimaryKey(autoGenerate = true) var id : Int = 0
+}

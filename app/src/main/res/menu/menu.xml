@@ -6,31 +6,30 @@
         android:id="@+id/search_menu"
         android:icon="@drawable/ic_search_24"
         android:title="@string/search"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom|collapseActionView"/>
 
     <item
         android:id="@+id/delete_menu"
         android:icon="@drawable/ic_delete_24"
         android:title="@string/delete"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="never"/>
 
     <item
         android:id="@+id/sort_menu"
         android:icon="@drawable/ic_filter_list_24"
         android:title="@string/sort"
-        app:showAsAction="ifRoom"/>
-
+        app:showAsAction="never"/>
 
     <item
         android:id="@+id/share_menu"
         android:icon="@drawable/ic_share_24"
         android:title="@string/share"
         android:visible="false"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="always|collapseActionView"/>
 
     <item
         android:id="@+id/night_mode"
         android:title="Night mode"
         android:icon="@drawable/ic_baseline_light_24"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="never"/>
 </menu>

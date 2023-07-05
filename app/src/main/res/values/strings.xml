@@ -8,11 +8,6 @@
     <string name="multiple_items_confirmation">items</string>
     <string name="positive_confirmation">Yes</string>
     <string name="negative_confirmation">Cancel</string>
-    <string name="blank_error_message">Can\'t be blank!</string>
-    <string name="invalid_date_error_message">Invalid date!</string>
-    <string name="no_data_error">No date</string>
-    <string name="invalid_price_error_message">Invalid price</string>
-    <string name="invalid_quantity_error_message">Invalid quantity</string>
     <string name="product_sort_name">Name</string>
     <string name="product_sort_price">Price (by lowest)</string>
     <string name="product_sort_total">Total (by lowest)</string>
@@ -23,7 +18,7 @@
     <string name="price">Price</string>
     <string name="quantity">Quantity</string>
     <string name="cancel">Cancel</string>
-    <string name="save">SAVE</string>
+    <string name="save">Save</string>
     <string name="empty_list_message">Ops, nothing here yet…</string>
     <string name="new_cart">New cart</string>
     <string name="date_dd_mm_yyyy">Date (dd/mm/yyyy)</string>
@@ -31,7 +26,7 @@
     <string name="x" translatable="false">x</string>
     <string name="sort_type">Sort by:</string>
     <string name="search">search</string>
-    <string name="delete">Delete</string>
+    <string name="delete">Delete many</string>
     <string name="sort">Sort</string>
     <string name="share">Share</string>
     <string name="quantity_label">"Quantity: "</string>
@@ -39,7 +34,6 @@
     <string name="night_off_msg">Night mode off</string>
     <string name="night_on_msg">Night mode on</string>
     <string name="swipe_delete_msg">Delete</string>
-    <string name="undo_swipe_msg">Undo</string>
-    <string name="done_swipe_msg">Done</string>
+    <string name="swipe_to_edit">Edit</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

@@ -8,8 +8,14 @@ import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
 import br.com.iesb.comprarei.R
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 
 fun TextInputEditText.errorAnimation() {
+    val error = AnimationUtils.loadAnimation(this.context, R.anim.shake)
+    this.startAnimation(error)
+}
+
+fun TextInputLayout.errorAnimation() {
     val error = AnimationUtils.loadAnimation(this.context, R.anim.shake)
     this.startAnimation(error)
 }
@@ -41,7 +47,7 @@ fun Editable?.convertMonetaryToDouble(): Double {
         } else {
             this.substring(2, this.length)
         }
-        text.toDouble()
+        text.trim().toDouble()
     } catch (e: Exception) {
         0.0
     }

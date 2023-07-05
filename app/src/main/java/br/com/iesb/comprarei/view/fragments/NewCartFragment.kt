@@ -3,45 +3,70 @@ package br.com.iesb.comprarei.view.fragments
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
+import android.text.style.StyleSpan
+import android.text.style.TextAppearanceSpan
+import androidx.annotation.StyleRes
+import androidx.core.os.bundleOf
+import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.setFragmentResult
 import br.com.iesb.comprarei.databinding.FragmentNewCartBinding
-import br.com.iesb.comprarei.util.DateInputMask
-import br.com.iesb.comprarei.util.DateUtil
-import br.com.iesb.comprarei.util.errorAnimation
-import br.com.iesb.comprarei.util.setVisibility
+import br.com.iesb.comprarei.model.Cart
+import br.com.iesb.comprarei.util.*
 import br.com.iesb.comprarei.viewmodel.CartViewModel
+import com.google.android.material.resources.TextAppearance
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.*
 
-
-class NewCartFragment : androidx.fragment.app.DialogFragment() {
+class NewCartFragment() : DialogFragment() {
 
     private var _binding: FragmentNewCartBinding? = null
     private val binding: FragmentNewCartBinding get() = _binding!!
+    private var cart : Cart? = null
 
-    private val viewModel: CartViewModel by viewModel()
+    constructor(cart : Cart) : this(){
+        this.cart = cart
+    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(context)
         _binding = FragmentNewCartBinding.inflate(layoutInflater)
         builder.setView(binding.root)
 
+        cart?.let {
+            binding.cartName.setText(it.name)
+            binding.cartDate.setText(it.data)
+        }
+
         dateHandler()
+
+        binding.cartName.doAfterTextChanged {
+            if(binding.cartNameLayout.error?.isNotBlank() == true) binding.cartNameLayout.isErrorEnabled = false
+        }
 
         binding.btnOk.setOnClickListener {
             when {
                 binding.cartName.text.isNullOrBlank() -> {
-                    binding.cartName.errorAnimation()
-
-                }
-                binding.cartDate.text.isNullOrBlank() -> {
-                    binding.cartDate.errorAnimation()
+                    binding.cartNameLayout.isErrorEnabled = true
+                    binding.cartNameLayout.errorAnimation()
+                    binding.cartNameLayout.error = "Dê um nome ao seu carrinho!"
                 }
 
                 DateUtil.validateDate(binding.cartDate.text.toString()) -> {
-                    viewModel.saveCart(
-                        binding.cartName.text.toString(),
-                        binding.cartDate.text.toString()
-                    )
+                    cart = if(cart != null){
+                        cart!!.name = binding.cartName.text.toString()
+                        cart!!.data = binding.cartDate.text.toString().takeIf { it.isNotBlank() } ?: DateUtil.getTodayDate()
+                        cart
+                    }else{
+                        Cart(
+                            name = binding.cartName.text.toString(),
+                            data = binding.cartDate.text.toString().takeIf { it.isNotBlank() } ?: DateUtil.getTodayDate(),
+                            total = Constants.EMPTY_CART_VALUE)
+                    }
+
+                    setFragmentResult(Constants.NEW_CART_KEY, bundleOf(Constants.CART_BUNDLE_KEY to cart))
                     this.dismiss()
                 }
                 else -> {

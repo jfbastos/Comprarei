@@ -1,25 +1,31 @@
 package br.com.iesb.comprarei.model.dao
 
-import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import br.com.iesb.comprarei.model.Cart
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CartDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertCart(cart : Cart)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(cartList : List<Cart>)
+
     @get: Query("SELECT * FROM carts")
-    val carts: LiveData<List<Cart>>
+    val carts: Flow<List<Cart>>
 
     @Query("DELETE FROM carts WHERE id = :id")
-    fun delete(id : String)
+    fun delete(id : Int)
+
+    @Query("DELETE FROM carts")
+    fun deleteAll() : Int
 
     @Query("UPDATE carts SET total = :total WHERE id = :id")
-    fun updateTotal(total : String, id : String)
+    fun updateTotal(total : String, id : Int)
+
+    @Update
+    fun updateCart(cart : Cart) : Int
 
 
 }

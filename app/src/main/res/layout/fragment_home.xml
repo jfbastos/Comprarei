@@ -13,7 +13,7 @@
         style="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/green_dark"
+        android:background="@color/primary_green"
         app:menu="@menu/menu"
         app:title="@string/app_name"
         app:titleTextColor="@color/white" />

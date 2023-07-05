@@ -1,51 +1,25 @@
 package br.com.iesb.comprarei.model
 
-import br.com.iesb.comprarei.interfaces.TaskListener
 import br.com.iesb.comprarei.model.dao.CartDao
-import br.com.iesb.comprarei.util.Constants
-import kotlinx.coroutines.*
-import java.util.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
-class CartRepository(private val cartDao : CartDao, private val dispatcher: CoroutineDispatcher) {
+class CartRepository(private val cartDao: CartDao, private val dispatcher: CoroutineDispatcher) {
 
-    fun getCarts(taskListener: TaskListener) {
-        try{
-            taskListener.onSuccess(cartDao.carts)
-        }catch (e : Exception){
-            taskListener.onError(e)
-        }
-    }
+    val carts: Flow<List<Cart>>
+        get() = cartDao.carts
 
-    suspend fun saveCart(name : String, data : String, taskListener: TaskListener) = withContext(dispatcher) {
-        try{
-            val id = UUID.randomUUID().toString()
-            val cart = Cart(id, name, data, Constants.EMPTY_CART_VALUE)
-            cartDao.insertCart(cart)
-            taskListener.onSuccess(true)
-        }catch (e : Exception){
-            taskListener.onError(e)
-        }
+    suspend fun saveCart(cart: Cart) = withContext(dispatcher) { cartDao.insertCart(cart) }
 
-    }
+    suspend fun deleteCart(cartId: Int) = withContext(dispatcher) { cartDao.delete(cartId) }
 
-    suspend fun deleteCart(cartId : String, taskListener: TaskListener) = withContext(dispatcher) {
-        try{
-            cartDao.delete(cartId)
-            taskListener.onSuccess(true)
-        }catch (e : Exception){
-            taskListener.onError(e)
-        }
+    suspend fun updateTotal(total: String, id: Int) = withContext(dispatcher) { cartDao.updateTotal(total, id) }
 
-    }
+    suspend fun updateCart(cart: Cart) = withContext(dispatcher) { cartDao.updateCart(cart) }
 
-    suspend fun updateTotal(total : String, id: String, taskListener: TaskListener) = withContext(dispatcher) {
-        try{
-            cartDao.updateTotal(total, id)
-            taskListener.onSuccess(true)
-        }catch (e : Exception){
-            taskListener.onError(e)
-        }
+    suspend fun updateAll(cartList: List<Cart>) = withContext(dispatcher) { cartDao.insertAll(cartList) }
 
-    }
+    suspend fun deleteAll() : Int = withContext(dispatcher) { cartDao.deleteAll() }
 
 }

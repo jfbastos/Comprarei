@@ -6,6 +6,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import br.com.iesb.comprarei.R
@@ -26,7 +27,7 @@ class NewProductFragment : BottomSheetDialogFragment() {
 
     private var onFormFinish: ((product: Product) -> Unit)? = null
     private var product: Product? = null
-    private var cartId: String = ""
+    private var cartId: Int = -1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,7 +41,7 @@ class NewProductFragment : BottomSheetDialogFragment() {
         arguments?.let {
             onFormFinish = it.getSerializable(ON_FORM_FINISH_KEY) as? ((product: Product) -> Unit)?
             if (it.containsKey(CARTID_KEY)) {
-                cartId = it.getString(CARTID_KEY) as String
+                cartId = it.getInt(CARTID_KEY)
             }
             if (it.containsKey(PRODUCT_KEY)) {
                 product = it.getSerializable(PRODUCT_KEY) as Product
@@ -91,43 +92,41 @@ class NewProductFragment : BottomSheetDialogFragment() {
     private fun setValuesOfProduct(it: Product) {
         binding.dialogTitle.text = it.name
         binding.productName.setText(it.name)
-        binding.productPrice.setText(it.price.toString())
+        binding.productPrice.setText(FormatFrom.doubleToMonetary("R$", it.price))
         binding.productBrand.setText(it.brand)
         binding.productQuantity.setText(it.quantity.toString())
     }
 
     private fun saveProduct() {
         if (binding.productName.text.isNullOrEmpty()) {
-            binding.productName.errorAnimation()
+            binding.productNameLayout.errorAnimation()
+            binding.productNameLayout.error = ""
+            binding.productName.error = "Nome não pode ser vazio!"
         } else {
             onFormFinish?.let {
-                product?.let { product ->
-                    if (validateValueQuantity()
-                    ) {
-                        binding.productQuantity.errorAnimation()
+                if(product != null){
+                    if (validateValueQuantity()) {
+                        binding.productQuantity.setText("1")
                     } else {
-                        product.name = binding.productName.text.toString()
-                        product.brand = binding.productBrand.text.toString()
-                        product.price = binding.productPrice.text.convertMonetaryToDouble()
-                        product.quantity =
-                            FormatFrom.stringToInt(binding.productQuantity.text.toString())
-
-                        it(product)
+                        product!!.name = binding.productName.text.toString()
+                        product!!.brand = binding.productBrand.text.toString()
+                        product!!.price = binding.productPrice.text.convertMonetaryToDouble()
+                        product!!.quantity = FormatFrom.stringToInt(binding.productQuantity.text.toString().ifBlank { "1" })
+                        it(product!!)
 
                         isCancelable = true
                         dismiss()
                     }
-                } ?: run {
+                }else{
                     if (validateValueQuantity()) {
-                        binding.productQuantity.errorAnimation()
+                        binding.productQuantity.setText("1")
                     } else {
                         it(
                             Product(
                                 binding.productName.text.toString(),
                                 binding.productBrand.text.toString(),
                                 binding.productPrice.text.convertMonetaryToDouble(),
-                                FormatFrom.stringToInt(
-                                    binding.productQuantity.text.toString().ifBlank { "1" }),
+                                FormatFrom.stringToInt(binding.productQuantity.text.toString().ifBlank { "1" }),
                                 cartId
                             )
                         )
@@ -140,8 +139,7 @@ class NewProductFragment : BottomSheetDialogFragment() {
     }
 
     private fun validateValueQuantity() =
-        binding.productPrice.text.convertMonetaryToDouble() != 0.0 && binding.productQuantity.text.toString()
-            .ifBlank { "0" }.toInt() == 0
+        binding.productPrice.text.convertMonetaryToDouble() != 0.0 && binding.productQuantity.text.toString().ifBlank { "0" }.toInt() == 0
 
     companion object {
         private const val ON_FORM_FINISH_KEY = "OnFormFinish"
@@ -149,12 +147,12 @@ class NewProductFragment : BottomSheetDialogFragment() {
         private const val CARTID_KEY = "CartId"
 
         fun Fragment.openNewProductBottomSheet(
-            cartId: String,
+            cartId: Int,
             onFormFinish: (product: Product) -> Unit
         ) {
             val bundle = Bundle().apply {
                 putSerializable(ON_FORM_FINISH_KEY, onFormFinish as Serializable)
-                putString(CARTID_KEY, cartId)
+                putInt(CARTID_KEY, cartId)
             }
 
             val bottomSheetFragment = NewProductFragment()

@@ -4,9 +4,15 @@ import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.view.menu.MenuPresenter
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.MenuProvider
+import br.com.iesb.comprarei.R
 import br.com.iesb.comprarei.databinding.ActivityMainBinding
 import br.com.iesb.comprarei.util.Constants
 import kotlinx.coroutines.CoroutineScope
@@ -34,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 
         setDarkMode()
 
-        (this as? Activity)?.actionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
     fun saveShared(modeNightMode: Int){

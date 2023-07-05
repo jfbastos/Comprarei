@@ -6,10 +6,9 @@
 
     <ImageView
         android:id="@+id/image_cart"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:src="@drawable/ic_baseline_shopping_cart_24"
-        app:tint="@color/green_light"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/baseline_shopping_cart_24"
         android:scaleX="1"
         android:scaleY="1"
         android:clickable="true"

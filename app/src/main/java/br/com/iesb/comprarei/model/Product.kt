@@ -10,7 +10,7 @@ data class Product(
     var brand: String = "",
     var price : Double,
     var quantity : Int,
-    val cartId : String,
+    val cartId : Int,
     var done : Boolean = false
 ): Serializable {
     @PrimaryKey(autoGenerate = true) var id : Int = 0

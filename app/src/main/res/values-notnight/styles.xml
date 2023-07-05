@@ -6,11 +6,11 @@
     </style>
 
     <style name="MyInputTextStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="colorAccent">@color/green_dark</item>
-        <item name="prefixTextColor">@color/green_light</item>
-        <item name="hintTextColor">@color/green_dark</item>
-        <item name="placeholderTextColor">@color/green_dark</item>
-        <item name="boxStrokeColor">@color/green_dark</item>
+        <item name="colorAccent">@color/primary_green</item>
+        <item name="prefixTextColor">@color/secondary_green</item>
+        <item name="hintTextColor">@color/primary_green</item>
+        <item name="placeholderTextColor">@color/primary_green</item>
+        <item name="boxStrokeColor">@color/primary_green</item>
     </style>
 
     <style name="MyCancelButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
@@ -18,6 +18,6 @@
     </style>
 
     <style name="MyOkButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">@color/green_dark</item>
+        <item name="android:textColor">@color/primary_green</item>
     </style>
 </resources>

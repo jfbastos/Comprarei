@@ -15,7 +15,7 @@ class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallb
     var selectedItems = mutableListOf<Cart>()
     val differ = AsyncListDiffer(this, differCallback)
 
-    inner class CartsViewHolder(val binding: CartItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class CartsViewHolder(private val binding: CartItemBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(cart: Cart) {
             binding.cartName.text = cart.name
             binding.cartDate.text = cart.data
@@ -25,10 +25,6 @@ class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallb
             binding.root.apply {
                 this.setOnClickListener {
                     onItemClickListener?.invoke(cart)
-                }
-
-                setOnLongClickListener {
-                    onLongItemClickListener.invoke(cart)
                 }
             }
         }
@@ -57,10 +53,6 @@ class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallb
         holder.bind(differ.currentList[position])
     }
 
-    fun clearSelectedItems() {
-        selectedItems.clear()
-    }
-
     override fun getItemCount(): Int {
         return differ.currentList.size
     }
@@ -69,11 +61,5 @@ class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallb
 
     fun setOnItemClickListener(clickListener: (Cart) -> Unit) {
         onItemClickListener = clickListener
-    }
-
-    private lateinit var onLongItemClickListener: ((Cart) -> Boolean)
-
-    fun setOnLongItemClickListener(longClickListener: (Cart) -> Boolean) {
-        onLongItemClickListener = longClickListener
     }
 }

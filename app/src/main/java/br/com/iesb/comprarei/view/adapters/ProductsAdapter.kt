@@ -4,7 +4,6 @@ import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -17,10 +16,10 @@ import br.com.iesb.comprarei.util.FormatFrom
 class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>(differCallback) {
 
     var selectionMode = false
-    private var selectedItems = mutableListOf<Product>()
+    var selectedItems = mutableListOf<Product>()
     val differ = AsyncListDiffer(this, differCallback)
 
-    inner class ProductsViewHolder(val binding: ProductItemBinding) :
+    inner class ProductsViewHolder(private val binding: ProductItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(product: Product) {
             binding.productName.text = product.name
@@ -38,11 +37,7 @@ class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>
                 binding.productName.paintFlags = 0
             }
 
-            checkSelectionMode()
-
-            binding.checkForDelete.setOnClickListener {
-                setCheckBox(product)
-            }
+            binding.selectedBackground.visibility = if(selectedItems.contains(product)) View.VISIBLE else View.INVISIBLE
 
             binding.root.apply {
                setListeners(product)
@@ -54,41 +49,9 @@ class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>
             this.setOnClickListener {
                 onItemClickListener?.invoke(product, adapterPosition)
             }
-
-            if (selectionMode) {
-                this.setOnClickListener {
-                    binding.checkForDelete.isChecked = !binding.checkForDelete.isChecked
-                    setCheckBox(product)
-                }
-            }
-
-            setOnLongClickListener {
-                binding.checkForDelete.isChecked = !binding.checkForDelete.isChecked
-                setCheckBox(product)
-                onLongItemClickListener.invoke(product)
-            }
-        }
-
-        private fun checkSelectionMode() {
-            if (selectionMode) {
-                binding.checkForDelete.visibility = View.VISIBLE
-            } else {
-                binding.checkForDelete.isChecked = false
-                binding.checkForDelete.visibility = View.INVISIBLE
-            }
-        }
-
-        private fun setCheckBox(product: Product) {
-            if (binding.checkForDelete.isChecked) {
-                selectedItems.add(product)
-            } else if (selectedItems.contains(product)) {
-                selectedItems.remove(product)
-            }
         }
         //endregion
     }
-
-
 
     companion object {
         private val differCallback: DiffUtil.ItemCallback<Product> =
@@ -116,14 +79,6 @@ class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>
         holder.bind(differ.currentList[position])
     }
 
-    fun getSelectedItems(): List<Product> {
-        return selectedItems
-    }
-
-    fun clearSelectedItems() {
-        selectedItems.clear()
-    }
-
     override fun getItemCount(): Int {
         return differ.currentList.size
     }
@@ -133,11 +88,4 @@ class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>
     fun setOnItemClickListener(clickListener: (Product, Int) -> Unit) {
         onItemClickListener = clickListener
     }
-
-    private lateinit var onLongItemClickListener: ((Product) -> Boolean)
-
-    fun setOnLongItemClickListener(longClickListener: (Product) -> Boolean) {
-        onLongItemClickListener = longClickListener
-    }
-
 }

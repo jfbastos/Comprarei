@@ -8,11 +8,6 @@
     <string name="multiple_items_confirmation">itens</string>
     <string name="positive_confirmation">Sim</string>
     <string name="negative_confirmation">Cancelar</string>
-    <string name="blank_error_message">Não pode ser vazio!</string>
-    <string name="invalid_date_error_message">Data inválida!</string>
-    <string name="no_data_error">Sem data</string>
-    <string name="invalid_price_error_message">Preço inválido</string>
-    <string name="invalid_quantity_error_message">Quantidade inválida</string>
     <string name="product_sort_name">Nome</string>
     <string name="product_sort_price">Preço (menor pro maior)</string>
     <string name="product_sort_total">Total (menor pro maior)</string>
@@ -24,13 +19,13 @@
     <string name="quantity">Quantidade</string>
     <string name="cancel">Cancelar</string>
     <string name="save">Salvar</string>
-    <string name="empty_list_message">Ops, nada aqui, ainda…</string>
+    <string name="empty_list_message">Ops, nada aqui ainda…</string>
     <string name="new_cart">Nova Compra</string>
     <string name="date_dd_mm_yyyy">Data (dd/mm/aaaa)</string>
     <string name="product">Produto</string>
     <string name="sort_type">Ordenar por:</string>
     <string name="search">pesquisa</string>
-    <string name="delete">Deletar</string>
+    <string name="delete">Deletar vários</string>
     <string name="sort">Ordenar</string>
     <string name="share">Compartilhar</string>
     <string name="quantity_label">"Quantidade: "</string>
@@ -38,7 +33,6 @@
     <string name="night_off_msg">Modo noturno desligado</string>
     <string name="night_on_msg">Modo noturno ligado</string>
     <string name="swipe_delete_msg">Deletar</string>
-    <string name="done_swipe_msg">Marcar</string>
-    <string name="undo_swipe_msg">Desmarcar</string>
+    <string name="swipe_to_edit">Editar</string>
 
 </resources>
