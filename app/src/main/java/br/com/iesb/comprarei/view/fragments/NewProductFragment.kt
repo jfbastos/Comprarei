@@ -28,6 +28,7 @@ class NewProductFragment : BottomSheetDialogFragment() {
     private var onFormFinish: ((product: Product) -> Unit)? = null
     private var product: Product? = null
     private var cartId: Int = -1
+    private var lastKnowPosition : Int = -1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,6 +46,9 @@ class NewProductFragment : BottomSheetDialogFragment() {
             }
             if (it.containsKey(PRODUCT_KEY)) {
                 product = it.getSerializable(PRODUCT_KEY) as Product
+            }
+            if(it.containsKey(LAST_KNOW_POSITION)){
+                lastKnowPosition = it.getInt(LAST_KNOW_POSITION)
             }
         }
 
@@ -127,7 +131,8 @@ class NewProductFragment : BottomSheetDialogFragment() {
                                 binding.productBrand.text.toString(),
                                 binding.productPrice.text.convertMonetaryToDouble(),
                                 FormatFrom.stringToInt(binding.productQuantity.text.toString().ifBlank { "1" }),
-                                cartId
+                                cartId,
+                                position = lastKnowPosition
                             )
                         )
                         isCancelable = true
@@ -145,14 +150,17 @@ class NewProductFragment : BottomSheetDialogFragment() {
         private const val ON_FORM_FINISH_KEY = "OnFormFinish"
         private const val PRODUCT_KEY = "Product"
         private const val CARTID_KEY = "CartId"
+        private const val LAST_KNOW_POSITION = "LAST_KNOW_POSITION"
 
         fun Fragment.openNewProductBottomSheet(
             cartId: Int,
+            lastKnowPosition : Int,
             onFormFinish: (product: Product) -> Unit
         ) {
             val bundle = Bundle().apply {
                 putSerializable(ON_FORM_FINISH_KEY, onFormFinish as Serializable)
                 putInt(CARTID_KEY, cartId)
+                putInt(LAST_KNOW_POSITION, lastKnowPosition)
             }
 
             val bottomSheetFragment = NewProductFragment()

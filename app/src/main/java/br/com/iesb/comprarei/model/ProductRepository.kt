@@ -7,7 +7,7 @@ import kotlinx.coroutines.withContext
 
 class ProductRepository(private val productDao: ProductDao, private val dispacher: CoroutineDispatcher) {
 
-    val products : Flow<List<Product>> = productDao.allProducts
+    suspend fun getProducts(cartId: Int) = withContext(dispacher){ productDao.getProducts(cartId) }
 
     suspend fun saveProduct(product: Product) = withContext(dispacher) {
         productDao.insertProduct(product)
@@ -27,10 +27,14 @@ class ProductRepository(private val productDao: ProductDao, private val dispache
         }
     }
 
-    suspend fun deleteProduct(id: Int) = withContext(dispacher) { productDao.delete(id) }
+    suspend fun deleteProduct(ids: List<Int>) = withContext(dispacher) { productDao.delete(ids) }
 
     suspend fun updateDone(isDone: Boolean, id: Int) = withContext(dispacher) { productDao.updateDone(isDone, id) }
 
     suspend fun updateAll(currentList: List<Product>) = withContext(dispacher) { productDao.insertAll(currentList) }
+
+    suspend fun updateOrder(reorderedList: List<Product>) = withContext(dispacher) {
+        productDao.updateOrder(reorderedList)
+    }
 
 }

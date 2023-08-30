@@ -3,6 +3,7 @@ package br.com.iesb.comprarei.util
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
+import java.lang.StringBuilder
 import java.lang.ref.WeakReference
 import java.math.BigDecimal
 import java.text.NumberFormat
@@ -11,7 +12,7 @@ import java.util.*
 
 class MoneyTextWatcher(editText: EditText?) : TextWatcher {
     private val editTextWeakReference: WeakReference<EditText>
-    private val locale = Locale.getDefault()
+    private val locale = Locale("Pt", "BR")
 
     init {
         editTextWeakReference = WeakReference<EditText>(editText)
@@ -41,4 +42,6 @@ class MoneyTextWatcher(editText: EditText?) : TextWatcher {
             BigDecimal(100), BigDecimal.ROUND_FLOOR
         )
     }
+
+
 }

@@ -5,7 +5,7 @@
     <string name="title_confirmation">Are you sure?</string>
     <string name="message_confirmation">Do you really want to delete\u0020</string>
     <string name="single_item_confirmation">item</string>
-    <string name="multiple_items_confirmation">items</string>
+    <string name="multiple_items_confirmation">" items"</string>
     <string name="positive_confirmation">Yes</string>
     <string name="negative_confirmation">Cancel</string>
     <string name="product_sort_name">Name</string>
@@ -25,7 +25,7 @@
     <string name="product">Product</string>
     <string name="x" translatable="false">x</string>
     <string name="sort_type">Sort by:</string>
-    <string name="search">search</string>
+    <string name="search">Search</string>
     <string name="delete">Delete many</string>
     <string name="sort">Sort</string>
     <string name="share">Share</string>
@@ -35,5 +35,6 @@
     <string name="night_on_msg">Night mode on</string>
     <string name="swipe_delete_msg">Delete</string>
     <string name="swipe_to_edit">Edit</string>
+    <string name="valor_total">Total value</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

@@ -9,9 +9,12 @@ import kotlinx.coroutines.launch
 
 class ProductViewModel(private val productRepository: ProductRepository) : ViewModel() {
 
-    var cartId : Int = -1
+    private var _products = MutableLiveData<List<Product>>()
+    val products : LiveData<List<Product>> get() = _products
 
-    val products : LiveData<List<Product>> = productRepository.products.map { it.filter { product -> product.cartId == cartId} }.asLiveData()
+    fun getProducts(cartId : Int) = viewModelScope.launch {
+        _products.value = productRepository.getProducts(cartId)
+    }
 
     fun updateProduct(product: Product) {
         viewModelScope.launch {
@@ -31,9 +34,9 @@ class ProductViewModel(private val productRepository: ProductRepository) : ViewM
         }
     }
 
-    fun deleteProduct(product: Product) {
+    fun deleteProduct(ids : List<Int>) {
         viewModelScope.launch {
-            productRepository.deleteProduct(product.id)
+            productRepository.deleteProduct(ids)
         }
     }
 
@@ -64,6 +67,13 @@ class ProductViewModel(private val productRepository: ProductRepository) : ViewM
                 list
             }
         }
+    }
+
+    fun updateOrder(reorderedList: List<Product>) = viewModelScope.launch{
+        reorderedList.forEachIndexed { index, product ->
+            product.position = index
+        }
+        productRepository.updateOrder(reorderedList)
     }
 
 }

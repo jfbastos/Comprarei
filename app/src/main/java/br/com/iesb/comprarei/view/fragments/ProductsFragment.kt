@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.SearchView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -17,7 +18,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import br.com.iesb.comprarei.R
 import br.com.iesb.comprarei.databinding.FragmentProductsBinding
-import br.com.iesb.comprarei.model.Cart
 import br.com.iesb.comprarei.model.Product
 import br.com.iesb.comprarei.util.*
 import br.com.iesb.comprarei.view.adapters.ProductsAdapter
@@ -41,14 +41,14 @@ class ProductsFragment : Fragment(), BaseFragment {
     private lateinit var sortMenu: MenuItem
     private lateinit var searchMenu: MenuItem
     private lateinit var shareMenu: MenuItem
-    private var originalList: List<Product> = listOf()
+    private lateinit var selectAllMenu : MenuItem
+    private var originalList: MutableList<Product> = mutableListOf()
     private lateinit var productsAdapter: ProductsAdapter
     private var selectionMode = false
     private var lastAction = -1
     private var cartId = -1
 
     private val viewModelProduct: ProductViewModel by viewModel()
-
     private val viewModelCart: CartViewModel by viewModel()
 
     override fun onCreateView(
@@ -66,15 +66,15 @@ class ProductsFragment : Fragment(), BaseFragment {
         cartId = arguments?.getLong("cartId")?.toInt() ?: -1
         binding.toolbar.title = cartName
 
-        viewModelProduct.cartId = cartId
-
         setupMenuItems()
 
         setupAdapter()
 
         doSearch()
 
-        swipeToRemove()
+        configItemTouchHelper()
+
+        viewModelProduct.getProducts(cartId)
 
         binding.closeSelection.setOnClickListener {
             changeSelectState()
@@ -91,10 +91,21 @@ class ProductsFragment : Fragment(), BaseFragment {
                 setItemSelected(product)
             }else{
                 openEditProductBottomSheet(product) { productEdited ->
-                    viewModelProduct.updateProduct(productEdited)
-                    productsAdapter.notifyItemChanged(productsAdapter.differ.currentList.indexOf(productEdited))
+                    updateProduct(productEdited)
+                    updateSummary()
                 }
             }
+        }
+
+        binding.newProduct.setOnClickListener {
+            openNewProductBottomSheet(cartId, productsAdapter.itemCount) { newProduct ->
+                saveNewProduct(newProduct)
+                updateSummary()
+            }
+        }
+
+        binding.closeSelection.setOnClickListener {
+            changeSelectState()
         }
 
         shareMenu.setOnMenuItemClickListener {
@@ -107,17 +118,82 @@ class ProductsFragment : Fragment(), BaseFragment {
             return@setOnMenuItemClickListener true
         }
 
-        binding.newProduct.setOnClickListener {
-            openNewProductBottomSheet(cartId) { newProduct ->
-                viewModelProduct.saveProduct(newProduct)
-                productsAdapter.notifyDataSetChanged()
-            }
-        }
+    }
 
-        binding.closeSelection.setOnClickListener {
-            changeSelectState()
+    private fun showProductsList(productList: List<Product>) {
+        if (productList.isEmpty()) {
+            showEmptyMessage(true)
+        } else {
+            showEmptyMessage(false)
+            shareMenu.isVisible = true
+            originalList.addAll(productList)
+            productsAdapter.differ.submitList(originalList)
+        }
+        updateSummary()
+        productsAdapter.notifyDataSetChanged()
+    }
+
+    //region CRUD
+    private fun updateProduct(productEdited: Product) {
+        viewModelProduct.updateProduct(productEdited)
+        originalList[originalList.indexOf(productEdited)] = productEdited
+        productsAdapter.differ.submitList(originalList)
+        productsAdapter.notifyItemChanged(productsAdapter.differ.currentList.indexOf(productEdited))
+    }
+
+    private fun saveNewProduct(newProduct: Product) {
+        viewModelProduct.saveProduct(newProduct)
+        showProductsList(listOf(newProduct))
+        productsAdapter.notifyDataSetChanged()
+    }
+
+    private fun deleteProducts(list : List<Product>){
+        viewModelProduct.deleteProduct(list.map { it.id })
+        originalList.removeAll(list)
+        productsAdapter.differ.submitList(originalList)
+        productsAdapter.notifyDataSetChanged()
+        updateSummary()
+    }
+    //endregion
+
+    //region Delete
+
+    private fun deleteItems() : Boolean{
+        if(selectionMode && productsAdapter.selectedItems.isNotEmpty()) confirmDeletion(productsAdapter.selectedItems)
+        else changeSelectState()
+
+        return true
+    }
+
+    private fun deleteOneItem(product: Product) {
+        confirmDeletion(listOf(product))
+    }
+
+    private fun confirmDeletion(productsToDelete : List<Product>) {
+        if(productsToDelete.size == 1){
+            AlertDialog.Builder(context).setTitle(getString(R.string.title_confirmation))
+                .setMessage(getString(R.string.message_confirmation) + productsToDelete.first().name + " ?")
+                .setIcon(R.drawable.ic_info_24).setPositiveButton(getString(R.string.positive_confirmation)) { dialog, _ ->
+                    deleteProducts(productsToDelete)
+                    dialog.dismiss()
+                }.setNegativeButton(getString(R.string.negative_confirmation)) { dialog, _ ->
+                    dialog.dismiss()
+                }.show()
+        }else{
+            AlertDialog.Builder(context).setTitle(getString(R.string.title_confirmation)).setMessage(
+                getString(R.string.message_confirmation) + productsToDelete.size + getString(R.string.multiple_items_confirmation) + " ?")
+                .setIcon(R.drawable.ic_info_24)
+                .setPositiveButton(getString(R.string.positive_confirmation)) { dialog, _ ->
+                    deleteProducts(productsToDelete)
+                    changeSelectState()
+                    dialog.dismiss()
+                }.setNegativeButton(getString(R.string.negative_confirmation)) { dialog, _ ->
+                    changeSelectState()
+                    dialog.dismiss()
+                }.show()
         }
     }
+    //endregion
 
     private fun navigationHandler() {
         binding.toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
@@ -133,7 +209,7 @@ class ProductsFragment : Fragment(), BaseFragment {
         }
     }
 
-    private fun swipeToRemove() {
+    private fun configItemTouchHelper() {
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
 
             override fun onMove(
@@ -156,20 +232,18 @@ class ProductsFragment : Fragment(), BaseFragment {
                 val product = productsAdapter.differ.currentList[position]
                 when (direction) {
                     ItemTouchHelper.RIGHT -> {
-                        product.done = !product.done
-                        viewModelProduct.updateDone(product.done, product.id)
+                        changeItemDone(product, position)
                     }
                     ItemTouchHelper.LEFT -> deleteOneItem(product)
                 }
-                productsAdapter.notifyItemChanged(position)
             }
 
             override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
                 super.onSelectedChanged(viewHolder, actionState)
 
                 if (actionState == ItemTouchHelper.ACTION_STATE_IDLE && lastAction == ItemTouchHelper.ACTION_STATE_DRAG) {
-                    viewModelProduct.deleteProducts(cartId)
-                    viewModelProduct.reorderList(createNewReorderedList())
+                    viewModelProduct.updateOrder(originalList)
+                    updateSummary()
                 }
                 lastAction = actionState
             }
@@ -203,12 +277,10 @@ class ProductsFragment : Fragment(), BaseFragment {
         }
     }
 
-    private fun createNewReorderedList() : List<Product>{
-        return mutableListOf<Product>().apply {
-            productsAdapter.differ.currentList.forEach {
-                add(Product(it.name, it.brand, it.price, it.quantity, it.cartId, it.done))
-            }
-        }
+    private fun changeItemDone(product: Product, position: Int) {
+        product.done = !product.done
+        viewModelProduct.updateDone(product.done, product.id)
+        productsAdapter.notifyItemChanged(position)
     }
 
     private fun sharedProduct(cartName: String?) {
@@ -222,27 +294,29 @@ class ProductsFragment : Fragment(), BaseFragment {
                 text.append(
                     "* ${product.name} ${if (product.brand != "") "- ${product.brand} - " else "- "}" + FormatFrom.doubleToMonetary("R$", product.price) + " x " + "${if (product.quantity < 10) "0${product.quantity}" else product.quantity.toString()}\n"
                 )
-                text.append("\nTotal : ${FormatFrom.doubleToMonetary("R$", total)}")
             }else{
                 text.append(
                     "* ${if (product.quantity < 10) "0${product.quantity}" else product.quantity.toString()} x ${product.name} ${if(product.brand != "") "- ${product.brand} - " else ""}\n")
             }
         }
+        text.append("\nTotal : ${FormatFrom.doubleToMonetary("R$", total)}")
         Share().send(text.toString(), requireContext())
     }
 
-    private fun fillSummary(products: List<Product>, id: Int) {
-        if(products.isEmpty()){
+    private fun updateSummary() {
+        if(originalList.isEmpty()){
             binding.totalQuantity.text = "0"
             binding.totalCart.text = FormatFrom.doubleToMonetary("R$", 0.0)
+            viewModelCart.updateTotal(FormatFrom.doubleToMonetary("R$", 0.0), cartId)
+        }else{
+            var totalCart = 0.0
+            binding.totalQuantity.text = originalList.size.toString()
+            originalList.forEach { product ->
+                totalCart += (product.price * product.quantity)
+            }
+            binding.totalCart.text = FormatFrom.doubleToMonetary("R$", totalCart)
+            viewModelCart.updateTotal(FormatFrom.doubleToMonetary("R$", totalCart), cartId)
         }
-        binding.totalQuantity.text = products.size.toString()
-        var totalCart = 0.0
-        products.forEach { product ->
-            totalCart += (product.price * product.quantity)
-        }
-        binding.totalCart.text = FormatFrom.doubleToMonetary("R$", totalCart)
-        viewModelCart.updateTotal(FormatFrom.doubleToMonetary("R$", totalCart), id)
     }
 
     override fun doSearch(): Boolean {
@@ -284,18 +358,6 @@ class ProductsFragment : Fragment(), BaseFragment {
         productsAdapter.notifyItemChanged(productsAdapter.differ.currentList.indexOf(product))
     }
 
-    private fun showProductsList(productList: List<Product>) {
-        fillSummary(productList, cartId)
-        if (productList.isEmpty()) {
-            showEmptyMessage(true)
-        } else {
-            showEmptyMessage(false)
-            shareMenu.isVisible = true
-            productsAdapter.differ.submitList(productList)
-            originalList = productList
-        }
-    }
-
     private fun changeSelectState() {
         deleteMenu.let { delete ->
             selectionMode = if (!selectionMode) {
@@ -303,13 +365,23 @@ class ProductsFragment : Fragment(), BaseFragment {
                 binding.closeSelection.setVisibility(true)
                 binding.toolbar.title = "Selecione os itens..."
                 deleteMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                selectAllMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                selectAllMenu.isVisible = true
+
+                shareMenu.isVisible = false
+                sortMenu.isVisible = false
+
                 true
             } else {
                 binding.newProduct.setVisibility(true)
                 binding.closeSelection.setVisibility(false)
                 productsAdapter.selectedItems.clear()
                 deleteMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
-                productsAdapter.notifyDataSetChanged()
+                selectAllMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+                selectAllMenu.isVisible = false
+
+                shareMenu.isVisible = true
+                sortMenu.isVisible = true
                 binding.toolbar.title = requireContext().resources.getString(R.string.app_name)
                 false
             }
@@ -344,43 +416,26 @@ class ProductsFragment : Fragment(), BaseFragment {
         sortMenu = binding.toolbar.menu.findItem(R.id.sort_menu)
         searchMenu = binding.toolbar.menu.findItem(R.id.search_menu)
         shareMenu = binding.toolbar.menu.findItem(R.id.share_menu)
+        selectAllMenu = binding.toolbar.menu.findItem(R.id.select_all)
         binding.toolbar.menu.findItem(R.id.night_mode).isVisible = false
 
         deleteMenu.setOnMenuItemClickListener {
             deleteItems()
         }
 
-    }
+        selectAllMenu.setOnMenuItemClickListener {
+            if(productsAdapter.selectedItems.size == originalList.size){
+                productsAdapter.selectedItems.removeAll(originalList)
+                productsAdapter.notifyItemRangeChanged(0, originalList.size)
+                selectAllMenu.icon = AppCompatResources.getDrawable(requireContext(), R.drawable.baseline_check_box_24)
+            }else{
+                productsAdapter.selectedItems.addAll(originalList)
+                productsAdapter.notifyItemRangeChanged(0, originalList.size)
+                selectAllMenu.icon = AppCompatResources.getDrawable(requireContext(), R.drawable.outline_check_box_24)
+            }
 
-    private fun deleteSelectedItems() {
-        val deleteQuantity = productsAdapter.selectedItems.size
-        if (deleteQuantity != 0) {
-            confirmDeletion(deleteQuantity)
+            true
         }
-    }
-
-    private fun deleteItems() : Boolean{
-        if(selectionMode && productsAdapter.selectedItems.isNotEmpty()){
-            deleteSelectedItems()
-        }else{
-            changeSelectState()
-        }
-        return true
-    }
-
-    private fun confirmDeletion(deleteQuantity: Int) {
-        AlertDialog.Builder(context).setTitle(getString(R.string.title_confirmation)).setMessage(
-                getString(R.string.message_confirmation) + deleteQuantity + " " + if (deleteQuantity == 1) getString(
-                    R.string.single_item_confirmation
-                ) else getString(R.string.multiple_items_confirmation) + "?"
-            ).setIcon(R.drawable.ic_info_24).setPositiveButton(getString(R.string.positive_confirmation)) { _, _ ->
-                productsAdapter.selectedItems.forEach { product ->
-                    viewModelProduct.deleteProduct(product)
-                }
-                changeSelectState()
-            }.setNegativeButton(getString(R.string.negative_confirmation)) { _, _ ->
-                changeSelectState()
-            }.show()
     }
 
     override fun onDestroyView() {
@@ -390,7 +445,6 @@ class ProductsFragment : Fragment(), BaseFragment {
 
     override fun onResume() {
         super.onResume()
-
         cancelActionOnBackPressed()
     }
 
@@ -429,11 +483,5 @@ class ProductsFragment : Fragment(), BaseFragment {
                 requireView().requestFocus()
             }
         }
-    }
-
-    fun deleteOneItem(product: Product) {
-        AlertDialog.Builder(context).setTitle(getString(R.string.title_confirmation)).setMessage(getString(R.string.message_confirmation) + product.name + "?").setIcon(R.drawable.ic_info_24).setPositiveButton(getString(R.string.positive_confirmation)) { _, _ ->
-                viewModelProduct.deleteProduct(product)
-            }.setNegativeButton(getString(R.string.negative_confirmation)) { _, _ -> }.show()
     }
 }

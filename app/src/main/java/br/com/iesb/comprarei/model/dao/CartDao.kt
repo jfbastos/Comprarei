@@ -12,8 +12,8 @@ interface CartDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(cartList : List<Cart>)
 
-    @get: Query("SELECT * FROM carts")
-    val carts: Flow<List<Cart>>
+    @get: Query("SELECT * FROM carts ORDER BY position")
+    val carts: List<Cart>
 
     @Query("DELETE FROM carts WHERE id = :id")
     fun delete(id : Int)
@@ -27,5 +27,9 @@ interface CartDao {
     @Update
     fun updateCart(cart : Cart) : Int
 
+    @Update
+    fun updateOrder(carts : List<Cart>)
 
+    @Query("DELETE FROM carts WHERE id IN (:carts)")
+    fun deleteCarts(carts: List<Int>)
 }

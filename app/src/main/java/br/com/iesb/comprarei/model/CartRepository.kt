@@ -7,8 +7,7 @@ import kotlinx.coroutines.withContext
 
 class CartRepository(private val cartDao: CartDao, private val dispatcher: CoroutineDispatcher) {
 
-    val carts: Flow<List<Cart>>
-        get() = cartDao.carts
+    suspend fun getCarts() = withContext(dispatcher) {cartDao.carts}
 
     suspend fun saveCart(cart: Cart) = withContext(dispatcher) { cartDao.insertCart(cart) }
 
@@ -20,6 +19,12 @@ class CartRepository(private val cartDao: CartDao, private val dispatcher: Corou
 
     suspend fun updateAll(cartList: List<Cart>) = withContext(dispatcher) { cartDao.insertAll(cartList) }
 
+    suspend fun updatePosition(carts : List<Cart>) =  withContext(dispatcher) {cartDao.updateOrder(carts)}
+
     suspend fun deleteAll() : Int = withContext(dispatcher) { cartDao.deleteAll() }
+
+    suspend fun deleteCarts(carts: List<Int>) = withContext(dispatcher) {
+        cartDao.deleteCarts(carts)
+    }
 
 }

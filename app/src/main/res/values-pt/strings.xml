@@ -5,7 +5,7 @@
     <string name="title_confirmation">Tem certeza?</string>
     <string name="message_confirmation">Você realmente deseja deletar\u0020</string>
     <string name="single_item_confirmation">item</string>
-    <string name="multiple_items_confirmation">itens</string>
+    <string name="multiple_items_confirmation">" itens"</string>
     <string name="positive_confirmation">Sim</string>
     <string name="negative_confirmation">Cancelar</string>
     <string name="product_sort_name">Nome</string>
@@ -34,5 +34,6 @@
     <string name="night_on_msg">Modo noturno ligado</string>
     <string name="swipe_delete_msg">Deletar</string>
     <string name="swipe_to_edit">Editar</string>
+    <string name="valor_total">Valor total</string>
 
 </resources>

@@ -25,9 +25,14 @@ class NewCartFragment() : DialogFragment() {
     private var _binding: FragmentNewCartBinding? = null
     private val binding: FragmentNewCartBinding get() = _binding!!
     private var cart : Cart? = null
+    private var lastKnowPosition : Int = -1
 
     constructor(cart : Cart) : this(){
         this.cart = cart
+    }
+
+    constructor(lastKnowPosition : Int) : this(){
+        this.lastKnowPosition = lastKnowPosition
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -63,7 +68,8 @@ class NewCartFragment() : DialogFragment() {
                         Cart(
                             name = binding.cartName.text.toString(),
                             data = binding.cartDate.text.toString().takeIf { it.isNotBlank() } ?: DateUtil.getTodayDate(),
-                            total = Constants.EMPTY_CART_VALUE)
+                            total = Constants.EMPTY_CART_VALUE,
+                            position = lastKnowPosition)
                     }
 
                     setFragmentResult(Constants.NEW_CART_KEY, bundleOf(Constants.CART_BUNDLE_KEY to cart))

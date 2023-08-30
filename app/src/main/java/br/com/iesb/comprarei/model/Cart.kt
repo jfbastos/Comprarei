@@ -8,7 +8,8 @@ import java.io.Serializable
 data class Cart(
     var name: String,
     var data: String,
-    val total : String
+    val total : String,
+    var position : Int
 ): Serializable {
     @PrimaryKey(autoGenerate = true) var id : Int = 0
 }
