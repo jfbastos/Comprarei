@@ -33,10 +33,4 @@
         android:title="Select all"
         android:visible="false"
         app:showAsAction="never|collapseActionView"/>
-
-    <item
-        android:id="@+id/night_mode"
-        android:title="Night mode"
-        android:icon="@drawable/ic_baseline_light_24"
-        app:showAsAction="never"/>
 </menu>

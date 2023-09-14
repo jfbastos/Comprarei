@@ -10,7 +10,7 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "br.com.iesb.comprarei"
+        applicationId "br.com.zamfir.comprarei"
         minSdk 27
         targetSdk 33
         versionCode 1
@@ -41,7 +41,7 @@ android {
     buildscript {
         ext.kotlin_version = '1.5.1'
     }
-    namespace 'br.com.iesb.comprarei'
+    namespace 'br.com.zamfir.comprarei'
 }
 
 dependencies {
@@ -75,6 +75,7 @@ dependencies {
     // Navigation Components
     implementation "androidx.navigation:navigation-fragment-ktx:2.5.3"
     implementation "androidx.navigation:navigation-ui-ktx:2.5.3"
+    implementation "androidx.drawerlayout:drawerlayout:1.2.0"
 
     // Activity KTX for viewModels()
     implementation "androidx.activity:activity-ktx:1.6.1"
@@ -88,6 +89,9 @@ dependencies {
     implementation("net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent:3.0.0-RC3")
     implementation 'com.github.kevingermainbusiness:ItemDecorator:1.0.15'
     implementation 'cat.ereza:customactivityoncrash:2.4.0'
+    implementation 'com.afollestad.material-dialogs:core:3.3.0'
+    //implementation 'com.afollestad.material-dialogs:color:3.2.1'
+    implementation 'com.github.QuadFlask:colorpicker:0.0.15'
 
 
     //Injection
