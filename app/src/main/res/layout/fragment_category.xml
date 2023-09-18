@@ -61,7 +61,7 @@
             android:layout_height="80dp"
             android:layout_gravity="center"
             android:alpha="0.5"
-            android:src="@drawable/baseline_local_offer_24"
+            android:src="@drawable/category_icon_24"
             app:tint="?attr/colorPrimary" />
 
         <TextView

@@ -1,6 +1,7 @@
 package br.com.zamfir.comprarei.view.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -16,6 +17,8 @@ import br.com.zamfir.comprarei.databinding.FragmentCategoryBinding
 import br.com.zamfir.comprarei.model.entity.Category
 import br.com.zamfir.comprarei.util.setVisibility
 import br.com.zamfir.comprarei.util.show
+import br.com.zamfir.comprarei.view.adapters.CategoryAdapter
+import br.com.zamfir.comprarei.view.dialog.NewCategoryDialog
 import br.com.zamfir.comprarei.viewmodel.CategoryViewModel
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -25,13 +28,15 @@ class CategoryFragment : Fragment() {
     private var _binding : FragmentCategoryBinding? = null
     private val binding : FragmentCategoryBinding get() = _binding!!
     private val categoriesList = mutableListOf<Category>()
+    private lateinit var categoryAdapter : CategoryAdapter
 
     private lateinit var searchMenu: MenuItem
 
     private val viewModel : CategoryViewModel by viewModel()
 
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentCategoryBinding.inflate(layoutInflater)
         return binding.root
     }
@@ -41,10 +46,27 @@ class CategoryFragment : Fragment() {
 
         setupMenuItems()
 
+        categoryAdapter = CategoryAdapter()
+        binding.categoriesRcv.adapter = categoryAdapter
+
         viewModel.getCategories()
 
         viewModel.categories.observe(viewLifecycleOwner) { categories ->
             showCategories(categories)
+        }
+
+        binding.newCategoryBtn.setOnClickListener {
+            NewCategoryDialog{ newCategory, _ ->
+                saveCategory(newCategory)
+                Log.d("CategoryLog", "${newCategory.description} -> ${newCategory.color} -> ${newCategory.id}")
+            }.show(parentFragmentManager, "")
+        }
+
+        categoryAdapter.setOnItemClickListener {
+            NewCategoryDialog(it){editedCategory, isDeletion ->
+                if(isDeletion) deleteCategory(editedCategory)
+                else updateCategory(editedCategory)
+            }.show(parentFragmentManager, "")
         }
 
         binding.toolbar.setNavigationIcon(R.drawable.md_nav_back)
@@ -66,28 +88,30 @@ class CategoryFragment : Fragment() {
         }else{
             showEmptyMessage(false)
             categoriesList.addAll(categories)
+            categoryAdapter.differ.submitList(categoriesList)
         }
     }
 
     private fun saveCategory(category: Category){
         viewModel.saveCategory(category)
         categoriesList.add(category)
-        //TODO -> Adapter
+        categoryAdapter.differ.submitList(categoriesList)
     }
 
     private fun updateCategory(category: Category){
         viewModel.updateCategory(category)
-        categoriesList[categoriesList.indexOf(category)] = category
-        //TODO -> Adapter
+        val index = categoriesList.indexOf(categoriesList.find { it.id == category.id })
+        categoriesList[index] = category
+        categoryAdapter.differ.submitList(categoriesList)
+        categoryAdapter.notifyItemChanged(categoriesList.indexOf(category))
     }
 
     private fun deleteCategory(category: Category){
         viewModel.deleteCategory(category)
+        categoryAdapter.notifyItemRemoved(categoriesList.indexOf(category))
         categoriesList.remove(category)
-        //TODO -> Adapter
+        categoryAdapter.differ.submitList(categoriesList)
     }
-
-
 
     private fun showEmptyMessage(visibility: Boolean) {
         binding.categoriesRcv.setVisibility(!visibility)
@@ -126,13 +150,13 @@ class CategoryFragment : Fragment() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 val searched = categoriesList.filter {it.description.uppercase().contains(query.uppercase()) }
-                //TODO -> Adapter
+                categoryAdapter.differ.submitList(searched)
                 return false
             }
 
             override fun onQueryTextChange(nextText: String): Boolean {
                 val searched = categoriesList.filter {it.description.uppercase().contains(nextText.uppercase()) }
-                //TODO -> Adapter
+                categoryAdapter.differ.submitList(searched)
                 return false
             }
         })

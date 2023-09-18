@@ -7,7 +7,7 @@
         <item
             android:id="@+id/categories"
             android:title="Categories"
-            android:icon="@drawable/baseline_local_offer_24"
+            android:icon="@drawable/category_icon_24"
             android:iconTint="@color/secundary_green_transparent"
             android:checked="true"/>
 

@@ -121,7 +121,6 @@ class HomeFragment : Fragment(), BaseFragment {
     private fun saveNewCart(newCart : Cart){
         viewModel.saveCart(newCart)
         showCartsItems(listOf(newCart))
-        cartsAdapter.notifyDataSetChanged()
     }
 
     private fun updateCart(cart : Cart){
@@ -135,7 +134,6 @@ class HomeFragment : Fragment(), BaseFragment {
         viewModel.deleteCarts(carts.map { it.id })
         originalList.removeAll(carts)
         cartsAdapter.differ.submitList(originalList)
-        cartsAdapter.notifyDataSetChanged()
     }
 
     override fun onDestroyView() {
