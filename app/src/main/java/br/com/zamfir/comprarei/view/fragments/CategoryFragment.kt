@@ -1,7 +1,7 @@
 package br.com.zamfir.comprarei.view.fragments
 
+import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -19,6 +19,7 @@ import br.com.zamfir.comprarei.util.setVisibility
 import br.com.zamfir.comprarei.util.show
 import br.com.zamfir.comprarei.view.adapters.CategoryAdapter
 import br.com.zamfir.comprarei.view.dialog.NewCategoryDialog
+import br.com.zamfir.comprarei.view.listeners.InfoUpdateListener
 import br.com.zamfir.comprarei.viewmodel.CategoryViewModel
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -33,8 +34,6 @@ class CategoryFragment : Fragment() {
     private lateinit var searchMenu: MenuItem
 
     private val viewModel : CategoryViewModel by viewModel()
-
-
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentCategoryBinding.inflate(layoutInflater)
@@ -55,10 +54,31 @@ class CategoryFragment : Fragment() {
             showCategories(categories)
         }
 
+        viewModel.deleteState.observe(viewLifecycleOwner) {
+            if(it.canDelete){
+                categoryAdapter.notifyItemRemoved(categoriesList.indexOf(it.itemDeleted))
+                categoriesList.remove(it.itemDeleted)
+                categoryAdapter.differ.submitList(categoriesList)
+                InfoUpdateListener.infoUpdateListener.infoUpdated()
+            }else{
+                if(it.itemDeleted != null && it.itemDeleted is Category){
+                    AlertDialog.Builder(requireContext())
+                        .setTitle(getString(R.string.be_careful_title))
+                        .setMessage(getString(R.string.carts_with_category))
+                        .setPositiveButton(R.string.positive_confirmation){ dialog, _ ->
+                            deleteCategory(it.itemDeleted, true)
+                            dialog.dismiss()
+                        }
+                        .setNegativeButton(R.string.negative_confirmation){ dialog, _ ->
+                            dialog.dismiss()
+                        }.show()
+                }
+            }
+        }
+
         binding.newCategoryBtn.setOnClickListener {
             NewCategoryDialog{ newCategory, _ ->
                 saveCategory(newCategory)
-                Log.d("CategoryLog", "${newCategory.description} -> ${newCategory.color} -> ${newCategory.id}")
             }.show(parentFragmentManager, "")
         }
 
@@ -90,12 +110,15 @@ class CategoryFragment : Fragment() {
             categoriesList.addAll(categories)
             categoryAdapter.differ.submitList(categoriesList)
         }
+        categoryAdapter.notifyDataSetChanged()
     }
 
     private fun saveCategory(category: Category){
         viewModel.saveCategory(category)
         categoriesList.add(category)
+        showEmptyMessage(categoriesList.isEmpty())
         categoryAdapter.differ.submitList(categoriesList)
+        categoryAdapter.notifyItemInserted(categoryAdapter.itemCount)
     }
 
     private fun updateCategory(category: Category){
@@ -104,13 +127,11 @@ class CategoryFragment : Fragment() {
         categoriesList[index] = category
         categoryAdapter.differ.submitList(categoriesList)
         categoryAdapter.notifyItemChanged(categoriesList.indexOf(category))
+        InfoUpdateListener.infoUpdateListener.infoUpdated()
     }
 
-    private fun deleteCategory(category: Category){
-        viewModel.deleteCategory(category)
-        categoryAdapter.notifyItemRemoved(categoriesList.indexOf(category))
-        categoriesList.remove(category)
-        categoryAdapter.differ.submitList(categoriesList)
+    private fun deleteCategory(category: Category, deletionConfirmed : Boolean = false){
+        viewModel.deleteCategory(category, deletionConfirmed)
     }
 
     private fun showEmptyMessage(visibility: Boolean) {

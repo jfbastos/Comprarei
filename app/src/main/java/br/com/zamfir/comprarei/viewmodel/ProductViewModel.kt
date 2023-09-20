@@ -3,12 +3,24 @@ package br.com.zamfir.comprarei.viewmodel
 import androidx.lifecycle.*
 import br.com.zamfir.comprarei.model.entity.Product
 import br.com.zamfir.comprarei.repositories.ProductRepository
+import br.com.zamfir.comprarei.viewmodel.states.DeleteState
+import br.com.zamfir.comprarei.viewmodel.states.GetState
+import br.com.zamfir.comprarei.viewmodel.states.SaveState
 import kotlinx.coroutines.launch
 
 class ProductViewModel(private val productRepository: ProductRepository) : ViewModel() {
 
     private var _products = MutableLiveData<List<Product>>()
     val products : LiveData<List<Product>> get() = _products
+
+    private var _productState = MutableLiveData<GetState>()
+    val productState : LiveData<GetState> get() = _productState
+
+    private var _deleteState = MutableLiveData<DeleteState>()
+    val deleteState : LiveData<DeleteState> get() = _deleteState
+
+    private var _saveState = MutableLiveData<SaveState>()
+    val saveState : LiveData<SaveState> get() = _saveState
 
     fun getProducts(cartId : Int) = viewModelScope.launch {
         _products.value = productRepository.getProducts(cartId)
@@ -26,10 +38,9 @@ class ProductViewModel(private val productRepository: ProductRepository) : ViewM
         }
     }
 
-    fun saveProduct(product: Product) {
-        viewModelScope.launch {
-            productRepository.saveProduct(product)
-        }
+    fun saveProduct(product: Product) = viewModelScope.launch {
+        val id = productRepository.saveProduct(product)
+        _saveState.value = SaveState(savedId = id , savedItem = product)
     }
 
     fun deleteProduct(ids : List<Int>) {

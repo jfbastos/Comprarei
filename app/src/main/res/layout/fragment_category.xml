@@ -10,7 +10,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:title="Categories"
+        app:title="@string/categories"
         style="@style/Widget.MaterialComponents.Toolbar.Primary"
         android:background="?attr/colorPrimary"
         app:titleTextColor="@color/white"
@@ -68,7 +68,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Looks like you don't have any categories.\n\nAdd a new one :)"
+            android:text="@string/empty_category"
             android:textAlignment="center" />
 
     </LinearLayout>
@@ -79,7 +79,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="12dp"
         android:padding="12dp"
-        android:text="New category"
+        android:text="@string/new_category"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

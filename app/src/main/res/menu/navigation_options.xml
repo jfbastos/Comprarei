@@ -6,14 +6,14 @@
 
         <item
             android:id="@+id/categories"
-            android:title="Categories"
+            android:title="@string/categories"
             android:icon="@drawable/category_icon_24"
             android:iconTint="@color/secundary_green_transparent"
             android:checked="true"/>
 
         <item
             android:id="@+id/themes"
-            android:title="Themes"
+            android:title="@string/themes"
             android:icon="@drawable/customactivityoncrash_error_image"
             android:checked="false"/>
     </group>

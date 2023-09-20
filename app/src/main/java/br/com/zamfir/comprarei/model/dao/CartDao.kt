@@ -6,7 +6,7 @@ import br.com.zamfir.comprarei.model.entity.Cart
 @Dao
 interface CartDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insertCart(cart : Cart)
+    fun insertCart(cart : Cart) : Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(cartList : List<Cart>)

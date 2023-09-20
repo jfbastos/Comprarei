@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import br.com.zamfir.comprarei.databinding.CartItemBinding
 import br.com.zamfir.comprarei.model.entity.Cart
+import br.com.zamfir.comprarei.util.setVisibility
 
 class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallback) {
 
@@ -21,6 +22,12 @@ class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallb
             binding.cartDate.text = cart.data
             binding.totalCart.text = cart.total
             binding.selectedBackground.visibility = if(selectedItems.contains(cart)) View.VISIBLE else View.INVISIBLE
+            cart.category?.let {
+                binding.categoryPlaceHolder.setVisibility(true)
+                binding.categoryColor.setColorFilter(it.color, android.graphics.PorterDuff.Mode.MULTIPLY)
+            } ?: run {
+                binding.categoryPlaceHolder.setVisibility(false)
+            }
 
             binding.root.apply {
                 this.setOnClickListener {

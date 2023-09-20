@@ -17,4 +17,6 @@ class CategoryRepository(private val appDatabase: AppDatabase, private val dispa
 
     suspend fun saveCategories(categories : List<Category>) = withContext(dispatcher) {appDatabase.CategoryDao().insertAll(categories)}
 
+    suspend fun hasCartWithCategorie(id : Int) = withContext(dispatcher) {appDatabase.CartDao().carts.find { it.categoryId == id } != null}
+
 }

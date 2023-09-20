@@ -35,6 +35,7 @@
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/carts_place_holder"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="?attr/actionBarSize">
@@ -54,6 +55,7 @@
                 android:id="@+id/cartsRv"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                tools:visibility="gone"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintTop_toBottomOf="@id/search_view"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -84,7 +86,20 @@
                 android:id="@+id/emptyMessage_placeholder"
                 layout="@layout/empty_list"
                 android:visibility="gone" />
+
+            <ProgressBar
+                android:id="@+id/loading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:visibility="gone"
+                style="@style/Widget.MaterialComponents.CircularProgressIndicator"
+                app:layout_constraintTop_toBottomOf="@id/search_view"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.navigation.NavigationView
@@ -93,7 +108,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         tools:visibility="visible"
-        app:headerLayout="@layout/header_navigation_drawer"
         app:menu="@menu/navigation_options"/>
 
 

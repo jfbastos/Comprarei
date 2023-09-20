@@ -110,6 +110,14 @@ class NewProductFragment : BottomSheetDialogFragment() {
                 if(product != null){
                     if (validateValueQuantity()) {
                         binding.productQuantity.setText("1")
+                        product!!.name = binding.productName.text.toString()
+                        product!!.brand = binding.productBrand.text.toString()
+                        product!!.price = binding.productPrice.text.convertMonetaryToDouble()
+                        product!!.quantity = FormatFrom.stringToInt(binding.productQuantity.text.toString().ifBlank { "1" })
+                        it(product!!)
+
+                        isCancelable = true
+                        dismiss()
                     } else {
                         product!!.name = binding.productName.text.toString()
                         product!!.brand = binding.productBrand.text.toString()
@@ -123,6 +131,18 @@ class NewProductFragment : BottomSheetDialogFragment() {
                 }else{
                     if (validateValueQuantity()) {
                         binding.productQuantity.setText("1")
+                        it(
+                            Product(
+                                binding.productName.text.toString(),
+                                binding.productBrand.text.toString(),
+                                binding.productPrice.text.convertMonetaryToDouble(),
+                                FormatFrom.stringToInt(binding.productQuantity.text.toString().ifBlank { "1" }),
+                                cartId,
+                                position = lastKnowPosition
+                            )
+                        )
+                        isCancelable = true
+                        dismiss()
                     } else {
                         it(
                             Product(

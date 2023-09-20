@@ -20,6 +20,9 @@ interface CategoryDao {
     @get: Query("SELECT * FROM categories")
     val allCategories : List<Category>
 
+    @Query("SELECT * FROM categories WHERE id = :id")
+    fun getCategoryById(id : Int) : Category
+
     @Update
     fun updateCategory(category: Category)
 

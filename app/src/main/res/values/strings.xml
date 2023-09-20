@@ -3,7 +3,7 @@
     <string name="cart_sort_name_option">Name</string>
     <string name="cart_sort_date_option">Date</string>
     <string name="title_confirmation">Are you sure?</string>
-    <string name="message_confirmation">Do you really want to delete\u0020</string>
+    <string name="message_delete_confirmation">Do you really want to delete\u0020</string>
     <string name="single_item_confirmation">item</string>
     <string name="multiple_items_confirmation">" items"</string>
     <string name="positive_confirmation">Yes</string>
@@ -36,5 +36,20 @@
     <string name="swipe_delete_msg">Delete</string>
     <string name="swipe_to_edit">Edit</string>
     <string name="valor_total">Total value</string>
+    <string name="be_careful_title">Be careful!</string>
+    <string name="carts_with_category">You have some carts with this category!\n\nAre you sure?</string>
+    <string name="select_items">Selecione os itens...</string>
+    <string name="blank_name">Name can\'t be blank!</string>
+    <string name="select_category_color">Please, select a category color!</string>
+    <string name="choose_color">Choose color</string>
+    <string name="ok" translatable="false">Ok</string>
+    <string name="empty_category">Looks like you don\'t have any categories.\n\nAdd a new one :)</string>
+    <string name="new_category">New category</string>
+    <string name="select_category_color_btn">Select category color</string>
+    <string name="select_category_hint">Select category</string>
+    <string name="store_hint">Store</string>
+    <string name="categories">Categories</string>
+    <string name="themes">Themes</string>
+    <string name="no_categories">You don\'t have categories</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

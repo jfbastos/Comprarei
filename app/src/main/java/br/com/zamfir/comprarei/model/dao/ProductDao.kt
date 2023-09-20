@@ -7,7 +7,7 @@ import br.com.zamfir.comprarei.model.entity.Product
 interface ProductDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insertProduct(product : Product)
+    fun insertProduct(product : Product) : Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(products : List<Product>)

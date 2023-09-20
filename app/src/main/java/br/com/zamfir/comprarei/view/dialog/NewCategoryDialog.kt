@@ -52,14 +52,14 @@ class NewCategoryDialog() : DialogFragment() {
 
             binding.deleteButton.setOnClickListener {
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Atention")
-                    .setMessage("Do you really want to delete category ${category.description}")
-                    .setPositiveButton("Yes"){ dialog, _ ->
+                    .setTitle(R.string.title_confirmation)
+                    .setMessage(getString(R.string.message_delete_confirmation) + category.description + " ?")
+                    .setPositiveButton(R.string.positive_confirmation){ dialog, _ ->
                         callback.invoke(category, true)
                         dialog.dismiss()
                         dismiss()
                     }
-                    .setNegativeButton("No"){dialog, _ ->
+                    .setNegativeButton(R.string.negative_confirmation){dialog, _ ->
                         dialog.dismiss()
                     }.show()
             }
@@ -72,10 +72,10 @@ class NewCategoryDialog() : DialogFragment() {
                 binding.categoryName.text.isNullOrBlank() -> {
                     binding.categoryNameLayout.isErrorEnabled = true
                     binding.categoryNameLayout.errorAnimation()
-                    binding.categoryNameLayout.error = "Name can't be blank!"
-                    Toast.makeText(requireContext(), "Name can't be blank!", Toast.LENGTH_SHORT).show()
+                    binding.categoryNameLayout.error = getString(R.string.blank_name)
+                    Toast.makeText(requireContext(), getString(R.string.blank_name), Toast.LENGTH_SHORT).show()
                 }
-                categoryColor == 0 -> Toast.makeText(requireContext(), "Please, select a category color!", Toast.LENGTH_SHORT).show()
+                categoryColor == 0 -> Toast.makeText(requireContext(), getString(R.string.select_category_color), Toast.LENGTH_SHORT).show()
                 else -> {
                     category?.apply{
                         description = binding.categoryName.text.toString()
@@ -100,16 +100,15 @@ class NewCategoryDialog() : DialogFragment() {
     private fun callColorSelectionLib(){
         ColorPickerDialogBuilder
             .with(context)
-            .setTitle("Choose color")
+            .setTitle(getString(R.string.choose_color))
             .initialColor(Color.WHITE)
             .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
-            .density(8)
-            .noSliders()
+            .density(10)
+            .lightnessSliderOnly()
             .setOnColorSelectedListener {}
-            .setPositiveButton("Ok") { dialog, selectedColor, allColors ->
+            .setPositiveButton(getString(R.string.ok)) { dialog, selectedColor, allColors ->
                 binding.imageCategoryColor.setColorFilter(selectedColor, android.graphics.PorterDuff.Mode.MULTIPLY)
                 categoryColor = selectedColor
-                Log.d("CategoryLog", "$categoryColor")
                 dialog.dismiss()
             }.setNegativeButton(R.string.cancel) { dialog, which ->
                 dialog.dismiss()

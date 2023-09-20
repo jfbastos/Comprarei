@@ -9,7 +9,7 @@ class ProductRepository(private val productDao: ProductDao, private val dispache
 
     suspend fun getProducts(cartId: Int) = withContext(dispacher){ productDao.getProducts(cartId) }
 
-    suspend fun saveProduct(product: Product) = withContext(dispacher) {
+    suspend fun saveProduct(product: Product) : Long = withContext(dispacher) {
         productDao.insertProduct(product)
     }
 
@@ -21,10 +21,8 @@ class ProductRepository(private val productDao: ProductDao, private val dispache
 
     suspend fun updateProduct(product: Product) = withContext(dispacher) { productDao.updateProduct(product) }
 
-    suspend fun deleteProducts(cartId: Int): Boolean {
-        return withContext(dispacher) {
-            productDao.deleteProductsFromCart(cartId) > 0
-        }
+    suspend fun deleteProducts(cartId: Int) = withContext(dispacher) {
+            productDao.deleteProductsFromCart(cartId)
     }
 
     suspend fun deleteProduct(ids: List<Int>) = withContext(dispacher) { productDao.delete(ids) }

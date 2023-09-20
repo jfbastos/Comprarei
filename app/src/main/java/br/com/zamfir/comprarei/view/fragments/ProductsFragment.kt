@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentProductsBinding
+import br.com.zamfir.comprarei.model.entity.Cart
 import br.com.zamfir.comprarei.model.entity.Product
 import br.com.zamfir.comprarei.view.adapters.ProductsAdapter
 import br.com.zamfir.comprarei.view.components.SortBottomSheet.Companion.openSortBottomSheetDialog
@@ -87,6 +88,12 @@ class ProductsFragment : Fragment(), BaseFragment {
             showProductsList(products)
         }
 
+        viewModelProduct.saveState.observe(viewLifecycleOwner){saveState ->
+            originalList.find { it == (saveState.savedItem as? Product)}?.apply {
+                id = saveState.savedId.toInt()
+            }
+        }
+
         navigationHandler()
 
         productsAdapter.setOnItemClickListener { product, _ ->
@@ -146,16 +153,19 @@ class ProductsFragment : Fragment(), BaseFragment {
 
     private fun saveNewProduct(newProduct: Product) {
         viewModelProduct.saveProduct(newProduct)
-        showProductsList(listOf(newProduct))
-        productsAdapter.notifyDataSetChanged()
+        originalList.add(newProduct)
+        showEmptyMessage(originalList.isEmpty())
+        productsAdapter.differ.submitList(originalList)
+        productsAdapter.notifyItemInserted(productsAdapter.differ.currentList.size)
+
     }
 
     private fun deleteProducts(list : List<Product>){
         viewModelProduct.deleteProduct(list.map { it.id })
         originalList.removeAll(list)
         productsAdapter.differ.submitList(originalList)
-        productsAdapter.notifyDataSetChanged()
         updateSummary()
+        productsAdapter.notifyDataSetChanged()
     }
     //endregion
 
@@ -175,7 +185,7 @@ class ProductsFragment : Fragment(), BaseFragment {
     private fun confirmDeletion(productsToDelete : List<Product>) {
         if(productsToDelete.size == 1){
             AlertDialog.Builder(context).setTitle(getString(R.string.title_confirmation))
-                .setMessage(getString(R.string.message_confirmation) + productsToDelete.first().name + " ?")
+                .setMessage(getString(R.string.message_delete_confirmation) + productsToDelete.first().name + " ?")
                 .setIcon(R.drawable.ic_info_24).setPositiveButton(getString(R.string.positive_confirmation)) { dialog, _ ->
                     deleteProducts(productsToDelete)
                     dialog.dismiss()
@@ -184,7 +194,7 @@ class ProductsFragment : Fragment(), BaseFragment {
                 }.show()
         }else{
             AlertDialog.Builder(context).setTitle(getString(R.string.title_confirmation)).setMessage(
-                getString(R.string.message_confirmation) + productsToDelete.size + getString(R.string.multiple_items_confirmation) + " ?")
+                getString(R.string.message_delete_confirmation) + productsToDelete.size + getString(R.string.multiple_items_confirmation) + " ?")
                 .setIcon(R.drawable.ic_info_24)
                 .setPositiveButton(getString(R.string.positive_confirmation)) { dialog, _ ->
                     deleteProducts(productsToDelete)
