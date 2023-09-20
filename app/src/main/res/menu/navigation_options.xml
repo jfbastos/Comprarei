@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:id="@+id/group_options_1"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/categories"
+            android:title="@string/categories"
+            android:icon="@drawable/category_icon_24"
+            android:iconTint="@color/secundary_green_transparent"
+            android:checked="true"/>
+
+        <item
+            android:id="@+id/themes"
+            android:title="@string/themes"
+            android:icon="@drawable/customactivityoncrash_error_image"
+            android:checked="false"/>
+    </group>
+</menu>

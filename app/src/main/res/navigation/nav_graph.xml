@@ -6,20 +6,20 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="br.com.iesb.comprarei.view.fragments.HomeFragment"
+        android:name="br.com.zamfir.comprarei.view.fragments.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" >
         <action
             android:id="@+id/action_homeFragment_to_productsFragment"
             app:destination="@id/productsFragment"
-            app:enterAnim="@android:anim/fade_in"
-            app:exitAnim="@android:anim/fade_out"
-            app:popEnterAnim="@android:anim/fade_in"
-            app:popExitAnim="@android:anim/slide_out_right" />
+            app:enterAnim="@android:anim/fade_in" />
+        <action
+            android:id="@+id/action_homeFragment_to_categoryFragment"
+            app:destination="@id/categoryFragment" />
     </fragment>
     <fragment
         android:id="@+id/productsFragment"
-        android:name="br.com.iesb.comprarei.view.fragments.ProductsFragment"
+        android:name="br.com.zamfir.comprarei.view.fragments.ProductsFragment"
         android:label="fragment_products"
         tools:layout="@layout/fragment_products" >
         <argument
@@ -31,7 +31,7 @@
     </fragment>
     <fragment
         android:id="@+id/newProductFragment"
-        android:name="br.com.iesb.comprarei.view.fragments.NewProductFragment"
+        android:name="br.com.zamfir.comprarei.view.fragments.NewProductFragment"
         android:label="fragment_new_product"
         tools:layout="@layout/bottom_sheet_new_product" >
         <argument
@@ -41,4 +41,9 @@
             android:name="productId"
             app:argType="string" />
     </fragment>
+    <fragment
+        tools:layout="@layout/fragment_category"
+        android:id="@+id/categoryFragment"
+        android:name="br.com.zamfir.comprarei.view.fragments.CategoryFragment"
+        android:label="CategoryFragment" />
 </navigation>
