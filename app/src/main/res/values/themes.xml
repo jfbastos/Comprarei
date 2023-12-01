@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.Comprarei" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.Comprarei" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/primary_green</item>
         <item name="colorPrimaryVariant">@color/secondary_green</item>
@@ -13,5 +13,8 @@
         <item name="android:statusBarColor" >?attr/colorPrimary</item>
         <!-- Customize your theme here. -->
         <item name="android:textColor">@color/secondary_green</item>
+        <item name="fontFamily">@font/inter</item>
+        <!--<item name="android:windowTranslucentStatus">true</item>-->
+        <item name="android:textColorSecondary">@color/white</item>
     </style>
 </resources>

@@ -12,5 +12,7 @@ class Constants {
         const val DATE_PATTERN = "dd/MM/yyyy"
         const val MIN_DATE_VALID = "01/01/1900"
         const val MAX_DATE_VALID = "31/12/2050"
+        const val CART_ID_KEY = "cartId"
+        const val CART_NAME_KEY = "cartName"
     }
 }

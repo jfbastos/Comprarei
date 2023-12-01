@@ -53,7 +53,7 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_marginHorizontal="12dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         android:hint="@string/brand"
         app:endIconMode="clear_text"
         app:layout_constraintStart_toStartOf="parent"
@@ -72,22 +72,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/optional"
-        android:layout_marginStart="4dp"
-        app:layout_constraintBottom_toTopOf="@id/product_brand_layout"
+        android:layout_marginEnd="4dp"
+        android:textSize="11sp"
+        app:layout_constraintTop_toBottomOf="@id/product_brand_layout"
         app:layout_constraintEnd_toEndOf="@id/product_brand_layout"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/product_price_layout"
         style="@style/MyInputTextStyle"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_width="230dp"
+        android:layout_height="0dp"
+        android:gravity="center"
         app:layout_constraintHorizontal_weight="2"
         android:layout_marginHorizontal="12dp"
-        android:layout_marginTop="32dp"
         android:hint="@string/price"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/product_quantity_layout"
-        app:layout_constraintTop_toBottomOf="@id/product_brand_layout">
+        app:layout_constraintTop_toTopOf="@id/product_quantity_placeholder"
+        app:layout_constraintBottom_toBottomOf="@id/product_quantity_placeholder">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/productPrice"
@@ -98,27 +99,62 @@
             android:inputType="numberDecimal"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/product_quantity_layout"
-        style="@style/MyInputTextStyle"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
+    <LinearLayout
+        android:id="@+id/product_quantity_placeholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintHorizontal_weight="1"
-        android:layout_marginHorizontal="12dp"
-        android:layout_marginTop="32dp"
-        android:hint="@string/quantity"
-        app:layout_constraintStart_toEndOf="@id/product_price_layout"
         app:layout_constraintEnd_toEndOf="parent"
+        android:orientation="horizontal"
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="12dp"
+        app:layout_constraintStart_toEndOf="@id/product_price_layout"
         app:layout_constraintTop_toBottomOf="@id/product_brand_layout">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/product_quantity"
-            android:imeOptions="actionDone"
-            android:singleLine="true"
-            android:layout_width="match_parent"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/product_quantity_layout"
+            android:layout_gravity="center"
+            style="@style/MyInputTextStyle"
+            android:layout_marginEnd="8dp"
+            android:layout_width="100dp"
+            android:layout_height="60dp"
+            android:hint="@string/quantity">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/product_quantity"
+                android:imeOptions="actionDone"
+                android:singleLine="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="number"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_gravity="center"
+            android:layout_marginStart="4dp"
+            android:orientation="vertical">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/add_quantity_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+                android:layout_marginBottom="8dp"
+                android:background="@color/secondary_green"
+                android:src="@drawable/ic_add"/>
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/minuts_quantity_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+                android:background="@color/secondary_green"
+                android:src="@drawable/baseline_remove_24"/>
+
+        </LinearLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -128,7 +164,9 @@
         android:padding="4dp"
         android:gravity="end"
         android:background="@drawable/new_product_bottom_sheet_confirmation_background"
-        app:layout_constraintTop_toBottomOf="@id/product_quantity_layout">
+        app:layout_constraintTop_toBottomOf="@id/product_quantity_placeholder"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <Button
             android:id="@+id/btn_cancel"

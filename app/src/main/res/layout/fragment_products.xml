@@ -20,17 +20,27 @@
         app:menu="@menu/menu"
         />
 
-    <SearchView
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/search_view"
+        style="@style/MyInputTextStyle"
+        app:boxCornerRadiusBottomEnd="20dp"
+        app:boxCornerRadiusBottomStart="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:iconifiedByDefault="false"
-        android:background="@drawable/search_view_background"
-        android:layout_margin="8dp"
+        android:layout_marginHorizontal="4dp"
+        app:endIconMode="clear_text"
+        tools:hint="Search"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+        tools:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/search_text"
+            android:imeOptions="actionNone"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/productsRv"
@@ -38,7 +48,7 @@
         android:layout_height="0dp"
         tools:listitem="@layout/product_item"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintTop_toBottomOf="@id/search_view"
         app:layout_constraintBottom_toTopOf="@id/cart_summary"
         app:layout_constraintStart_toStartOf="parent"
@@ -118,14 +128,14 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/closeSelection"
+        android:id="@+id/delete_selection"
         android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
         android:layout_marginBottom="65dp"
         android:minHeight="48dp"
-        android:src="@drawable/ic_baseline_close_24"
+        android:src="@drawable/ic_delete_24"
         app:tint="@color/white"
         android:backgroundTint="@color/secondary_green"
         app:layout_constraintBottom_toBottomOf="parent"

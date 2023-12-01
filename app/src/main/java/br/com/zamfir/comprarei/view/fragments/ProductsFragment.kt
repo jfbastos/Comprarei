@@ -5,21 +5,28 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Typeface
 import android.os.Bundle
-import android.view.*
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.KeyEvent
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.SearchView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentProductsBinding
-import br.com.zamfir.comprarei.model.entity.Cart
 import br.com.zamfir.comprarei.model.entity.Product
+import br.com.zamfir.comprarei.util.Constants
+import br.com.zamfir.comprarei.util.FormatFrom
+import br.com.zamfir.comprarei.util.Share
+import br.com.zamfir.comprarei.util.setVisibility
 import br.com.zamfir.comprarei.view.adapters.ProductsAdapter
 import br.com.zamfir.comprarei.view.components.SortBottomSheet.Companion.openSortBottomSheetDialog
 import br.com.zamfir.comprarei.view.fragments.NewProductFragment.Companion.openEditProductBottomSheet
@@ -27,30 +34,29 @@ import br.com.zamfir.comprarei.view.fragments.NewProductFragment.Companion.openN
 import br.com.zamfir.comprarei.view.interfaces.BaseFragment
 import br.com.zamfir.comprarei.viewmodel.CartViewModel
 import br.com.zamfir.comprarei.viewmodel.ProductViewModel
-import br.com.zamfir.comprarei.util.FormatFrom
-import br.com.zamfir.comprarei.util.Share
-import br.com.zamfir.comprarei.util.setVisibility
-import br.com.zamfir.comprarei.util.show
 import com.kevincodes.recyclerview.ItemDecorator
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.util.*
+import java.util.Collections
 
 class ProductsFragment : Fragment(), BaseFragment {
 
     private var _binding: FragmentProductsBinding? = null
     private val binding: FragmentProductsBinding get() = _binding!!
 
-    private lateinit var deleteMenu: MenuItem
+    private lateinit var deleteManyMenu: MenuItem
     private lateinit var sortMenu: MenuItem
     private lateinit var searchMenu: MenuItem
     private lateinit var shareMenu: MenuItem
     private lateinit var selectAllMenu : MenuItem
+    private lateinit var cancelActionMenu : MenuItem
+
     private var originalList: MutableList<Product> = mutableListOf()
     private lateinit var productsAdapter: ProductsAdapter
     private var selectionMode = false
     private var lastAction = -1
     private var cartId = -1
+    private var cartName = ""
 
     private val viewModelProduct: ProductViewModel by viewModel()
     private val viewModelCart: CartViewModel by viewModel()
@@ -66,23 +72,21 @@ class ProductsFragment : Fragment(), BaseFragment {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val cartName = arguments?.getString("cartName")
-        cartId = arguments?.getLong("cartId")?.toInt() ?: -1
+        cartName = arguments?.getString(Constants.CART_NAME_KEY) ?: ""
+        cartId = arguments?.getLong(Constants.CART_ID_KEY)?.toInt() ?: -1
         binding.toolbar.title = cartName
 
         setupMenuItems()
 
         setupAdapter()
 
-        doSearch()
-
         configItemTouchHelper()
 
-        viewModelProduct.getProducts(cartId)
+        configDeleteListeners()
 
-        binding.closeSelection.setOnClickListener {
-            changeSelectState()
-        }
+        navigationHandler()
+
+        viewModelProduct.getProducts(cartId)
 
         viewModelProduct.products.observe(viewLifecycleOwner) { products ->
             showProductsList(products)
@@ -93,8 +97,6 @@ class ProductsFragment : Fragment(), BaseFragment {
                 id = saveState.savedId.toInt()
             }
         }
-
-        navigationHandler()
 
         productsAdapter.setOnItemClickListener { product, _ ->
             if(selectionMode){
@@ -112,20 +114,6 @@ class ProductsFragment : Fragment(), BaseFragment {
                 saveNewProduct(newProduct)
                 updateSummary()
             }
-        }
-
-        binding.closeSelection.setOnClickListener {
-            changeSelectState()
-        }
-
-        shareMenu.setOnMenuItemClickListener {
-            sharedProduct(cartName)
-            return@setOnMenuItemClickListener true
-        }
-
-        sortMenu.setOnMenuItemClickListener {
-            sortList()
-            return@setOnMenuItemClickListener true
         }
 
     }
@@ -171,11 +159,20 @@ class ProductsFragment : Fragment(), BaseFragment {
 
     //region Delete
 
-    private fun deleteItems() : Boolean{
+    private fun deleteItems(){
         if(selectionMode && productsAdapter.selectedItems.isNotEmpty()) confirmDeletion(productsAdapter.selectedItems)
         else changeSelectState()
+    }
 
-        return true
+    private fun configDeleteListeners(){
+        binding.deleteSelection.setOnClickListener {
+            deleteItems()
+        }
+
+        deleteManyMenu.setOnMenuItemClickListener {
+            changeSelectState()
+            false
+        }
     }
 
     private fun deleteOneItem(product: Product) {
@@ -188,6 +185,7 @@ class ProductsFragment : Fragment(), BaseFragment {
                 .setMessage(getString(R.string.message_delete_confirmation) + productsToDelete.first().name + " ?")
                 .setIcon(R.drawable.ic_info_24).setPositiveButton(getString(R.string.positive_confirmation)) { dialog, _ ->
                     deleteProducts(productsToDelete)
+                    if(selectionMode) changeSelectState()
                     dialog.dismiss()
                 }.setNegativeButton(getString(R.string.negative_confirmation)) { dialog, _ ->
                     dialog.dismiss()
@@ -198,7 +196,7 @@ class ProductsFragment : Fragment(), BaseFragment {
                 .setIcon(R.drawable.ic_info_24)
                 .setPositiveButton(getString(R.string.positive_confirmation)) { dialog, _ ->
                     deleteProducts(productsToDelete)
-                    changeSelectState()
+                    if(selectionMode) changeSelectState()
                     dialog.dismiss()
                 }.setNegativeButton(getString(R.string.negative_confirmation)) { dialog, _ ->
                     changeSelectState()
@@ -206,6 +204,30 @@ class ProductsFragment : Fragment(), BaseFragment {
                 }.show()
         }
     }
+
+    private fun setItemSelected(product: Product) {
+        if(productsAdapter.selectedItems.contains(product)) productsAdapter.selectedItems.remove(product) else  productsAdapter.selectedItems.add(product)
+        productsAdapter.notifyItemChanged(productsAdapter.differ.currentList.indexOf(product))
+    }
+
+    private fun changeSelectState() {
+        selectionMode = !selectionMode
+        binding.deleteSelection.setVisibility(selectionMode)
+
+        selectAllMenu.isVisible = selectionMode
+        cancelActionMenu.isVisible = selectionMode
+
+        deleteManyMenu.isVisible = !selectionMode
+        sortMenu.isVisible = !selectionMode
+
+        binding.toolbar.title = if(selectionMode) getString(R.string.select_items) else getString(R.string.app_name)
+
+        if(!selectionMode) {
+            productsAdapter.selectedItems.clear()
+            productsAdapter.notifyDataSetChanged()
+        }
+    }
+
     //endregion
 
     private fun navigationHandler() {
@@ -215,9 +237,6 @@ class ProductsFragment : Fragment(), BaseFragment {
                 (requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(requireView().windowToken, 0)
             }
 
-            this.parentFragmentManager.popBackStack(
-                null, FragmentManager.POP_BACK_STACK_INCLUSIVE
-            )
             findNavController().navigateUp()
         }
     }
@@ -333,72 +352,28 @@ class ProductsFragment : Fragment(), BaseFragment {
     }
 
     override fun doSearch(): Boolean {
-        searchMenu.setOnMenuItemClickListener {
-            binding.searchView.show(requireContext())
-            if (binding.searchView.isVisible) {
-                binding.searchView.setVisibility(false)
-            } else {
-                binding.searchView.setVisibility(true)
-            }
-            return@setOnMenuItemClickListener true
+        if (binding.searchView.isVisible) {
+            binding.searchView.setVisibility(false)
+        } else {
+            binding.searchView.hint = "Search products"
+            binding.searchView.setVisibility(true)
+            binding.searchView.requestFocus()
         }
 
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String): Boolean {
+        binding.searchText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val searched = originalList.filter {
-                    it.name.uppercase().contains(query.uppercase())
-                }
-
-                productsAdapter.differ.submitList(searched)
-                return false
-            }
-
-            override fun onQueryTextChange(nextText: String): Boolean {
-                val searched = originalList.filter {
-                    it.name.uppercase().contains(nextText.uppercase())
+                    it.name.uppercase().contains(s.toString().uppercase())
                 }
                 productsAdapter.differ.submitList(searched)
-                return false
             }
+
+            override fun afterTextChanged(s: Editable?) {}
+
         })
-
         return true
-    }
-
-    private fun setItemSelected(product: Product) {
-        if(productsAdapter.selectedItems.contains(product)) productsAdapter.selectedItems.remove(product) else  productsAdapter.selectedItems.add(product)
-        productsAdapter.notifyItemChanged(productsAdapter.differ.currentList.indexOf(product))
-    }
-
-    private fun changeSelectState() {
-        deleteMenu.let { delete ->
-            selectionMode = if (!selectionMode) {
-                binding.newProduct.setVisibility(false)
-                binding.closeSelection.setVisibility(true)
-                binding.toolbar.title = "Selecione os itens..."
-                deleteMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                selectAllMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                selectAllMenu.isVisible = true
-
-                shareMenu.isVisible = false
-                sortMenu.isVisible = false
-
-                true
-            } else {
-                binding.newProduct.setVisibility(true)
-                binding.closeSelection.setVisibility(false)
-                productsAdapter.selectedItems.clear()
-                deleteMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
-                selectAllMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
-                selectAllMenu.isVisible = false
-
-                shareMenu.isVisible = true
-                sortMenu.isVisible = true
-                binding.toolbar.title = requireContext().resources.getString(R.string.app_name)
-                false
-            }
-        }
     }
 
     private fun setupAdapter() {
@@ -425,14 +400,24 @@ class ProductsFragment : Fragment(), BaseFragment {
     }
 
     private fun setupMenuItems() {
-        deleteMenu = binding.toolbar.menu.findItem(R.id.delete_menu)
-        sortMenu = binding.toolbar.menu.findItem(R.id.sort_menu)
+        cancelActionMenu = binding.toolbar.menu.findItem(R.id.cancel_action)
         searchMenu = binding.toolbar.menu.findItem(R.id.search_menu)
-        shareMenu = binding.toolbar.menu.findItem(R.id.share_menu)
+        sortMenu = binding.toolbar.menu.findItem(R.id.sort_menu)
         selectAllMenu = binding.toolbar.menu.findItem(R.id.select_all)
+        deleteManyMenu = binding.toolbar.menu.findItem(R.id.delete_menu)
 
-        deleteMenu.setOnMenuItemClickListener {
-            deleteItems()
+        shareMenu = binding.toolbar.menu.findItem(R.id.share_menu)
+        binding.toolbar.menu.findItem(R.id.categories_menu).apply {
+            isVisible = false
+        }
+
+        searchMenu.setOnMenuItemClickListener {
+            doSearch()
+        }
+
+        cancelActionMenu.setOnMenuItemClickListener {
+            changeSelectState()
+            true
         }
 
         selectAllMenu.setOnMenuItemClickListener {
@@ -448,6 +433,16 @@ class ProductsFragment : Fragment(), BaseFragment {
 
             true
         }
+
+        shareMenu.setOnMenuItemClickListener {
+            sharedProduct(cartName)
+            return@setOnMenuItemClickListener true
+        }
+
+        sortMenu.setOnMenuItemClickListener {
+            sortList()
+            return@setOnMenuItemClickListener true
+        }
     }
 
     override fun onDestroyView() {
@@ -461,9 +456,7 @@ class ProductsFragment : Fragment(), BaseFragment {
     }
 
     private fun cancelActionOnBackPressed() {
-        if (view == null) {
-            return
-        }
+        if (view == null) return
 
         requireView().isFocusableInTouchMode = true
         requireView().requestFocus()
@@ -477,9 +470,6 @@ class ProductsFragment : Fragment(), BaseFragment {
                         binding.searchView.setVisibility(false)
                     }
                     else -> {
-                        this.parentFragmentManager.popBackStack(
-                            null, FragmentManager.POP_BACK_STACK_INCLUSIVE
-                        )
                         findNavController().navigateUp()
                     }
                 }

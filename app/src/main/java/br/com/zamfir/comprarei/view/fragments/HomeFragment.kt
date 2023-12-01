@@ -2,16 +2,19 @@ package br.com.zamfir.comprarei.view.fragments
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
-import android.widget.SearchView
-import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -26,33 +29,43 @@ import br.com.zamfir.comprarei.model.entity.Cart
 import br.com.zamfir.comprarei.model.entity.Category
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.setVisibility
-import br.com.zamfir.comprarei.util.show
 import br.com.zamfir.comprarei.view.adapters.CartsAdapter
 import br.com.zamfir.comprarei.view.components.SortBottomSheet.Companion.openSortBottomSheetDialog
+import br.com.zamfir.comprarei.view.dialog.NewCategoryDialog
 import br.com.zamfir.comprarei.view.interfaces.BaseFragment
-import br.com.zamfir.comprarei.viewmodel.CartViewModel
 import br.com.zamfir.comprarei.view.listeners.InfoUpdateListener
+import br.com.zamfir.comprarei.viewmodel.CartViewModel
+import br.com.zamfir.comprarei.viewmodel.CategoryViewModel
+import br.com.zamfir.comprarei.viewmodel.states.CartsState
 import com.kevincodes.recyclerview.ItemDecorator
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.Collections
-
 
 class HomeFragment : Fragment(), BaseFragment {
     private var _binding: FragmentHomeBinding? = null
     private val binding: FragmentHomeBinding get() = _binding!!
     private lateinit var cartsAdapter: CartsAdapter
 
-    private lateinit var deleteMenu: MenuItem
+    private lateinit var cancelActionMenu: MenuItem
     private lateinit var sortMenu: MenuItem
     private lateinit var searchMenu: MenuItem
     private lateinit var selectAllMenu : MenuItem
+    private lateinit var categories : MenuItem
+    private lateinit var deleteManyMenu : MenuItem
     private var originalList: MutableList<Cart> = mutableListOf()
     private var categoriesList : MutableList<Category> = mutableListOf()
     private var selectionMode = false
+    private var fabExapanded = false
     private var lastAction = -1
 
+    private val rotateOpenAnimation: Animation by lazy { AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_open_animation)}
+    private val rotateCloseAnimation: Animation by lazy {AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_close_animation)}
+    private val fromBottomAnimation: Animation by lazy {AnimationUtils.loadAnimation(requireContext(), R.anim.from_bottom_animation)}
+    private val toBottomAnimation: Animation by lazy {AnimationUtils.loadAnimation(requireContext(), R.anim.to_bottom_animation)}
+
     private val viewModel: CartViewModel by viewModel()
+    private val categoryViewModel : CategoryViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -71,40 +84,17 @@ class HomeFragment : Fragment(), BaseFragment {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.toolbar.setNavigationOnClickListener {
-           binding.drawerLayout.open()
-        }
-
         setupMenuItems()
-
         setupAdapter()
-
         handleItemMove()
+        observables()
+        configDeleteListeners()
+
+        binding.expandFab.setOnClickListener {
+            toggleExpandedFab()
+        }
 
         viewModel.updateAllData()
-
-        viewModel.cartsState.observe(viewLifecycleOwner){
-            showLoading(it.loading)
-        }
-
-        viewModel.deleteState.observe(viewLifecycleOwner){
-            if(it.error != null) throw it.error
-        }
-
-        viewModel.saveState.observe(viewLifecycleOwner){saveState ->
-            originalList.find { it == (saveState.savedItem as? Cart)}?.apply {
-                id = saveState.savedId.toInt()
-            }
-        }
-
-        viewModel.categories.observe(viewLifecycleOwner){
-            categoriesList.clear()
-            categoriesList.addAll(it)
-        }
-
-        viewModel.carts.observe(viewLifecycleOwner) { carts ->
-            showCartsItems(carts)
-        }
 
         cartsAdapter.setOnItemClickListener { cart ->
             if(selectionMode){
@@ -114,25 +104,18 @@ class HomeFragment : Fragment(), BaseFragment {
             }
         }
 
-        binding.navigationDrawer.setNavigationItemSelectedListener {
-            when(it.itemId){
-                binding.navigationDrawer.menu.findItem(R.id.categories).itemId -> {
-                    it.isChecked = true
-                    binding.drawerLayout.close()
-                    findNavController().navigate(R.id.action_homeFragment_to_categoryFragment)
-                }
-            }
-
-            true
+        binding.addCategory.setOnClickListener {
+            NewCategoryDialog{ newCategory, _ ->
+                categoryViewModel.saveCategory(newCategory)
+                categoriesList.add(newCategory)
+            }.show(parentFragmentManager, "")
         }
-
-        configDeleteListeners()
 
         binding.addCart.setOnClickListener {
             NewCartFragment(originalList.takeIf { it.isNotEmpty() }?.maxOf { it.position }?.plus(1) ?: 0, categoriesList).show(parentFragmentManager, Constants.NEW_CART_KEY)
         }
 
-        setFragmentResultListener(Constants.NEW_CART_KEY) { requestKey, bundle ->
+        setFragmentResultListener(Constants.NEW_CART_KEY) { _, bundle ->
             val result = bundle.getSerializable(Constants.CART_BUNDLE_KEY) as Cart
             if(cartsAdapter.differ.currentList.contains(result)){
                 updateCart(result)
@@ -142,15 +125,55 @@ class HomeFragment : Fragment(), BaseFragment {
         }
     }
 
-    private fun showCartsItems(cartsList: List<Cart>) {
-        if (cartsList.isEmpty()) {
+    private fun toggleExpandedFab() {
+        fabExapanded = !fabExapanded
+        binding.addCart.setVisibility(fabExapanded)
+        binding.addCategory.setVisibility(fabExapanded)
+        animationToggleFab()
+    }
+
+
+    private fun animationToggleFab() {
+        if (fabExapanded) {
+            binding.addCart.startAnimation(fromBottomAnimation)
+            binding.addCategory.startAnimation(fromBottomAnimation)
+            binding.expandFab.startAnimation(rotateOpenAnimation)
+            binding.expandFab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.gray, null))
+        } else {
+            binding.addCart.startAnimation(toBottomAnimation)
+            binding.addCategory.startAnimation(toBottomAnimation)
+            binding.expandFab.startAnimation(rotateCloseAnimation)
+            binding.expandFab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.primary_green, null))
+        }
+    }
+
+    private fun observables() {
+        viewModel.cartsState.observe(viewLifecycleOwner) { infoState ->
+            showLoading(infoState)
+        }
+
+        viewModel.deleteState.observe(viewLifecycleOwner) { deleteState ->
+            if (deleteState.error != null) throw deleteState.error
+        }
+
+        viewModel.saveState.observe(viewLifecycleOwner) { saveState ->
+            originalList.find { it == (saveState.savedItem as? Cart) }?.apply {
+                id = saveState.savedId.toInt()
+            }
+        }
+    }
+
+    private fun showCartsItems(cartsList: List<Cart>?) {
+        if (cartsList.isNullOrEmpty()) {
             showEmptyMessage(true)
         } else {
             showEmptyMessage(false)
             originalList.clear()
             originalList.addAll(cartsList)
             cartsAdapter.differ.submitList(cartsList)
-            cartsAdapter.notifyDataSetChanged()
+            cartsAdapter.getCartsPosition(cartsList).onEach {
+                cartsAdapter.notifyItemInserted(it)
+            }
         }
     }
 
@@ -159,7 +182,7 @@ class HomeFragment : Fragment(), BaseFragment {
         originalList.add(newCart)
         showEmptyMessage(originalList.isEmpty())
         cartsAdapter.differ.submitList(originalList)
-        cartsAdapter.notifyItemInserted(cartsAdapter.itemCount)
+        cartsAdapter.notifyItemInserted(cartsAdapter.itemCount + 1)
 
     }
 
@@ -171,14 +194,20 @@ class HomeFragment : Fragment(), BaseFragment {
             category = cart.category
         }
         cartsAdapter.differ.submitList(originalList)
-        cartsAdapter.notifyItemChanged(cartsAdapter.differ.currentList.indexOf(cart))
+        cartsAdapter.notifyItemChanged(cartsAdapter.getCartPosition(cart))
     }
 
     private fun deleteCarts(carts : List<Cart>){
+        val cartsPosition = cartsAdapter.getCartsPosition(carts)
         viewModel.deleteCarts(carts.map { it.id })
         originalList.removeAll(carts)
         cartsAdapter.differ.submitList(originalList)
-        cartsAdapter.notifyDataSetChanged()
+
+        cartsPosition.forEach {
+            cartsAdapter.notifyItemRemoved(it)
+        }
+
+        showEmptyMessage(originalList.isEmpty())
     }
 
     override fun onDestroyView() {
@@ -193,8 +222,8 @@ class HomeFragment : Fragment(), BaseFragment {
 
     private fun goToProduct(cart: Cart) {
         arguments = Bundle().apply {
-            putString("cartName", cart.name)
-            putLong("cartId", cart.id.toLong())
+            putString(Constants.CART_NAME_KEY, cart.name)
+            putLong(Constants.CART_ID_KEY, cart.id.toLong())
         }
 
         if(KeyboardVisibilityEvent.isKeyboardVisible(requireActivity())){
@@ -205,10 +234,12 @@ class HomeFragment : Fragment(), BaseFragment {
     }
 
     private fun setupMenuItems() {
-        deleteMenu = binding.toolbar.menu.findItem(R.id.delete_menu)
+        cancelActionMenu = binding.toolbar.menu.findItem(R.id.cancel_action)
         searchMenu = binding.toolbar.menu.findItem(R.id.search_menu)
         sortMenu = binding.toolbar.menu.findItem(R.id.sort_menu)
+        categories = binding.toolbar.menu.findItem(R.id.categories_menu)
         selectAllMenu = binding.toolbar.menu.findItem(R.id.select_all)
+        deleteManyMenu = binding.toolbar.menu.findItem(R.id.delete_menu)
 
         searchMenu.setOnMenuItemClickListener {
             doSearch()
@@ -218,19 +249,28 @@ class HomeFragment : Fragment(), BaseFragment {
             sortList()
         }
 
+        categories.setOnMenuItemClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_categoryFragment)
+            true
+        }
+
+        cancelActionMenu.setOnMenuItemClickListener {
+            changeSelectState()
+            true
+        }
+
         selectAllMenu.setOnMenuItemClickListener {
             if (cartsAdapter.selectedItems.size == originalList.size) {
                 cartsAdapter.selectedItems.clear()
                 cartsAdapter.notifyItemRangeChanged(0, cartsAdapter.itemCount)
-                selectAllMenu.icon = AppCompatResources.getDrawable(requireContext(), R.drawable.baseline_check_box_24)
+                selectAllMenu.icon = AppCompatResources.getDrawable(requireContext(), R.drawable.outline_check_box_24)
             } else {
                 cartsAdapter.selectedItems.addAll(originalList)
                 cartsAdapter.notifyItemRangeChanged(0, cartsAdapter.itemCount)
-                selectAllMenu.icon = AppCompatResources.getDrawable(requireContext(), R.drawable.outline_check_box_24)
+                selectAllMenu.icon = AppCompatResources.getDrawable(requireContext(), R.drawable.baseline_check_box_24)
             }
             true
         }
-
     }
 
     private fun setupAdapter() {
@@ -296,19 +336,19 @@ class HomeFragment : Fragment(), BaseFragment {
     //region Deletion
 
     private fun configDeleteListeners(){
-        binding.closeSelection.setOnClickListener {
-            changeSelectState()
+        binding.deleteSelection.setOnClickListener {
+            deleteItems()
         }
 
-        deleteMenu.setOnMenuItemClickListener {
-            deleteItems()
+        deleteManyMenu.setOnMenuItemClickListener {
+            changeSelectState()
+            false
         }
     }
 
-    private fun deleteItems() : Boolean{
+    private fun deleteItems(){
         if(selectionMode && cartsAdapter.selectedItems.isNotEmpty()) confirmDeletion(cartsAdapter.selectedItems)
         else changeSelectState()
-        return true
     }
 
     fun deleteOneItem(cart: Cart) {
@@ -321,6 +361,7 @@ class HomeFragment : Fragment(), BaseFragment {
                 .setMessage(getString(R.string.message_delete_confirmation) + cartsToDelete.first().name + " ?")
                 .setIcon(R.drawable.ic_info_24).setPositiveButton(getString(R.string.positive_confirmation)) { dialog, _ ->
                     deleteCarts(cartsToDelete)
+                    if(selectionMode) changeSelectState()
                     dialog.dismiss()
                 }.setNegativeButton(getString(R.string.negative_confirmation)) { dialog, _ ->
                     dialog.dismiss()
@@ -331,7 +372,7 @@ class HomeFragment : Fragment(), BaseFragment {
                 .setIcon(R.drawable.ic_info_24)
                 .setPositiveButton(getString(R.string.positive_confirmation)) { dialog, _ ->
                     deleteCarts(cartsToDelete)
-                    changeSelectState()
+                    if(selectionMode) changeSelectState()
                     dialog.dismiss()
                 }.setNegativeButton(getString(R.string.negative_confirmation)) { dialog, _ ->
                     changeSelectState()
@@ -346,61 +387,50 @@ class HomeFragment : Fragment(), BaseFragment {
     }
 
     private fun changeSelectState() {
-        deleteMenu.let {
-            selectionMode = if (!selectionMode) {
-                binding.addCart.setVisibility(false)
-                binding.closeSelection.setVisibility(true)
-                binding.toolbar.title = getString(R.string.select_items)
-                deleteMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                selectAllMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                selectAllMenu.isVisible = true
+        if(fabExapanded) toggleExpandedFab()
+        selectionMode = !selectionMode
+        binding.expandFab.setVisibility(!selectionMode)
+        binding.deleteSelection.setVisibility(selectionMode)
 
-                sortMenu.isVisible = false
-                true
-            } else {
-                binding.addCart.setVisibility(true)
-                binding.closeSelection.setVisibility(false)
-                deleteMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
-                selectAllMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
-                selectAllMenu.isVisible = false
+        selectAllMenu.isVisible = selectionMode
+        cancelActionMenu.isVisible = selectionMode
 
-                sortMenu.isVisible = true
-                cartsAdapter.selectedItems.clear()
-                cartsAdapter.notifyDataSetChanged()
-                binding.toolbar.title = requireContext().resources.getString(R.string.app_name)
-                false
-            }
+        deleteManyMenu.isVisible = !selectionMode
+        categories.isVisible = !selectionMode
+        sortMenu.isVisible = !selectionMode
+
+        binding.toolbar.title = if(selectionMode) getString(R.string.select_items) else getString(R.string.app_name)
+
+        if(!selectionMode) {
+            cartsAdapter.selectedItems.clear()
+            cartsAdapter.notifyDataSetChanged()
         }
     }
 
     //endregion
 
     override fun doSearch() : Boolean{
-        binding.searchView.show(requireContext())
         if (binding.searchView.isVisible) {
             binding.searchView.setVisibility(false)
         } else {
+            binding.searchView.hint = getString(R.string.search_carts)
             binding.searchView.setVisibility(true)
+            binding.searchView.requestFocus()
         }
 
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String): Boolean {
+        binding.searchText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val searched = originalList.filter {
-                    it.name.uppercase().contains(query.uppercase()) ||
-                            it.data.contains(query)
+                    it.name.uppercase().contains(s.toString().uppercase()) ||
+                            it.data.contains(s.toString().uppercase())
                 }
                 cartsAdapter.differ.submitList(searched)
-                return false
             }
 
-            override fun onQueryTextChange(nextText: String): Boolean {
-                val searched = originalList.filter {
-                    it.name.uppercase().contains(nextText.uppercase()) ||
-                            it.data.contains(nextText)
-                }
-                cartsAdapter.differ.submitList(searched)
-                return false
-            }
+            override fun afterTextChanged(s: Editable?) {}
+
         })
         return true
     }
@@ -410,10 +440,16 @@ class HomeFragment : Fragment(), BaseFragment {
         binding.emptyMessagePlaceholder.root.setVisibility(visibility)
     }
 
-    private fun showLoading(visibility: Boolean){
-        binding.cartsRv.setVisibility(!visibility)
-        binding.addCart.setVisibility(!visibility)
-        binding.loading.setVisibility(visibility)
+    private fun showLoading(infoState: CartsState){
+        binding.cartsRv.setVisibility(!infoState.loading)
+        binding.expandFab.setVisibility(!infoState.loading)
+        binding.loading.setVisibility(infoState.loading)
+
+        if(!infoState.loading){
+            showCartsItems(infoState.carts)
+            categoriesList.clear()
+            categoriesList.addAll(infoState.categories)
+        }
     }
 
     override fun sortList() : Boolean{
@@ -436,7 +472,7 @@ class HomeFragment : Fragment(), BaseFragment {
 
         requireView().isFocusableInTouchMode = true
         requireView().requestFocus()
-        requireView().setOnKeyListener { v, keyCode, event ->
+        requireView().setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
                 when {
                     selectionMode -> { changeSelectState() }

@@ -24,19 +24,19 @@
         android:id="@+id/product_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
         android:text="@string/product"
-        android:textSize="24sp"
+        android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/product_quantity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
+        android:layout_marginTop="16dp"
         android:textSize="16sp"
         tools:text="02"
         app:layout_constraintStart_toStartOf="@id/product_name"

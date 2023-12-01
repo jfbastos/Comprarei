@@ -64,9 +64,21 @@ class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallb
         return differ.currentList.size
     }
 
+    fun getCartPosition(cart : Cart) = differ.currentList.indexOf(cart)
+
     private var onItemClickListener: ((Cart) -> Unit)? = null
 
     fun setOnItemClickListener(clickListener: (Cart) -> Unit) {
         onItemClickListener = clickListener
+    }
+
+    fun getCartsPosition(carts: List<Cart>): List<Int> {
+        val indexes = mutableListOf<Int>()
+
+        carts.forEach {
+            indexes.add(getCartPosition(it))
+        }
+
+        return indexes
     }
 }

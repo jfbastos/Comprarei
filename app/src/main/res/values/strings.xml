@@ -37,7 +37,7 @@
     <string name="swipe_to_edit">Edit</string>
     <string name="valor_total">Total value</string>
     <string name="be_careful_title">Be careful!</string>
-    <string name="carts_with_category">You have some carts with this category!\n\nAre you sure?</string>
+    <string name="carts_with_category">Looks like you have some carts with this category!\n\nAre you sure?</string>
     <string name="select_items">Selecione os itens...</string>
     <string name="blank_name">Name can\'t be blank!</string>
     <string name="select_category_color">Please, select a category color!</string>
@@ -50,6 +50,7 @@
     <string name="store_hint">Store</string>
     <string name="categories">Categories</string>
     <string name="themes">Themes</string>
-    <string name="no_categories">You don\'t have categories</string>
+    <string name="no_categories">No categories</string>
+    <string name="search_carts">Search Carts</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

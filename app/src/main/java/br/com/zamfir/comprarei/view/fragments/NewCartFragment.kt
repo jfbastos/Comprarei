@@ -1,6 +1,5 @@
 package br.com.zamfir.comprarei.view.fragments
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
 import android.graphics.Color
@@ -39,7 +38,7 @@ class NewCartFragment() : DialogFragment() {
         this.categories = categories
     }
 
-    @SuppressLint("RestrictedApi")
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(context)
         _binding = FragmentNewCartBinding.inflate(layoutInflater)

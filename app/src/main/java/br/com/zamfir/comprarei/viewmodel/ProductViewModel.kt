@@ -3,8 +3,6 @@ package br.com.zamfir.comprarei.viewmodel
 import androidx.lifecycle.*
 import br.com.zamfir.comprarei.model.entity.Product
 import br.com.zamfir.comprarei.repositories.ProductRepository
-import br.com.zamfir.comprarei.viewmodel.states.DeleteState
-import br.com.zamfir.comprarei.viewmodel.states.GetState
 import br.com.zamfir.comprarei.viewmodel.states.SaveState
 import kotlinx.coroutines.launch
 
@@ -12,12 +10,6 @@ class ProductViewModel(private val productRepository: ProductRepository) : ViewM
 
     private var _products = MutableLiveData<List<Product>>()
     val products : LiveData<List<Product>> get() = _products
-
-    private var _productState = MutableLiveData<GetState>()
-    val productState : LiveData<GetState> get() = _productState
-
-    private var _deleteState = MutableLiveData<DeleteState>()
-    val deleteState : LiveData<DeleteState> get() = _deleteState
 
     private var _saveState = MutableLiveData<SaveState>()
     val saveState : LiveData<SaveState> get() = _saveState
@@ -46,18 +38,6 @@ class ProductViewModel(private val productRepository: ProductRepository) : ViewM
     fun deleteProduct(ids : List<Int>) {
         viewModelScope.launch {
             productRepository.deleteProduct(ids)
-        }
-    }
-
-    fun reorderList(currentList: List<Product>) {
-        viewModelScope.launch {
-           productRepository.updateAll(currentList)
-        }
-    }
-
-    fun deleteProducts(cartId: Int) {
-        viewModelScope.launch {
-            productRepository.deleteProducts(cartId)
         }
     }
 

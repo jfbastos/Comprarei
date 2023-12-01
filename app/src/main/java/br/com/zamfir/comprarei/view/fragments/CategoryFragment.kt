@@ -25,7 +25,6 @@ import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CategoryFragment : Fragment() {
-
     private var _binding : FragmentCategoryBinding? = null
     private val binding : FragmentCategoryBinding get() = _binding!!
     private val categoriesList = mutableListOf<Category>()
@@ -149,6 +148,11 @@ class CategoryFragment : Fragment() {
             this.isVisible = false
         }
         binding.toolbar.menu.findItem(R.id.select_all).apply {
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+            this.isVisible = false
+        }
+
+        binding.toolbar.menu.findItem(R.id.categories_menu).apply {
             setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
             this.isVisible = false
         }

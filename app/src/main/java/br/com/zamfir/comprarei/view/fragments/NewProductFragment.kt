@@ -14,7 +14,6 @@ import br.com.zamfir.comprarei.model.entity.Product
 import br.com.zamfir.comprarei.util.FormatFrom
 import br.com.zamfir.comprarei.util.MoneyTextWatcher
 import br.com.zamfir.comprarei.util.convertMonetaryToDouble
-import br.com.zamfir.comprarei.util.errorAnimation
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.io.Serializable
@@ -34,6 +33,17 @@ class NewProductFragment : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = BottomSheetNewProductBinding.inflate(inflater, container, false)
+
+        binding.addQuantityButton.setOnClickListener {
+            val value = Integer.valueOf(binding.productQuantity.text.toString().takeIf { it.isNotBlank() && it != "null"} ?: "0")
+            binding.productQuantity.setText(value.plus(1).toString())
+        }
+
+        binding.minutsQuantityButton.setOnClickListener {
+            val value = Integer.valueOf(binding.productQuantity.text.toString().takeIf { it.isNotBlank() && it != "null"} ?: "0")
+            binding.productQuantity.setText(if(value > 0) value.minus(1).toString() else value.toString())
+        }
+
         return binding.root
     }
 
@@ -102,9 +112,9 @@ class NewProductFragment : BottomSheetDialogFragment() {
 
     private fun saveProduct() {
         if (binding.productName.text.isNullOrEmpty()) {
-            binding.productNameLayout.errorAnimation()
             binding.productNameLayout.error = ""
             binding.productName.error = "Nome não pode ser vazio!"
+            binding.productName.requestFocus()
         } else {
             onFormFinish?.let {
                 if(product != null){

@@ -5,26 +5,19 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.zamfir.comprarei.model.entity.Cart
-import br.com.zamfir.comprarei.model.entity.Category
 import br.com.zamfir.comprarei.repositories.CartRepository
 import br.com.zamfir.comprarei.repositories.ProductRepository
 import br.com.zamfir.comprarei.util.convertMonetaryToDouble
 import br.com.zamfir.comprarei.viewmodel.states.DeleteState
-import br.com.zamfir.comprarei.viewmodel.states.GetState
+import br.com.zamfir.comprarei.viewmodel.states.CartsState
 import br.com.zamfir.comprarei.viewmodel.states.SaveState
 import kotlinx.coroutines.launch
 import java.lang.Exception
 
 class CartViewModel(private val repository: CartRepository, private val productsRepository: ProductRepository) : ViewModel() {
 
-    private var _carts = MutableLiveData<List<Cart>>()
-    val carts : LiveData<List<Cart>> get() = _carts
-
-    private var _categories = MutableLiveData<List<Category>>()
-    val categories : LiveData<List<Category>> get() = _categories
-
-    private var _cartsState = MutableLiveData<GetState>()
-    val cartsState : LiveData<GetState> get() = _cartsState
+    private var _cartsState = MutableLiveData<CartsState>()
+    val cartsState : LiveData<CartsState> get() = _cartsState
 
     private var _deleteState = MutableLiveData<DeleteState>()
     val deleteState : LiveData<DeleteState> get() = _deleteState
@@ -32,31 +25,21 @@ class CartViewModel(private val repository: CartRepository, private val products
     private var _saveState = MutableLiveData<SaveState>()
     val saveState : LiveData<SaveState> get() = _saveState
 
-    private fun getCarts() = viewModelScope.launch{
-
-        val carts = repository.getCarts()
-        carts.forEach {
-            it.category = repository.getCategoryById(it.categoryId)
-        }
-        _carts.value = carts
-    }
-
     fun saveCart(cart: Cart) = viewModelScope.launch {
         val id = repository.saveCart(cart)
         _saveState.value = SaveState(savedId = id, savedItem = cart)
     }
 
     fun updateAllData() = viewModelScope.launch {
-        _cartsState.value = GetState(loading = true)
-        getCarts()
-        getCategories()
-        _cartsState.value = GetState(loading = false)
-    }
+        _cartsState.value = CartsState(loading = true)
 
-    fun deleteCart(cart: Cart) {
-        viewModelScope.launch {
-            repository.deleteCart(cart.id)
+        val carts = repository.getCarts().onEach {
+            it.category = repository.getCategoryById(it.categoryId)
         }
+
+        val categories = repository.getCategories()
+
+        _cartsState.value = CartsState(loading = false, carts = carts, categories = categories)
     }
 
     fun deleteCarts(carts : List<Int>) = viewModelScope.launch{
@@ -106,9 +89,5 @@ class CartViewModel(private val repository: CartRepository, private val products
                 list
             }
         }
-    }
-
-    private fun getCategories() = viewModelScope.launch{
-       _categories.value = repository.getCategories()
     }
 }

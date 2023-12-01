@@ -21,8 +21,18 @@
         <item name="android:textColor">@color/primary_green</item>
     </style>
 
+    <style name="NavigationDrawerText" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:padding">8dp</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
     <style name="roundedImageViewRounded">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
+
+
 </resources>
