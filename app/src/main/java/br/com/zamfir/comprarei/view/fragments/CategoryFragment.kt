@@ -88,6 +88,19 @@ class CategoryFragment : Fragment() {
             }.show(parentFragmentManager, "")
         }
 
+        categoryAdapter.setOnDeleteClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle(R.string.title_confirmation)
+                .setMessage(getString(R.string.message_delete_confirmation) + it.description + " ?")
+                .setPositiveButton(R.string.positive_confirmation){ dialog, _ ->
+                    deleteCategory(it)
+                    dialog.dismiss()
+                }
+                .setNegativeButton(R.string.negative_confirmation){dialog, _ ->
+                    dialog.dismiss()
+                }.show()
+        }
+
         binding.toolbar.setNavigationIcon(com.afollestad.materialdialogs.R.drawable.md_nav_back)
         binding.toolbar.setNavigationOnClickListener {
             voltarTela()

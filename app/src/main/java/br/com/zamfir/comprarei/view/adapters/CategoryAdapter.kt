@@ -1,5 +1,6 @@
 package br.com.zamfir.comprarei.view.adapters
 
+import android.content.DialogInterface.OnClickListener
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
@@ -21,6 +22,10 @@ class CategoryAdapter : ListAdapter<Category, CategoryAdapter.CategoryViewHolder
 
             binding.root.setOnClickListener {
                 onItemClickListener?.invoke(category)
+            }
+
+            binding.deleteButton.setOnClickListener {
+                onDeleteClickListener?.invoke(category)
             }
         }
     }
@@ -54,6 +59,12 @@ class CategoryAdapter : ListAdapter<Category, CategoryAdapter.CategoryViewHolder
 
     fun setOnItemClickListener(clickListener: (Category) -> Unit) {
         onItemClickListener = clickListener
+    }
+
+    private var onDeleteClickListener : ((Category) -> Unit)? = null
+
+    fun setOnDeleteClickListener(deleteClickListener: (Category) -> Unit){
+        onDeleteClickListener = deleteClickListener
     }
 
 }
