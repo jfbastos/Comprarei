@@ -52,5 +52,18 @@
     <string name="themes">Themes</string>
     <string name="no_categories">No categories</string>
     <string name="search_carts">Search Carts</string>
+    <string name="to">to</string>
+
+
+    <string-array name="operators">
+        <item>Equal</item>
+        <item>Less than</item>
+        <item>Greater than</item>
+        <item>Range</item>
+    </string-array>
+    <string name="highest_value">Value by Highest</string>
+    <string name="lowest_value">Value by Lowest</string>
+    <string name="by_done">By Done</string>
+    <string name="by_undone">By Undone</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

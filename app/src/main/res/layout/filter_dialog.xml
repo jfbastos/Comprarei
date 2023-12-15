@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:weightSum="8"
+        android:background="@color/secondary_green"
+        android:layout_height="?attr/actionBarSize">
+
+        <TextView
+            android:id="@+id/header_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:layout_marginStart="12dp"
+            android:text="Sort and Filter"
+            android:textColor="@color/white"
+            android:layout_weight="7"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/close_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_weight="1"
+            app:layout_constraintTop_toTopOf="@id/header_filter"
+            app:layout_constraintBottom_toBottomOf="@id/header_filter"
+            android:src="@drawable/ic_baseline_close_24"
+            android:background="@color/secondary_green"/>
+
+    </LinearLayout>
+
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/header_order_by"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sort by"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <HorizontalScrollView
+            android:id="@+id/chip_group_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/header_order_by">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:chipSpacing="24dp"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_name"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cart_sort_name_option" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_date"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cart_sort_date_option" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_category"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Category" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_value_high"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:checked="true"
+                    android:text="Highest value" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_value_low"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Lowest value" />
+
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+
+        <com.google.android.material.divider.MaterialDivider
+            android:id="@+id/sort_divider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/chip_group_scroll"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/header_filter_by"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Filter by"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/sort_divider" />
+
+        <TextView
+            android:id="@+id/header_filter_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Date"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/header_filter_by" />
+
+        <LinearLayout
+            android:id="@+id/date_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/header_filter_date">
+
+            <Button
+                android:id="@+id/date_picker_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select date range"
+                android:textAllCaps="false" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/header_filter_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Value"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/date_layout" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/value_operator_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toStartOf="@id/value_min_layout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/header_filter_value">
+
+            <AutoCompleteTextView
+                android:id="@+id/value_operator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:hint="Operator"
+                app:simpleItems="@array/operators" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/value_min_layout"
+            style="@style/MyInputTextStyle"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toBottomOf="@id/value_operator_layout"
+            app:layout_constraintEnd_toStartOf="@id/value_max_layout"
+            app:layout_constraintStart_toEndOf="@id/value_operator_layout"
+            app:layout_constraintTop_toTopOf="@id/value_operator_layout">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/minValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="R$ 0,00"
+                android:layout_gravity="center"
+                android:hint="Value"
+                android:inputType="numberDecimal" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/value_max_layout"
+            style="@style/MyInputTextStyle"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="12dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/value_min_layout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/value_min_layout"
+            app:layout_constraintTop_toTopOf="@id/value_min_layout">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/maxValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="8dp"
+                android:hint="Max"
+                android:inputType="numberDecimal" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:id="@+id/category_layout_placeholder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/value_operator_layout">
+
+            <TextView
+                android:id="@+id/header_filter_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Category"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/value_operator_layout" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/category_menu_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:hint="@string/select_category_hint"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/header_filter_category"
+                app:startIconDrawable="@drawable/category_icon_24"
+                app:startIconTint="@color/black">
+
+                <AutoCompleteTextView
+                    android:id="@+id/categories_menu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Categoria"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+        </LinearLayout>
+
+
+        <com.google.android.material.divider.MaterialDivider
+            android:id="@+id/filter_divider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/category_layout_placeholder"
+            android:layout_marginTop="12dp"/>
+
+
+        <Button
+            android:id="@+id/clear_filter_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:backgroundTint="@color/white"
+            android:text="Clear all"
+            android:textAllCaps="false"
+            android:textColor="?colorPrimary"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@id/category_layout_placeholder"
+            app:layout_constraintEnd_toStartOf="@id/apply_filter_btn"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/apply_filter_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:backgroundTint="?colorPrimary"
+            android:text="Apply"
+            android:textColor="@color/white"
+            android:textAllCaps="false"
+            app:layout_constraintTop_toTopOf="@id/clear_filter_btn"
+            app:layout_constraintBottom_toBottomOf="@id/clear_filter_btn"
+            app:layout_constraintStart_toEndOf="@id/clear_filter_btn"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+</LinearLayout>

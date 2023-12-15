@@ -18,7 +18,7 @@
         android:id="@+id/sort_menu"
         android:icon="@drawable/ic_filter_list_24"
         android:title="@string/sort"
-        app:showAsAction="never"/>
+        app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/delete_menu"

@@ -88,7 +88,7 @@ class CategoryFragment : Fragment() {
             }.show(parentFragmentManager, "")
         }
 
-        binding.toolbar.setNavigationIcon(R.drawable.md_nav_back)
+        binding.toolbar.setNavigationIcon(com.afollestad.materialdialogs.R.drawable.md_nav_back)
         binding.toolbar.setNavigationOnClickListener {
             voltarTela()
         }

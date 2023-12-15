@@ -14,5 +14,19 @@ class Constants {
         const val MAX_DATE_VALID = "31/12/2050"
         const val CART_ID_KEY = "cartId"
         const val CART_NAME_KEY = "cartName"
+
+        const val FILTER_NAME = "Name"
+        const val FILTER_DATE = "Date"
+        const val FILTER_VALUE_HIGH = "Value_high"
+        const val FILTER_VALUE_LOW = "Value_low"
+        const val FILTER_CATEGORY = "Category"
+        const val FILTER_QUANTITY = "Quantity"
+        const val FILTER_DONE = "Done"
+        const val FILTER_UNDONE = "Undone"
+
+        const val OPERATOR_EQUAL = "Equal"
+        const val OPERATOR_LESS_THAN = "Less"
+        const val OPERATOR_GRATER_THAN = "Greater"
+        const val OPERATOR_RANGE = "Range"
     }
 }

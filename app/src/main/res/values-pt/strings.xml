@@ -50,5 +50,10 @@
     <string name="themes">Temas</string>
     <string name="no_categories">Sem categorias</string>
     <string name="search_carts">Pesquisar carrinhos</string>
+    <string name="to">a</string>
+    <string name="highest_value">Valor - Crescente</string>
+    <string name="lowest_value">"Valor - Decrescente "</string>
+    <string name="by_done">Marcados</string>
+    <string name="by_undone">Não marcados</string>
 
 </resources>

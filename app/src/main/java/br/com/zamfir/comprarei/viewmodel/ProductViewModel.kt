@@ -3,6 +3,7 @@ package br.com.zamfir.comprarei.viewmodel
 import androidx.lifecycle.*
 import br.com.zamfir.comprarei.model.entity.Product
 import br.com.zamfir.comprarei.repositories.ProductRepository
+import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.viewmodel.states.SaveState
 import kotlinx.coroutines.launch
 
@@ -41,16 +42,25 @@ class ProductViewModel(private val productRepository: ProductRepository) : ViewM
         }
     }
 
-    fun sortList(option: Int, list: List<Product>): List<Product> {
+    fun sortList(option: String, list: List<Product>): List<Product> {
         return when (option) {
-            0 -> {
+            Constants.FILTER_NAME -> {
                 list.sortedBy { it.name }
             }
-            1 -> {
+            Constants.FILTER_QUANTITY -> {
                 list.sortedBy { it.price }
             }
-            2 -> {
-                list.sortedBy { (it.price * it.quantity) }
+            Constants.FILTER_VALUE_HIGH  -> {
+                list.sortedBy { it.price }.reversed()
+            }
+            Constants.FILTER_VALUE_LOW -> {
+                list.sortedBy { it.price }
+            }
+            Constants.FILTER_UNDONE -> {
+                list.sortedBy { it.done }
+            }
+            Constants.FILTER_DONE -> {
+                list.sortedBy { it.done }.reversed()
             }
             else -> {
                 list

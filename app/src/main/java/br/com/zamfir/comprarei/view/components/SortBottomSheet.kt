@@ -37,6 +37,7 @@ class SortBottomSheet : BottomSheetDialogFragment() {
             onSelectionFinished = it.getSerializable(ON_SELECTION_KEY) as ((Int) -> Unit)?
             list.addAll(it.getSerializable(ITEMS_KEY) as ArrayList<String>)
         }
+
         return super.onCreateDialog(savedInstanceState)
     }
 

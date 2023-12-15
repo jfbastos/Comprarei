@@ -28,7 +28,6 @@ import br.com.zamfir.comprarei.util.FormatFrom
 import br.com.zamfir.comprarei.util.Share
 import br.com.zamfir.comprarei.util.setVisibility
 import br.com.zamfir.comprarei.view.adapters.ProductsAdapter
-import br.com.zamfir.comprarei.view.components.SortBottomSheet.Companion.openSortBottomSheetDialog
 import br.com.zamfir.comprarei.view.fragments.NewProductFragment.Companion.openEditProductBottomSheet
 import br.com.zamfir.comprarei.view.fragments.NewProductFragment.Companion.openNewProductBottomSheet
 import br.com.zamfir.comprarei.view.interfaces.BaseFragment
@@ -312,7 +311,13 @@ class ProductsFragment : Fragment(), BaseFragment {
     private fun changeItemDone(product: Product, position: Int) {
         product.done = !product.done
         viewModelProduct.updateDone(product.done, product.id)
-        productsAdapter.notifyItemChanged(position)
+        if(product.done){
+            originalList.remove(product)
+            originalList.add(product)
+            viewModelProduct.updateOrder(originalList)
+            productsAdapter.differ.submitList(originalList)
+        }
+        productsAdapter.notifyDataSetChanged()
     }
 
     private fun sharedProduct(cartName: String?) {
@@ -387,14 +392,27 @@ class ProductsFragment : Fragment(), BaseFragment {
     }
 
     override fun sortList(): Boolean {
-        val options = arrayListOf(
-            getString(R.string.product_sort_name), getString(R.string.product_sort_price), getString(
-                R.string.product_sort_total
-            ), "Original"
-        )
-        openSortBottomSheetDialog(options) { option ->
-            productsAdapter.differ.submitList(viewModelProduct.sortList(option, originalList))
+        binding.searchSortPlaceholder.setVisibility(!binding.searchSortPlaceholder.isVisible)
+
+        if(!binding.searchSortPlaceholder.isVisible) {
+            productsAdapter.differ.submitList(originalList)
+            binding.filterGroup.clearCheck()
+            productsAdapter.notifyDataSetChanged()
         }
+
+        binding.filterGroup.setOnCheckedStateChangeListener { group, _ ->
+            when(group.checkedChipId){
+                binding.chipName.id -> productsAdapter.differ.submitList(viewModelProduct.sortList(Constants.FILTER_NAME, originalList))
+                binding.chipQuantity.id -> productsAdapter.differ.submitList(viewModelProduct.sortList(Constants.FILTER_QUANTITY, originalList))
+                binding.chipValueHigh.id -> productsAdapter.differ.submitList(viewModelProduct.sortList(Constants.FILTER_VALUE_HIGH, originalList))
+                binding.chipValueLow.id -> productsAdapter.differ.submitList(viewModelProduct.sortList(Constants.FILTER_VALUE_LOW, originalList))
+                binding.chipDoneFirst.id -> productsAdapter.differ.submitList(viewModelProduct.sortList(Constants.FILTER_DONE, originalList))
+                binding.chipUndoneFirst.id -> productsAdapter.differ.submitList(viewModelProduct.sortList(Constants.FILTER_UNDONE, originalList))
+                -1 -> productsAdapter.differ.submitList(originalList)
+            }
+            productsAdapter.notifyDataSetChanged()
+        }
+
 
         return true
     }

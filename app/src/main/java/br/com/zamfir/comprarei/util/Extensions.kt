@@ -80,4 +80,8 @@ private fun removeDot(value : String) : String{
     }.toString()
 }
 
+fun TextInputEditText.setMonetary(initialValue : String){
+    this.addTextChangedListener(MoneyTextWatcher(this))
+    this.setText(initialValue)
+}
 

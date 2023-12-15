@@ -27,10 +27,11 @@ import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentHomeBinding
 import br.com.zamfir.comprarei.model.entity.Cart
 import br.com.zamfir.comprarei.model.entity.Category
+import br.com.zamfir.comprarei.model.entity.Filter
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.setVisibility
 import br.com.zamfir.comprarei.view.adapters.CartsAdapter
-import br.com.zamfir.comprarei.view.components.SortBottomSheet.Companion.openSortBottomSheetDialog
+import br.com.zamfir.comprarei.view.components.FilterDialog
 import br.com.zamfir.comprarei.view.dialog.NewCategoryDialog
 import br.com.zamfir.comprarei.view.interfaces.BaseFragment
 import br.com.zamfir.comprarei.view.listeners.InfoUpdateListener
@@ -66,6 +67,8 @@ class HomeFragment : Fragment(), BaseFragment {
 
     private val viewModel: CartViewModel by viewModel()
     private val categoryViewModel : CategoryViewModel by viewModel()
+
+    private var selectedFilter : Filter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -105,6 +108,7 @@ class HomeFragment : Fragment(), BaseFragment {
         }
 
         binding.addCategory.setOnClickListener {
+            binding.expandFab.performClick()
             NewCategoryDialog{ newCategory, _ ->
                 categoryViewModel.saveCategory(newCategory)
                 categoriesList.add(newCategory)
@@ -112,6 +116,7 @@ class HomeFragment : Fragment(), BaseFragment {
         }
 
         binding.addCart.setOnClickListener {
+            binding.expandFab.performClick()
             NewCartFragment(originalList.takeIf { it.isNotEmpty() }?.maxOf { it.position }?.plus(1) ?: 0, categoriesList).show(parentFragmentManager, Constants.NEW_CART_KEY)
         }
 
@@ -127,24 +132,35 @@ class HomeFragment : Fragment(), BaseFragment {
 
     private fun toggleExpandedFab() {
         fabExapanded = !fabExapanded
-        binding.addCart.setVisibility(fabExapanded)
-        binding.addCategory.setVisibility(fabExapanded)
         animationToggleFab()
     }
 
 
     private fun animationToggleFab() {
         if (fabExapanded) {
-            binding.addCart.startAnimation(fromBottomAnimation)
-            binding.addCategory.startAnimation(fromBottomAnimation)
-            binding.expandFab.startAnimation(rotateOpenAnimation)
-            binding.expandFab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.gray, null))
+            animationOpen()
         } else {
-            binding.addCart.startAnimation(toBottomAnimation)
-            binding.addCategory.startAnimation(toBottomAnimation)
-            binding.expandFab.startAnimation(rotateCloseAnimation)
-            binding.expandFab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.primary_green, null))
+            animationClose()
         }
+
+    }
+
+    private fun animationOpen() {
+        binding.addCart.startAnimation(fromBottomAnimation)
+        binding.addCategory.startAnimation(fromBottomAnimation)
+        binding.expandFab.startAnimation(rotateOpenAnimation)
+        binding.expandFab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.gray, null))
+        binding.addCart.setVisibility(fabExapanded)
+        binding.addCategory.setVisibility(fabExapanded)
+    }
+
+    private fun animationClose() {
+        binding.addCart.startAnimation(toBottomAnimation)
+        binding.addCategory.startAnimation(toBottomAnimation)
+        binding.expandFab.startAnimation(rotateCloseAnimation)
+        binding.expandFab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.primary_green, null))
+        binding.addCart.setVisibility(fabExapanded)
+        binding.addCategory.setVisibility(fabExapanded)
     }
 
     private fun observables() {
@@ -233,7 +249,8 @@ class HomeFragment : Fragment(), BaseFragment {
         findNavController().navigate(R.id.action_homeFragment_to_productsFragment, arguments)
     }
 
-    private fun setupMenuItems() {
+
+    private fun  setupMenuItems() {
         cancelActionMenu = binding.toolbar.menu.findItem(R.id.cancel_action)
         searchMenu = binding.toolbar.menu.findItem(R.id.search_menu)
         sortMenu = binding.toolbar.menu.findItem(R.id.sort_menu)
@@ -387,7 +404,6 @@ class HomeFragment : Fragment(), BaseFragment {
     }
 
     private fun changeSelectState() {
-        if(fabExapanded) toggleExpandedFab()
         selectionMode = !selectionMode
         binding.expandFab.setVisibility(!selectionMode)
         binding.deleteSelection.setVisibility(selectionMode)
@@ -452,17 +468,31 @@ class HomeFragment : Fragment(), BaseFragment {
         }
     }
 
+    @androidx.annotation.OptIn(com.google.android.material.badge.ExperimentalBadgeUtils::class)
     override fun sortList() : Boolean{
-        val options = arrayListOf(
-            getString(R.string.cart_sort_name_option),
-            getString(R.string.cart_sort_date_option),
-            getString(R.string.valor_total),
-            "Original"
-        )
-        openSortBottomSheetDialog(options) { option ->
-            cartsAdapter.differ.submitList(viewModel.sortList(option, originalList))
-            cartsAdapter.notifyDataSetChanged()
-        }
+        FilterDialog(selectedFilter ?: Filter(), categoriesList){ filter, isClearFilter ->
+            if(isClearFilter){
+                cartsAdapter.differ.submitList(originalList)
+                cartsAdapter.notifyDataSetChanged()
+                sortMenu.icon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_filter_list_24)
+            }else{
+                if(filter.sortOption.isNullOrBlank() && filter.byCategory == null && filter.byDate == null && filter.byValue?.valueMin == 0.0 && filter.byValue?.valueMax == 0.0){
+                    cartsAdapter.differ.submitList(originalList)
+                    cartsAdapter.notifyDataSetChanged()
+                    sortMenu.icon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_filter_list_24)
+                }else{
+                    var tempList = mutableListOf<Cart>()
+                    selectedFilter = filter
+
+                    tempList = viewModel.filter(filter, originalList).toMutableList()
+
+                    cartsAdapter.differ.submitList(tempList)
+                    cartsAdapter.notifyDataSetChanged()
+                    sortMenu.icon = AppCompatResources.getDrawable(requireContext(), R.drawable.icon_filter_bedge)
+                }
+            }
+
+        }.show(parentFragmentManager, "")
 
         return true
     }

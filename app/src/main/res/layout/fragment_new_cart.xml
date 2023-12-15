@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:headerBackground="@color/secondary_green"
         android:visibility="gone"
-        tools:visibility="visible"
+        tools:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -60,6 +60,7 @@
                 android:id="@+id/cart_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:inputType="textCapSentences|text"
                 android:hint="@string/name" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -80,6 +81,7 @@
                 android:id="@+id/cartStore"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:inputType="textCapSentences|text"
                 android:hint="@string/store_hint" />
         </com.google.android.material.textfield.TextInputLayout>
 
