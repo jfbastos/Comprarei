@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'androidx.navigation.safeargs'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -101,5 +102,9 @@ dependencies {
     implementation "io.insert-koin:koin-androidx-navigation:$koin_version"
     implementation "io.insert-koin:koin-androidx-compose:$koin_version"
     implementation 'androidx.core:core-splashscreen:1.0.0'
+
+    //Firebase
+    implementation platform('com.google.firebase:firebase-bom:32.8.0')
+    implementation("com.google.firebase:firebase-auth")
 
 }
