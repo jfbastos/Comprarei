@@ -65,5 +65,12 @@
     <string name="lowest_value">Value by Lowest</string>
     <string name="by_done">By Done</string>
     <string name="by_undone">By Undone</string>
+    <string name="user_hint">User</string>
+    <string name="password_hint">Password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="log_in">Log-in</string>
+    <string name="or">or</string>
+    <string name="msg_not_have_account">Don\'t have account?\nClick here</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

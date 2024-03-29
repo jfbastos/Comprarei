@@ -55,5 +55,12 @@
     <string name="lowest_value">"Valor - Decrescente "</string>
     <string name="by_done">Marcados</string>
     <string name="by_undone">Não marcados</string>
+    <string name="user_hint">Usuário</string>
+    <string name="password_hint">Senha</string>
+    <string name="forgot_password">Esqueceu a senha?</string>
+    <string name="log_in">Entrar</string>
+    <string name="or">ou</string>
+    <string name="msg_not_have_account">Ainda não tem conta?\nClique aqui</string>
+    <string name="sign_in_with_google">Entrar com a conta Google</string>
 
 </resources>

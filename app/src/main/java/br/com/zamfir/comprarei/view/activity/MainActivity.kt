@@ -5,14 +5,8 @@ import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import br.com.zamfir.comprarei.databinding.ActivityMainBinding
 import br.com.zamfir.comprarei.util.Constants
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,12 +15,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        installSplashScreen().apply {
-            CoroutineScope(Dispatchers.IO).launch{
-                delay(3000)
-            }
-        }
 
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)

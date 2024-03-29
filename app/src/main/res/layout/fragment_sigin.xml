@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".view.activity.LoginActivity"
+    android:padding="24dp"
+    android:background="@drawable/background_signin_screen">
+
+    <TextView
+        android:id="@+id/label_signup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/roboto_medium"
+        android:text="Sign up"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/email_layout"
+        android:layout_marginBottom="36dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Please fill in the fields to create a new account."
+        app:layout_constraintTop_toBottomOf="@id/label_signup"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/email_layout"
+        style="@style/MyLoginTextStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.3"
+        android:background="@drawable/login_inputtext_background"
+        app:startIconDrawable="@drawable/email_black_24dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="E-mail"
+            android:inputType="textEmailAddress"
+            tools:text="jfbastos.nascimento@gmail.com" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/user_layout"
+        style="@style/MyLoginTextStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/email_layout"
+        android:background="@drawable/login_inputtext_background"
+        app:startIconDrawable="@drawable/person_black_24dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/user_hint"
+            tools:text="João Felipe" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/password_first_layout"
+        style="@style/MyLoginTextStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        app:passwordToggleEnabled="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/user_layout"
+        android:background="@drawable/login_inputtext_background"
+        app:startIconDrawable="@drawable/lock_black_24dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/password_first"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/password_hint"
+            android:inputType="textPassword"
+            tools:text="123454"
+            android:maxLines="1"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/password_second_layout"
+        style="@style/MyLoginTextStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        app:passwordToggleEnabled="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/password_first_layout"
+        android:background="@drawable/login_inputtext_background"
+        app:startIconDrawable="@drawable/lock_black_24dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/password_second"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Digite novamente a senha"
+            android:inputType="textPassword"
+            tools:text="123454"
+            android:maxLines="1"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_login"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        app:cornerRadius="8dp"
+        android:textAllCaps="false"
+        app:layout_constraintEnd_toEndOf="@id/password_second_layout"
+        app:layout_constraintStart_toStartOf="@id/password_second_layout"
+        app:layout_constraintTop_toBottomOf="@id/password_second_layout"
+        android:layout_marginTop="24dp"
+        android:text="Create account"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
