@@ -72,5 +72,6 @@
     <string name="or">or</string>
     <string name="msg_not_have_account">Don\'t have account?\nClick here</string>
     <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="client_id">24013763873-mu1pqttcq64v4ua67vh3jminj916o65r.apps.googleusercontent.com</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

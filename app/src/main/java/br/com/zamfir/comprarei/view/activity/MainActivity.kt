@@ -1,12 +1,10 @@
 package br.com.zamfir.comprarei.view.activity
 
-import android.content.Context
-import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
+import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.ActivityMainBinding
-import br.com.zamfir.comprarei.util.Constants
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,27 +17,9 @@ class MainActivity : AppCompatActivity() {
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setDarkMode()
-
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.statusBarColor = resources.getColor(R.color.primary_green, null)
     }
-
-    fun saveShared(modeNightMode: Int){
-        val sharedPreferences = this.getPreferences(Context.MODE_PRIVATE)
-        with (sharedPreferences.edit()){
-            putInt(Constants.DARK_MODE, modeNightMode)
-            apply()
-        }
-    }
-
-    private fun setDarkMode() {
-        val sharedPreferences = this.getPreferences(Context.MODE_PRIVATE)
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-            AppCompatDelegate.setDefaultNightMode(sharedPreferences.getInt(Constants.DARK_MODE, -1))
-        }else{
-            AppCompatDelegate.setDefaultNightMode(sharedPreferences.getInt(Constants.DARK_MODE, 0))
-        }
-
-    }
-
 }

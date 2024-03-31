@@ -1,15 +1,20 @@
 package br.com.zamfir.comprarei.view.activity
 
 import android.app.Activity
-import android.content.IntentSender
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowInsets
+import android.view.WindowManager
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.LoginActivityBinding
+import br.com.zamfir.comprarei.view.listeners.LoginWithGoogleListener
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
@@ -21,86 +26,68 @@ import com.google.firebase.ktx.Firebase
 
 class LoginActivity : AppCompatActivity() {
 
-    private var _binding : LoginActivityBinding? = null
-    private val binding : LoginActivityBinding get() = _binding!!
+    private var _binding: LoginActivityBinding? = null
+    private val binding: LoginActivityBinding get() = _binding!!
 
     lateinit var oneTapClient: SignInClient
     lateinit var signUpRequest: BeginSignInRequest
 
     private lateinit var auth: FirebaseAuth
 
-    lateinit var activityResult : ActivityResultLauncher<IntentSenderRequest>
+    lateinit var activityResult: ActivityResultLauncher<IntentSenderRequest>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         _binding = LoginActivityBinding.inflate(layoutInflater)
+        auth = Firebase.auth
+
         setContentView(binding.root)
 
-        activityResult = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()){ result : ActivityResult ->
-            if(result.resultCode == Activity.RESULT_OK){
-                try {
-                    val googleCredential = oneTapClient.getSignInCredentialFromIntent(result.data)
-                    val idToken = googleCredential.googleIdToken
-                    when {
-                        idToken != null -> {
-                            val idToken = googleCredential.googleIdToken
-                            when {
-                                idToken != null -> {
-                                    // Got an ID token from Google. Use it to authenticate
-                                    // with Firebase.
-                                    val firebaseCredential =
-                                        GoogleAuthProvider.getCredential(idToken, null)
-                                    auth.signInWithCredential(firebaseCredential)
-                                        .addOnCompleteListener(this) { task ->
-                                            if (task.isSuccessful) {
-                                                // Sign in success, update UI with the signed-in user's information
-                                                Log.d("DEBUG", "signInWithCredential:success")
-                                                val user =
-                                                    Log.d("DEBUG", "Token UUID = ${auth.currentUser?.uid} | ${auth.currentUser?.displayName} | ${auth.currentUser?.email}")
-                                            } else {
-                                                // If sign in fails, display a message to the user.
-                                                Log.w(
-                                                    "DEBUG",
-                                                    "signInWithCredential:failure",
-                                                    task.exception
-                                                )
-                                            }
-                                        }
-                                }
-
-                                else -> {
-                                    // Shouldn't happen.
-                                    Log.d("DEBUG", "No ID token!")
-                                }
-                            }
-                            Log.d("DEBUG", "Got ID token.")
-                        }
-
-                        else -> {
-                            // Shouldn't happen.
-                            Log.d("DEBUG", "No ID token!")
-                        }
-                    }
-                } catch (e: ApiException) {
-                    Log.d("DEBUG", e.stackTraceToString())
-                }
-            }
+        if(auth.currentUser != null){
+            startActivity(Intent(this, MainActivity::class.java))
         }
 
-        auth = Firebase.auth
+
+        activityResult =
+            registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result: ActivityResult ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    try {
+                        val googleCredential = oneTapClient.getSignInCredentialFromIntent(result.data)
+                        val idToken = googleCredential.googleIdToken
+                        idToken?.let{ token ->
+                            signInWithGoogle(token)
+                        }
+                    } catch (e: ApiException) {
+                        Log.d("DEBUG", e.stackTraceToString())
+                    }
+                }
+            }
+
 
         oneTapClient = Identity.getSignInClient(this)
         signUpRequest = BeginSignInRequest.builder()
-            .setGoogleIdTokenRequestOptions(
-                BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                    .setSupported(true)
-                    // Your server's client ID, not your Android client ID.
-                    .setServerClientId("24013763873-mu1pqttcq64v4ua67vh3jminj916o65r.apps.googleusercontent.com")
-                    // Only show accounts previously used to sign in.
-                    .setFilterByAuthorizedAccounts(false)
-                    .build()
-            )
+                            .setGoogleIdTokenRequestOptions(getGoogleRequestToken())
+                            .build()
+    }
+
+    private fun getGoogleRequestToken() =
+        BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
+            .setSupported(true)
+            .setServerClientId(getString(R.string.client_id))
+            .setFilterByAuthorizedAccounts(false)
             .build()
+
+    private fun signInWithGoogle(idToken: String?) {
+        val firebaseCredential =
+            GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(firebaseCredential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    LoginWithGoogleListener.loginListener.userLoggedIn()
+                } else {
+                   LoginWithGoogleListener.loginListener.loginError(task.exception)
+                }
+            }
     }
 }

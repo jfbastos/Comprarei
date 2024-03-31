@@ -1,5 +1,6 @@
 package br.com.zamfir.comprarei.view.fragments
 
+import android.content.Intent
 import android.content.IntentSender
 import android.os.Bundle
 import android.util.Log
@@ -12,7 +13,12 @@ import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentLoginBinding
 import br.com.zamfir.comprarei.view.activity.LoginActivity
+import br.com.zamfir.comprarei.view.activity.MainActivity
+import br.com.zamfir.comprarei.view.listeners.LoginWithGoogleListener
 import br.com.zamfir.comprarei.viewmodel.LoginViewModel
+import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginFragment : Fragment() {
@@ -28,6 +34,18 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentLoginBinding.inflate(inflater)
+
+        LoginWithGoogleListener.setOnListener(object : LoginWithGoogleListener{
+            override fun userLoggedIn() {
+               requireActivity().startActivity(Intent(requireActivity(), MainActivity::class.java))
+            }
+
+            override fun loginError(exception: Exception?) {
+                exception?.printStackTrace()
+            }
+
+        })
+
         return binding.root
     }
 

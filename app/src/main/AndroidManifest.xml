@@ -12,7 +12,8 @@
         <activity
             android:name=".view.activity.LoginActivity"
             android:theme="@style/Theme.Comprarei"
-            android:exported="true">
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
