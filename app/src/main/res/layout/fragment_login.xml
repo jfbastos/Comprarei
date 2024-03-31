@@ -27,13 +27,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.4"
-        app:startIconDrawable="@drawable/person_black_24dp">
+        app:startIconDrawable="@drawable/email_black_24dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/user"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/user_hint"
+            android:maxLines="1"
+            android:textSize="14sp"
+            android:inputType="textEmailAddress"
             tools:text="Joaquim" />
     </com.google.android.material.textfield.TextInputLayout>
 

@@ -4,7 +4,7 @@ import androidx.room.Room
 import br.com.zamfir.comprarei.model.AppDatabase
 import br.com.zamfir.comprarei.repositories.CartRepository
 import br.com.zamfir.comprarei.repositories.CategoryRepository
-import br.com.zamfir.comprarei.repositories.LoginRepository
+import br.com.zamfir.comprarei.repositories.FirebaseRepository
 import br.com.zamfir.comprarei.repositories.ProductRepository
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.viewmodel.CartViewModel
@@ -26,7 +26,7 @@ val repositoryModule = module {
     single { CartRepository(get(), get(named(Constants.IO_DISPATCHER))) }
     single { ProductRepository(get(), get(named(Constants.IO_DISPATCHER))) }
     single { CategoryRepository(get(), get(named(Constants.IO_DISPATCHER))) }
-    single { LoginRepository(get(named(Constants.IO_DISPATCHER))) }
+    single { FirebaseRepository(get(named(Constants.IO_DISPATCHER))) }
 }
 
 val dataBaseModule = module {

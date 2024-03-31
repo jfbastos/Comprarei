@@ -8,11 +8,16 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentSiginBinding
+import br.com.zamfir.comprarei.viewmodel.LoginViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.math.log
 
 class SigninFragment : Fragment() {
 
     private var _binding : FragmentSiginBinding? = null
     private val binding : FragmentSiginBinding get() = _binding!!
+
+    private val loginViewModel : LoginViewModel by viewModel()
 
 
     override fun onCreateView(
@@ -33,7 +38,7 @@ class SigninFragment : Fragment() {
                 putString("PASSWORD_KEY", binding.passwordFirst.text.toString())
             }
 
-            findNavController().navigate(R.id.action_signinFragment_to_loginFragment, arguments)
+            loginViewModel.createUser(binding.email.text.toString(), binding.user.text.toString(), binding.passwordFirst.text.toString())
         }
     }
 

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "24013763873",
+    "project_id": "comprarei-166ba",
+    "storage_bucket": "comprarei-166ba.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:24013763873:android:0c1a578d2194eb915dba60",
+        "android_client_info": {
+          "package_name": "br.com.zamfir.comprarei"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "24013763873-feh97urqjc5mfmrt3fictnjpbe6e6l0c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.zamfir.comprarei",
+            "certificate_hash": "fa94018382db0ca3d85aee224f39c12bb177739f"
+          }
+        },
+        {
+          "client_id": "24013763873-mu1pqttcq64v4ua67vh3jminj916o65r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCouz6W2AT2VPNnPfi2BgJZR2V-8AfpKF0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "24013763873-mu1pqttcq64v4ua67vh3jminj916o65r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
