@@ -44,11 +44,6 @@ class LoginActivity : AppCompatActivity() {
 
         setContentView(binding.root)
 
-        if(auth.currentUser != null){
-            startActivity(Intent(this, MainActivity::class.java))
-        }
-
-
         activityResult =
             registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result: ActivityResult ->
                 if (result.resultCode == Activity.RESULT_OK) {

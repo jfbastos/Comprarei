@@ -16,17 +16,14 @@ import br.com.zamfir.comprarei.view.activity.LoginActivity
 import br.com.zamfir.comprarei.view.activity.MainActivity
 import br.com.zamfir.comprarei.view.listeners.LoginWithGoogleListener
 import br.com.zamfir.comprarei.viewmodel.LoginViewModel
-import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginFragment : Fragment() {
 
-    private var _binding : FragmentLoginBinding? = null
-    private val binding : FragmentLoginBinding get() = _binding!!
+    private var _binding: FragmentLoginBinding? = null
+    private val binding: FragmentLoginBinding get() = _binding!!
 
-    private val loginViewModel : LoginViewModel by viewModel()
+    private val loginViewModel: LoginViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,9 +32,10 @@ class LoginFragment : Fragment() {
     ): View {
         _binding = FragmentLoginBinding.inflate(inflater)
 
-        LoginWithGoogleListener.setOnListener(object : LoginWithGoogleListener{
+        LoginWithGoogleListener.setOnListener(object : LoginWithGoogleListener {
             override fun userLoggedIn() {
-               requireActivity().startActivity(Intent(requireActivity(), MainActivity::class.java))
+                requireActivity().startActivity(Intent(requireActivity(), MainActivity::class.java))
+                requireActivity().finish()
             }
 
             override fun loginError(exception: Exception?) {
@@ -52,8 +50,8 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val login : String? = arguments?.getString("USER_KEY")
-        val password : String? = arguments?.getString("PASSWORD_KEY")
+        val login: String? = arguments?.getString("USER_KEY")
+        val password: String? = arguments?.getString("PASSWORD_KEY")
 
         login?.let {
             binding.user.setText(it)
@@ -68,7 +66,10 @@ class LoginFragment : Fragment() {
         }
 
         binding.btnLogin.setOnClickListener {
-            loginViewModel.loginWithEmail(binding.user.text.toString(), binding.password.text.toString())
+            loginViewModel.loginWithEmail(
+                binding.user.text.toString(),
+                binding.password.text.toString()
+            )
         }
 
         binding.btnLoginGoogle.root.setOnClickListener {
@@ -76,7 +77,9 @@ class LoginFragment : Fragment() {
             activity.oneTapClient.beginSignIn(activity.signUpRequest)
                 .addOnSuccessListener(requireActivity()) { result ->
                     try {
-                        activity.activityResult.launch(IntentSenderRequest.Builder(result.pendingIntent.intentSender).build())
+                        activity.activityResult.launch(
+                            IntentSenderRequest.Builder(result.pendingIntent.intentSender).build()
+                        )
                     } catch (e: IntentSender.SendIntentException) {
                         Log.e("DEBUG", "Couldn't start One Tap UI: ${e.localizedMessage}")
                     }

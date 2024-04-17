@@ -19,7 +19,9 @@ class FirebaseRepository(private val dispatcher: CoroutineDispatcher) {
 
     private var auth : FirebaseAuth = Firebase.auth
 
-
+    suspend fun hasUserLogged() = withContext(dispatcher){
+        return@withContext auth.currentUser != null
+    }
 
     @Throws
     suspend fun loginUser(email : String, password : String) = withContext(dispatcher){
@@ -60,4 +62,15 @@ class FirebaseRepository(private val dispatcher: CoroutineDispatcher) {
 
     }
 
+    @Throws
+    suspend fun logOffUser() = withContext(dispatcher){
+        return@withContext try{
+            auth.signOut()
+            true
+        }catch (e : Exception){
+            e.printStackTrace()
+            false
+        }
+
+    }
 }

@@ -13,7 +13,13 @@ import kotlinx.coroutines.launch
 class LoginViewModel(private val firebaseRepository : FirebaseRepository) : ViewModel() {
 
     private var _loginState = MutableLiveData<LoginState>()
-    private val loginState : LiveData<LoginState> get() = _loginState
+    val loginState : LiveData<LoginState> get() = _loginState
+
+    private var _userLoggedState = MutableLiveData<Boolean>()
+    val userLoggedState : LiveData<Boolean> get() = _userLoggedState
+
+    private var _userLoggedOffState = MutableLiveData<Boolean>()
+    val userLoggedOffState : LiveData<Boolean> get() = _userLoggedOffState
 
 
     fun loginWithEmail(email : String, password : String) = viewModelScope.launch {
@@ -34,4 +40,11 @@ class LoginViewModel(private val firebaseRepository : FirebaseRepository) : View
         }
     }
 
+    fun hasLoggedUser() = viewModelScope.launch {
+        _userLoggedState.value = firebaseRepository.hasUserLogged()
+    }
+
+    fun logOff() = viewModelScope.launch {
+        _userLoggedOffState.value = firebaseRepository.logOffUser()
+    }
 }

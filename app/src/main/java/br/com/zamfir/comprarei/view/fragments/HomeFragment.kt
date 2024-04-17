@@ -2,6 +2,7 @@ package br.com.zamfir.comprarei.view.fragments
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.os.Bundle
@@ -30,6 +31,7 @@ import br.com.zamfir.comprarei.model.entity.Category
 import br.com.zamfir.comprarei.model.entity.Filter
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.setVisibility
+import br.com.zamfir.comprarei.view.activity.LoginActivity
 import br.com.zamfir.comprarei.view.adapters.CartsAdapter
 import br.com.zamfir.comprarei.view.components.FilterDialog
 import br.com.zamfir.comprarei.view.dialog.NewCategoryDialog
@@ -37,7 +39,9 @@ import br.com.zamfir.comprarei.view.interfaces.BaseFragment
 import br.com.zamfir.comprarei.view.listeners.InfoUpdateListener
 import br.com.zamfir.comprarei.viewmodel.CartViewModel
 import br.com.zamfir.comprarei.viewmodel.CategoryViewModel
+import br.com.zamfir.comprarei.viewmodel.LoginViewModel
 import br.com.zamfir.comprarei.viewmodel.states.CartsState
+import com.google.firebase.auth.FirebaseAuth
 import com.kevincodes.recyclerview.ItemDecorator
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -52,6 +56,7 @@ class HomeFragment : Fragment(), BaseFragment {
     private lateinit var sortMenu: MenuItem
     private lateinit var searchMenu: MenuItem
     private lateinit var selectAllMenu : MenuItem
+    private lateinit var logoffMenu : MenuItem
     private lateinit var categories : MenuItem
     private lateinit var deleteManyMenu : MenuItem
     private var originalList: MutableList<Cart> = mutableListOf()
@@ -67,6 +72,7 @@ class HomeFragment : Fragment(), BaseFragment {
 
     private val viewModel: CartViewModel by viewModel()
     private val categoryViewModel : CategoryViewModel by viewModel()
+    private val loginViewModel : LoginViewModel by viewModel()
 
     private var selectedFilter : Filter? = null
 
@@ -177,6 +183,13 @@ class HomeFragment : Fragment(), BaseFragment {
                 id = saveState.savedId.toInt()
             }
         }
+
+        loginViewModel.userLoggedOffState.observe(viewLifecycleOwner){ successLoggoff ->
+            if(successLoggoff){
+                requireActivity().startActivity(Intent(requireActivity(), LoginActivity::class.java))
+                requireActivity().finish()
+            }
+        }
     }
 
     private fun showCartsItems(cartsList: List<Cart>?) {
@@ -257,6 +270,7 @@ class HomeFragment : Fragment(), BaseFragment {
         categories = binding.toolbar.menu.findItem(R.id.categories_menu)
         selectAllMenu = binding.toolbar.menu.findItem(R.id.select_all)
         deleteManyMenu = binding.toolbar.menu.findItem(R.id.delete_menu)
+        logoffMenu = binding.toolbar.menu.findItem(R.id.log_off)
 
         searchMenu.setOnMenuItemClickListener {
             doSearch()
@@ -273,6 +287,11 @@ class HomeFragment : Fragment(), BaseFragment {
 
         cancelActionMenu.setOnMenuItemClickListener {
             changeSelectState()
+            true
+        }
+
+        logoffMenu.setOnMenuItemClickListener {
+            loginViewModel.logOff()
             true
         }
 
