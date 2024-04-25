@@ -26,7 +26,7 @@ val repositoryModule = module {
     single { CartRepository(get(), get(named(Constants.IO_DISPATCHER))) }
     single { ProductRepository(get(), get(named(Constants.IO_DISPATCHER))) }
     single { CategoryRepository(get(), get(named(Constants.IO_DISPATCHER))) }
-    single { FirebaseRepository(get(named(Constants.IO_DISPATCHER))) }
+    single { FirebaseRepository(get(),get(named(Constants.IO_DISPATCHER))) }
 }
 
 val dataBaseModule = module {

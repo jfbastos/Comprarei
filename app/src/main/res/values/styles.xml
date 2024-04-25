@@ -24,6 +24,8 @@
         <item name="boxCornerRadiusTopStart">12dp</item>
         <item name="boxCornerRadiusTopEnd">12dp</item>
         <item name="startIconTint">@color/secondary_green</item>
+        <item name="colorOnError">@color/delete_red</item>
+        <item name="errorTextColor">@color/delete_red</item>
     </style>
 
     <style name="MyCancelButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
@@ -45,6 +47,11 @@
     <style name="roundedImageViewRounded">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="DialogStyle" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
     </style>
 
 

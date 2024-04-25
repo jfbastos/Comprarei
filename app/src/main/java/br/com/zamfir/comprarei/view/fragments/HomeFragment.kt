@@ -5,9 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Canvas
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
+import android.text.SpannableString
 import android.text.TextWatcher
+import android.text.style.ForegroundColorSpan
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -30,7 +33,7 @@ import br.com.zamfir.comprarei.model.entity.Cart
 import br.com.zamfir.comprarei.model.entity.Category
 import br.com.zamfir.comprarei.model.entity.Filter
 import br.com.zamfir.comprarei.util.Constants
-import br.com.zamfir.comprarei.util.setVisibility
+import br.com.zamfir.comprarei.util.isVisible
 import br.com.zamfir.comprarei.view.activity.LoginActivity
 import br.com.zamfir.comprarei.view.adapters.CartsAdapter
 import br.com.zamfir.comprarei.view.components.FilterDialog
@@ -41,7 +44,6 @@ import br.com.zamfir.comprarei.viewmodel.CartViewModel
 import br.com.zamfir.comprarei.viewmodel.CategoryViewModel
 import br.com.zamfir.comprarei.viewmodel.LoginViewModel
 import br.com.zamfir.comprarei.viewmodel.states.CartsState
-import com.google.firebase.auth.FirebaseAuth
 import com.kevincodes.recyclerview.ItemDecorator
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -156,8 +158,8 @@ class HomeFragment : Fragment(), BaseFragment {
         binding.addCategory.startAnimation(fromBottomAnimation)
         binding.expandFab.startAnimation(rotateOpenAnimation)
         binding.expandFab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.gray, null))
-        binding.addCart.setVisibility(fabExapanded)
-        binding.addCategory.setVisibility(fabExapanded)
+        binding.addCart.isVisible(fabExapanded)
+        binding.addCategory.isVisible(fabExapanded)
     }
 
     private fun animationClose() {
@@ -165,8 +167,8 @@ class HomeFragment : Fragment(), BaseFragment {
         binding.addCategory.startAnimation(toBottomAnimation)
         binding.expandFab.startAnimation(rotateCloseAnimation)
         binding.expandFab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.primary_green, null))
-        binding.addCart.setVisibility(fabExapanded)
-        binding.addCategory.setVisibility(fabExapanded)
+        binding.addCart.isVisible(fabExapanded)
+        binding.addCategory.isVisible(fabExapanded)
     }
 
     private fun observables() {
@@ -271,6 +273,10 @@ class HomeFragment : Fragment(), BaseFragment {
         selectAllMenu = binding.toolbar.menu.findItem(R.id.select_all)
         deleteManyMenu = binding.toolbar.menu.findItem(R.id.delete_menu)
         logoffMenu = binding.toolbar.menu.findItem(R.id.log_off)
+
+        val menu = SpannableString(logoffMenu.title)
+        menu.setSpan(ForegroundColorSpan(Color.RED), 0, menu.length, 0)
+        logoffMenu.setTitle(menu)
 
         searchMenu.setOnMenuItemClickListener {
             doSearch()
@@ -424,8 +430,8 @@ class HomeFragment : Fragment(), BaseFragment {
 
     private fun changeSelectState() {
         selectionMode = !selectionMode
-        binding.expandFab.setVisibility(!selectionMode)
-        binding.deleteSelection.setVisibility(selectionMode)
+        binding.expandFab.isVisible(!selectionMode)
+        binding.deleteSelection.isVisible(selectionMode)
 
         selectAllMenu.isVisible = selectionMode
         cancelActionMenu.isVisible = selectionMode
@@ -446,10 +452,10 @@ class HomeFragment : Fragment(), BaseFragment {
 
     override fun doSearch() : Boolean{
         if (binding.searchView.isVisible) {
-            binding.searchView.setVisibility(false)
+            binding.searchView.isVisible(false)
         } else {
             binding.searchView.hint = getString(R.string.search_carts)
-            binding.searchView.setVisibility(true)
+            binding.searchView.isVisible(true)
             binding.searchView.requestFocus()
         }
 
@@ -471,14 +477,14 @@ class HomeFragment : Fragment(), BaseFragment {
     }
 
     private fun showEmptyMessage(visibility: Boolean) {
-        binding.cartsRv.setVisibility(!visibility)
-        binding.emptyMessagePlaceholder.root.setVisibility(visibility)
+        binding.cartsRv.isVisible(!visibility)
+        binding.emptyMessagePlaceholder.root.isVisible(visibility)
     }
 
     private fun showLoading(infoState: CartsState){
-        binding.cartsRv.setVisibility(!infoState.loading)
-        binding.expandFab.setVisibility(!infoState.loading)
-        binding.loading.setVisibility(infoState.loading)
+        binding.cartsRv.isVisible(!infoState.loading)
+        binding.expandFab.isVisible(!infoState.loading)
+        binding.loading.isVisible(infoState.loading)
 
         if(!infoState.loading){
             showCartsItems(infoState.carts)
@@ -526,7 +532,7 @@ class HomeFragment : Fragment(), BaseFragment {
                 when {
                     selectionMode -> { changeSelectState() }
                     binding.searchView.isVisible -> {
-                        binding.searchView.setVisibility(false)
+                        binding.searchView.isVisible(false)
                     }
                     else -> {
                         activity?.finish()

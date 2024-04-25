@@ -15,7 +15,7 @@ import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentCategoryBinding
 import br.com.zamfir.comprarei.model.entity.Category
-import br.com.zamfir.comprarei.util.setVisibility
+import br.com.zamfir.comprarei.util.isVisible
 import br.com.zamfir.comprarei.util.show
 import br.com.zamfir.comprarei.view.adapters.CategoryAdapter
 import br.com.zamfir.comprarei.view.dialog.NewCategoryDialog
@@ -147,8 +147,8 @@ class CategoryFragment : Fragment() {
     }
 
     private fun showEmptyMessage(visibility: Boolean) {
-        binding.categoriesRcv.setVisibility(!visibility)
-        binding.emptyListPlaceholder.setVisibility(visibility)
+        binding.categoriesRcv.isVisible(!visibility)
+        binding.emptyListPlaceholder.isVisible(visibility)
     }
 
     private fun setupMenuItems() {
@@ -169,6 +169,11 @@ class CategoryFragment : Fragment() {
             setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
             this.isVisible = false
         }
+
+        binding.toolbar.menu.findItem(R.id.log_off).apply {
+            isVisible = false
+        }
+
         searchMenu = binding.toolbar.menu.findItem(R.id.search_menu)
 
         searchMenu.setOnMenuItemClickListener {
@@ -180,9 +185,9 @@ class CategoryFragment : Fragment() {
     private fun doSearch() : Boolean{
         binding.searchView.show(requireContext())
         if (binding.searchView.isVisible) {
-            binding.searchView.setVisibility(false)
+            binding.searchView.isVisible(false)
         } else {
-            binding.searchView.setVisibility(true)
+            binding.searchView.isVisible(true)
         }
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -210,7 +215,7 @@ class CategoryFragment : Fragment() {
             if (event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
                 when {
                     binding.searchView.isVisible -> {
-                        binding.searchView.setVisibility(false)
+                        binding.searchView.isVisible(false)
                     }
                     else -> {
                        voltarTela()

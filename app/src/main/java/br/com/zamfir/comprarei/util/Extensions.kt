@@ -2,7 +2,6 @@ package br.com.zamfir.comprarei.util
 
 import android.content.Context
 import android.text.Editable
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnimationUtils
@@ -10,19 +9,28 @@ import android.view.inputmethod.InputMethodManager
 import br.com.zamfir.comprarei.R
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import java.lang.StringBuilder
 
-fun TextInputEditText.errorAnimation() {
+fun TextInputEditText.errorAnimation(msg : String) {
     val error = AnimationUtils.loadAnimation(this.context, R.anim.shake)
+    this.error = msg
     this.startAnimation(error)
 }
 
-fun TextInputLayout.errorAnimation() {
+fun TextInputLayout.errorAnimation(msg : String = "", usesPeek : Boolean = false) {
     val error = AnimationUtils.loadAnimation(this.context, R.anim.shake)
+    this.error = msg
+    if(usesPeek) this.errorIconDrawable = null
+    this.isErrorEnabled = true
+    this.requestFocus()
     this.startAnimation(error)
 }
 
-fun View.setVisibility(visibility: Boolean) {
+fun TextInputLayout.resetErrorAnimation(){
+    this.isErrorEnabled = false
+    this.error = null
+}
+
+fun View.isVisible(visibility: Boolean) {
     if (visibility) this.visibility = View.VISIBLE else this.visibility = View.GONE
 }
 
@@ -52,7 +60,7 @@ fun Editable?.convertMonetaryToDouble(): Double {
         }
         text.trim().toDouble()
     } catch (e: Exception) {
-        Log.e("Erro -> ConvertMonetary", "Erro ao converter para moeda. Erro : ${e.message}")
+        e.printStackTrace()
         0.0
     }
 }
@@ -68,7 +76,7 @@ fun String?.convertMonetaryToDouble(): Double {
         }
         text.trim().toDouble()
     } catch (e: Exception) {
-        Log.e("Erro -> ConvertMonetary", "Erro ao converter para moeda. Erro : ${e.message}")
+        e.printStackTrace()
         0.0
     }
 }

@@ -17,7 +17,7 @@ import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.DateInputMask
 import br.com.zamfir.comprarei.util.DateUtil
 import br.com.zamfir.comprarei.util.errorAnimation
-import br.com.zamfir.comprarei.util.setVisibility
+import br.com.zamfir.comprarei.util.isVisible
 import java.util.*
 
 class NewCartFragment() : DialogFragment() {
@@ -45,7 +45,7 @@ class NewCartFragment() : DialogFragment() {
         builder.setView(binding.root)
 
         if(categories.isNotEmpty()){
-            val categoriesDescriptions = mutableListOf("Sem categoria")
+            val categoriesDescriptions = mutableListOf(getString(R.string.none_category))
             categories.map { it.description }.forEach {
                 categoriesDescriptions.add(it)
             }
@@ -91,9 +91,7 @@ class NewCartFragment() : DialogFragment() {
         binding.btnOk.setOnClickListener {
             when {
                 binding.cartName.text.isNullOrBlank() -> {
-                    binding.cartNameLayout.isErrorEnabled = true
-                    binding.cartNameLayout.errorAnimation()
-                    binding.cartNameLayout.error = "Dê um nome ao seu carrinho!"
+                    binding.cartNameLayout.errorAnimation(getString(R.string.name_your_cart))
                 }
 
                 DateUtil.validateDate(binding.cartDate.text.toString()) -> {
@@ -121,7 +119,7 @@ class NewCartFragment() : DialogFragment() {
                     this.dismiss()
                 }
                 else -> {
-                    binding.cartDate.errorAnimation()
+                    binding.cartDate.errorAnimation("")
                 }
             }
         }
@@ -149,13 +147,13 @@ class NewCartFragment() : DialogFragment() {
             val date = "$formattedDay/$formattedMonth/$year"
 
             binding.cartDate.setText(date)
-            binding.datePicker.setVisibility(false)
-            binding.newCartForm.setVisibility(true)
+            binding.datePicker.isVisible(false)
+            binding.newCartForm.isVisible(true)
         }
 
         binding.cartDateLayout.setEndIconOnClickListener {
-            binding.newCartForm.setVisibility(false)
-            binding.datePicker.setVisibility(true)
+            binding.newCartForm.isVisible(false)
+            binding.datePicker.isVisible(true)
         }
     }
 

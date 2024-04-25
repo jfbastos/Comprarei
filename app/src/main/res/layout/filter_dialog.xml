@@ -6,40 +6,23 @@
     android:orientation="vertical"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:orientation="horizontal"
-        android:weightSum="8"
         android:background="@color/secondary_green"
         android:layout_height="?attr/actionBarSize">
-
-        <TextView
-            android:id="@+id/header_filter"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:layout_marginStart="12dp"
-            android:text="Sort and Filter"
-            android:textColor="@color/white"
-            android:layout_weight="7"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
             android:id="@+id/close_btn"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_weight="1"
-            app:layout_constraintTop_toTopOf="@id/header_filter"
-            app:layout_constraintBottom_toBottomOf="@id/header_filter"
+            android:layout_alignParentEnd="true"
+            android:padding="12dp"
             android:src="@drawable/ic_baseline_close_24"
             android:background="@color/secondary_green"/>
 
-    </LinearLayout>
+    </RelativeLayout>
 
 
 
@@ -52,8 +35,10 @@
             android:id="@+id/header_order_by"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sort by"
+            android:text="@string/sort_by"
             android:textStyle="bold"
+            android:textColor="@color/black"
+            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
@@ -94,7 +79,7 @@
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Category" />
+                    android:text="@string/category" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_value_high"
@@ -102,14 +87,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     tools:checked="true"
-                    android:text="Highest value" />
+                    android:text="@string/highest_value" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_value_low"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Lowest value" />
+                    android:text="@string/lowest_value" />
 
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
@@ -119,6 +104,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/chip_group_scroll"
+            app:dividerColor="@color/black"
+            android:alpha="0.3"
             android:layout_marginTop="8dp"/>
 
         <TextView
@@ -126,7 +113,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Filter by"
+
+            android:textSize="18sp"
+            android:text="@string/filter_by"
+            android:textColor="@color/black"
             android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@id/sort_divider" />
 
@@ -135,7 +125,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Date"
+            android:text="@string/cart_sort_date_option"
             android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@id/header_filter_by" />
@@ -152,7 +142,9 @@
                 android:id="@+id/date_picker_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Select date range"
+                android:text="@string/select_date_range"
+                android:backgroundTint="@color/primary_green"
+                android:textColor="@color/white"
                 android:textAllCaps="false" />
 
         </LinearLayout>
@@ -162,7 +154,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Value"
+            android:text="@string/value"
             android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@id/date_layout" />
@@ -182,7 +174,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none"
-                android:hint="Operator"
+                android:hint="@string/operator"
                 app:simpleItems="@array/operators" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -204,7 +196,7 @@
                 android:layout_height="wrap_content"
                 tools:text="R$ 0,00"
                 android:layout_gravity="center"
-                android:hint="Value"
+                android:hint="@string/value"
                 android:inputType="numberDecimal" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -226,7 +218,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxHeight="8dp"
-                android:hint="Max"
+                android:hint="@string/max"
                 android:inputType="numberDecimal" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -242,7 +234,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Category"
+                android:text="@string/category"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 app:layout_constraintTop_toBottomOf="@id/value_operator_layout" />
@@ -287,7 +279,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
             android:backgroundTint="@color/white"
-            android:text="Clear all"
+            android:text="@string/clear_all"
             android:textAllCaps="false"
             android:textColor="?colorPrimary"
             android:layout_marginTop="24dp"
@@ -301,7 +293,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:backgroundTint="?colorPrimary"
-            android:text="Apply"
+            android:text="@string/apply"
             android:textColor="@color/white"
             android:textAllCaps="false"
             app:layout_constraintTop_toTopOf="@id/clear_filter_btn"

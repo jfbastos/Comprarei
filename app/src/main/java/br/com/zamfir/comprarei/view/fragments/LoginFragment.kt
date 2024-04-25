@@ -1,5 +1,6 @@
 package br.com.zamfir.comprarei.view.fragments
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.IntentSender
 import android.os.Bundle
@@ -8,14 +9,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.IntentSenderRequest
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentLoginBinding
+import br.com.zamfir.comprarei.util.errorAnimation
+import br.com.zamfir.comprarei.util.isVisible
+import br.com.zamfir.comprarei.util.resetErrorAnimation
 import br.com.zamfir.comprarei.view.activity.LoginActivity
 import br.com.zamfir.comprarei.view.activity.MainActivity
 import br.com.zamfir.comprarei.view.listeners.LoginWithGoogleListener
 import br.com.zamfir.comprarei.viewmodel.LoginViewModel
+import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginFragment : Fragment() {
@@ -66,10 +72,45 @@ class LoginFragment : Fragment() {
         }
 
         binding.btnLogin.setOnClickListener {
-            loginViewModel.loginWithEmail(
-                binding.user.text.toString(),
-                binding.password.text.toString()
-            )
+            if(validateFields()){
+                loginViewModel.loginWithEmail(
+                    binding.user.text.toString(),
+                    binding.password.text.toString()
+                )
+            }
+        }
+
+        binding.forgotPassword.setOnClickListener {
+            ForgotPasswordDialog().show(parentFragmentManager, "")
+        }
+
+        loginViewModel.loginState.observe(viewLifecycleOwner) { loginState ->
+            showLoading(loginState.loading)
+            if (loginState.loading) return@observe
+
+            if (loginState.success && loginState.user != null) {
+                requireActivity().startActivity(Intent(requireActivity(), MainActivity::class.java))
+                requireActivity().finish()
+                return@observe
+            }
+
+            if (!loginState.success && loginState.msgError.isNullOrBlank()) {
+                Snackbar
+                    .make(requireView(), R.string.something_went_wrong, Snackbar.LENGTH_SHORT)
+                    .setAction(R.string.more) {
+                        AlertDialog.Builder(requireContext())
+                            .setTitle(R.string.more_info)
+                            .setMessage(getString(R.string.login_error_detail, loginState.error))
+                            .setPositiveButton(R.string.ok) { dialog, _ ->
+                                dialog.dismiss()
+                            }
+                            .show()
+                    }
+                    .show()
+            } else {
+                Snackbar.make(requireView(), loginState.msgError.toString(), Snackbar.LENGTH_LONG)
+                    .show()
+            }
         }
 
         binding.btnLoginGoogle.root.setOnClickListener {
@@ -89,6 +130,39 @@ class LoginFragment : Fragment() {
                     Log.d("DEBUG", e.stackTraceToString())
                 }
         }
+    }
+
+    private fun showLoading(loading: Boolean) {
+        binding.loadingBtn.isVisible(loading)
+        if(loading){
+            binding.btnLogin.visibility = View.INVISIBLE
+        }else{
+            binding.btnLogin.visibility = View.VISIBLE
+        }
+    }
+
+    private fun validateFields() : Boolean{
+        val emailRegex = Regex("""^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$""")
+
+        if(!emailRegex.matches(binding.user.text.toString())){
+            binding.userLayout.errorAnimation(getString(R.string.invalid_email))
+            binding.user.doOnTextChanged { _, _, _, _ ->
+                binding.userLayout.resetErrorAnimation()
+            }
+            binding.userLayout.requestFocus()
+            return false
+        }
+
+        if(binding.password.text.toString().length < 6){
+            binding.passwordLayout.errorAnimation("Senha inválida", true)
+            binding.password.doOnTextChanged { _, _, _, _ ->
+                binding.passwordLayout.resetErrorAnimation()
+            }
+            binding.passwordLayout.requestFocus()
+            return false
+        }
+
+        return true
     }
 
 }
