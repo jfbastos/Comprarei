@@ -9,7 +9,7 @@ import br.com.zamfir.comprarei.model.entity.Cart
 import br.com.zamfir.comprarei.model.entity.Category
 import br.com.zamfir.comprarei.model.entity.Product
 
-@Database(entities = [Cart::class, Product::class, Category::class], version = 2)
+@Database(version = 1, entities = [Cart::class, Product::class, Category::class])
 abstract class AppDatabase : RoomDatabase() {
     abstract fun CartDao() : CartDao
     abstract fun ProductDao() : ProductDao

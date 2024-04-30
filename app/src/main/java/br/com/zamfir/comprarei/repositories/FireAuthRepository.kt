@@ -15,7 +15,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
-class FirebaseRepository(private val appDatabase: AppDatabase,private val dispatcher: CoroutineDispatcher) {
+class FireAuthRepository(private val appDatabase: AppDatabase, private val dispatcher: CoroutineDispatcher) {
 
     private var auth : FirebaseAuth = Firebase.auth
 
@@ -70,6 +70,5 @@ class FirebaseRepository(private val appDatabase: AppDatabase,private val dispat
             e.printStackTrace()
             false
         }
-
     }
 }

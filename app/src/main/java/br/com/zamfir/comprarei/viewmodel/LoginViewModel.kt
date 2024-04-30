@@ -4,14 +4,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.zamfir.comprarei.repositories.FirebaseRepository
+import br.com.zamfir.comprarei.repositories.FireAuthRepository
+import br.com.zamfir.comprarei.repositories.FirestoreRepository
 import br.com.zamfir.comprarei.util.exceptions.InvalidLogin
 import br.com.zamfir.comprarei.util.exceptions.InvalidPassword
 import br.com.zamfir.comprarei.util.exceptions.UserAlreadyExists
 import br.com.zamfir.comprarei.viewmodel.states.LoginState
 import kotlinx.coroutines.launch
+import java.lang.RuntimeException
 
-class LoginViewModel(private val firebaseRepository : FirebaseRepository) : ViewModel() {
+class LoginViewModel(private val fireAuthRepository : FireAuthRepository, private val firestoreRepository: FirestoreRepository) : ViewModel() {
 
     private var _loginState = MutableLiveData<LoginState>()
     val loginState : LiveData<LoginState> get() = _loginState
@@ -26,8 +28,13 @@ class LoginViewModel(private val firebaseRepository : FirebaseRepository) : View
     fun loginWithEmail(email : String, password : String) = viewModelScope.launch {
         try{
             _loginState.value = LoginState(loading = true)
-            val user = firebaseRepository.loginUser(email, password)
-            _loginState.value = LoginState(success = true, user = user)
+            val user = fireAuthRepository.loginUser(email, password)
+            firestoreRepository.obterDadosDoUsuario{
+                viewModelScope.launch {
+                    _loginState.value = LoginState(success = true, user = user)
+                }
+            }
+
         }catch (e : Exception){
             when (e) {
                 is InvalidLogin -> _loginState.value = LoginState(success = false, error = e, msgError = e.msg)
@@ -39,7 +46,7 @@ class LoginViewModel(private val firebaseRepository : FirebaseRepository) : View
     fun createUser(email : String, userName : String, password : String) = viewModelScope.launch{
         try{
             _loginState.value = LoginState(loading = true)
-            val user = firebaseRepository.createUser(email,userName, password)
+            val user = fireAuthRepository.createUser(email,userName, password)
             _loginState.value = LoginState(success = true,user = user)
         }catch (e : Exception){
             when (e) {
@@ -51,14 +58,14 @@ class LoginViewModel(private val firebaseRepository : FirebaseRepository) : View
     }
 
     fun hasLoggedUser() = viewModelScope.launch {
-        _userLoggedState.value = firebaseRepository.hasUserLogged()
+        _userLoggedState.value = fireAuthRepository.hasUserLogged()
     }
 
     fun logOff() = viewModelScope.launch {
-        _userLoggedOffState.value = firebaseRepository.logOffUser()
+        _userLoggedOffState.value = fireAuthRepository.logOffUser()
     }
 
     fun forgotPassword(email : String) = viewModelScope.launch {
-        firebaseRepository.forgotPassword(email)
+        fireAuthRepository.forgotPassword(email)
     }
 }

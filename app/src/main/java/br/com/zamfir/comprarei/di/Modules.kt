@@ -1,10 +1,12 @@
 package br.com.zamfir.comprarei.di
 
+import androidx.room.AutoMigration
 import androidx.room.Room
 import br.com.zamfir.comprarei.model.AppDatabase
 import br.com.zamfir.comprarei.repositories.CartRepository
 import br.com.zamfir.comprarei.repositories.CategoryRepository
-import br.com.zamfir.comprarei.repositories.FirebaseRepository
+import br.com.zamfir.comprarei.repositories.FireAuthRepository
+import br.com.zamfir.comprarei.repositories.FirestoreRepository
 import br.com.zamfir.comprarei.repositories.ProductRepository
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.viewmodel.CartViewModel
@@ -26,7 +28,8 @@ val repositoryModule = module {
     single { CartRepository(get(), get(named(Constants.IO_DISPATCHER))) }
     single { ProductRepository(get(), get(named(Constants.IO_DISPATCHER))) }
     single { CategoryRepository(get(), get(named(Constants.IO_DISPATCHER))) }
-    single { FirebaseRepository(get(),get(named(Constants.IO_DISPATCHER))) }
+    single { FireAuthRepository(get(),get(named(Constants.IO_DISPATCHER))) }
+    single { FirestoreRepository(get(), get(named(Constants.IO_DISPATCHER)))}
 }
 
 val dataBaseModule = module {
@@ -37,10 +40,10 @@ val dataBaseModule = module {
 }
 
 val viewModelModule = module {
-    viewModel { CartViewModel(get(), get()) }
+    viewModel { CartViewModel(get(), get(), get()) }
     viewModel { ProductViewModel(get()) }
     viewModel { CategoryViewModel(get()) }
-    viewModel { LoginViewModel(get())}
+    viewModel { LoginViewModel(get(), get())}
 }
 
 private fun Scope.buildDatabase() = Room.databaseBuilder(
