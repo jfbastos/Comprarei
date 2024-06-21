@@ -5,15 +5,21 @@ import androidx.room.Room
 import br.com.zamfir.comprarei.model.AppDatabase
 import br.com.zamfir.comprarei.repositories.CartRepository
 import br.com.zamfir.comprarei.repositories.CategoryRepository
+import br.com.zamfir.comprarei.repositories.ConfigRepository
 import br.com.zamfir.comprarei.repositories.FireAuthRepository
 import br.com.zamfir.comprarei.repositories.FirestoreRepository
 import br.com.zamfir.comprarei.repositories.ProductRepository
+import br.com.zamfir.comprarei.repositories.ProfileRepository
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.viewmodel.CartViewModel
 import br.com.zamfir.comprarei.viewmodel.CategoryViewModel
+import br.com.zamfir.comprarei.viewmodel.ConfigViewModel
 import br.com.zamfir.comprarei.viewmodel.LoginViewModel
 import br.com.zamfir.comprarei.viewmodel.ProductViewModel
+import br.com.zamfir.comprarei.viewmodel.ProfileViewModel
 import kotlinx.coroutines.Dispatchers
+import org.koin.android.ext.koin.androidApplication
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.core.scope.Scope
@@ -30,6 +36,8 @@ val repositoryModule = module {
     single { CategoryRepository(get(), get(named(Constants.IO_DISPATCHER))) }
     single { FireAuthRepository(get(),get(named(Constants.IO_DISPATCHER))) }
     single { FirestoreRepository(get(), get(named(Constants.IO_DISPATCHER)))}
+    single { ConfigRepository(androidContext() ,get(named(Constants.IO_DISPATCHER))) }
+    single { ProfileRepository(get(named(Constants.IO_DISPATCHER)))}
 }
 
 val dataBaseModule = module {
@@ -44,6 +52,8 @@ val viewModelModule = module {
     viewModel { ProductViewModel(get()) }
     viewModel { CategoryViewModel(get()) }
     viewModel { LoginViewModel(get(), get())}
+    viewModel { ConfigViewModel(get()) }
+    viewModel { ProfileViewModel(get())}
 }
 
 private fun Scope.buildDatabase() = Room.databaseBuilder(

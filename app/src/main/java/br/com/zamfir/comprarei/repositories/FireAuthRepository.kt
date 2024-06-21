@@ -1,5 +1,6 @@
 package br.com.zamfir.comprarei.repositories
 
+import android.util.Log
 import br.com.zamfir.comprarei.model.AppDatabase
 import br.com.zamfir.comprarei.util.exceptions.InvalidLogin
 import br.com.zamfir.comprarei.util.exceptions.InvalidPassword
@@ -11,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -40,11 +42,34 @@ class FireAuthRepository(private val appDatabase: AppDatabase, private val dispa
     }
 
     @Throws
-    suspend fun createUser(email : String, user : String, password : String) = withContext(dispatcher){
+    suspend fun createUser(email: String, user: String, password: String, photoByte: ByteArray?) = withContext(dispatcher){
         try {
             auth.createUserWithEmailAndPassword(email, password).await()
             val profileChangeRequest = userProfileChangeRequest {
                 displayName = user
+            }
+
+            if(photoByte != null){
+                try{
+                    val storage = Firebase.storage
+                    val storageRef = storage.reference
+                    val imagesRef = storageRef.child("profilePictures")
+
+                    auth.currentUser?.let { user ->
+                        val userRef = imagesRef.child(user.uid)
+                        val imageRef = userRef.child("profilePicture.jpg")
+
+                        imageRef.putBytes(photoByte).addOnCompleteListener {
+                            if (it.isSuccessful) {
+                                Log.d("DEBUG", "Foto salva com sucesso.")
+                            } else {
+                                Log.e("DEBUG", "Problema ao persistir a foto no storage ${it.exception}")
+                            }
+                        }
+                    }
+                }catch (e : Exception){
+                    Log.e("DEBUG", "Problema ao persistir a foto $e")
+                }
             }
 
             auth.currentUser?.updateProfile(profileChangeRequest)?.await()
@@ -60,7 +85,6 @@ class FireAuthRepository(private val appDatabase: AppDatabase, private val dispa
       }
     }
 
-    @Throws
     suspend fun logOffUser() = withContext(dispatcher){
         return@withContext try{
             auth.signOut()

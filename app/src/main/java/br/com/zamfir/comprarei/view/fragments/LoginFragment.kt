@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentLoginBinding
 import br.com.zamfir.comprarei.util.errorAnimation
+import br.com.zamfir.comprarei.util.isConectadoInternet
 import br.com.zamfir.comprarei.util.isVisible
 import br.com.zamfir.comprarei.util.resetErrorAnimation
 import br.com.zamfir.comprarei.view.activity.LoginActivity
@@ -72,6 +73,12 @@ class LoginFragment : Fragment() {
         }
 
         binding.btnLogin.setOnClickListener {
+            if(!requireContext().isConectadoInternet()){
+                Snackbar.make(requireView(), "Sem conexão com a internet", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+
             if(validateFields()){
                 loginViewModel.loginWithEmail(
                     binding.user.text.toString(),
@@ -81,6 +88,11 @@ class LoginFragment : Fragment() {
         }
 
         binding.forgotPassword.setOnClickListener {
+            if(!requireContext().isConectadoInternet()){
+                Snackbar.make(requireView(), "Sem conexão com a internet", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             ForgotPasswordDialog().show(parentFragmentManager, "")
         }
 
@@ -114,20 +126,49 @@ class LoginFragment : Fragment() {
         }
 
         binding.btnLoginGoogle.root.setOnClickListener {
+            if(!requireContext().isConectadoInternet()){
+                Snackbar.make(requireView(), "Sem conexão com a internet", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val snack = Snackbar.make(requireView(), "Trying to login with Google account...", Snackbar.LENGTH_INDEFINITE)
+
+            snack.show()
+
             val activity = (requireActivity() as LoginActivity)
             activity.oneTapClient.beginSignIn(activity.signUpRequest)
                 .addOnSuccessListener(requireActivity()) { result ->
+                    snack.dismiss()
                     try {
                         activity.activityResult.launch(
                             IntentSenderRequest.Builder(result.pendingIntent.intentSender).build()
                         )
                     } catch (e: IntentSender.SendIntentException) {
-                        Log.e("DEBUG", "Couldn't start One Tap UI: ${e.localizedMessage}")
+                        snack.setText(R.string.something_went_wrong)
+                        snack.setAction(R.string.more){
+                            AlertDialog.Builder(requireContext())
+                                .setTitle(R.string.more_info)
+                                .setMessage(getString(R.string.login_error_detail, e.localizedMessage))
+                                .setPositiveButton(R.string.ok){ dialog, _ ->
+                                    dialog.dismiss()
+                                }
+                                .show()
+                        }
+                        snack.show()
                     }
                 }
                 .addOnFailureListener(requireActivity()) { e ->
-                    // No Google Accounts found. Just continue presenting the signed-out UI.
-                    Log.d("DEBUG", e.stackTraceToString())
+                    snack.setText(R.string.something_went_wrong)
+                    snack.setAction(R.string.more){
+                        AlertDialog.Builder(requireContext())
+                            .setTitle(R.string.more_info)
+                            .setMessage(getString(R.string.login_error_detail, e.localizedMessage))
+                            .setPositiveButton(R.string.ok){ dialog, _ ->
+                                dialog.dismiss()
+                            }
+                            .show()
+                    }
+                    snack.show()
                 }
         }
     }

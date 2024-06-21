@@ -96,5 +96,20 @@
         <item>Entre</item>
     </string-array>
     <string name="edit_category">Editar categoria</string>
+    <string name="configuration">Configurações</string>
+    <string name="editar_perfil">Editar perfil</string>
+    <string name="gerais">Geral</string>
+    <string name="move_to_end_of_list">Mover produtos marcados para o fim da lista</string>
+    <string name="mostrar_total_do_carrinho">Mostrar total do carrinho</string>
+    <string name="backup">Backup</string>
+    <string name="ultimo_backup">"Último backup realizado às : "</string>
+    <string name="realizar_backup">Realizar backup</string>
+    <string name="logoff">Sair</string>
+    <string name="senha_atual">Senha atual</string>
+    <string name="nova_senha">Nova senha</string>
+    <string name="excluir_conta">Deletar conta</string>
+    <string name="salvar">Salvar alterações</string>
+    <string name="sign_up">Crie sua conta</string>
+    <string name="please_fill_in_the_fields_to_create_a_new_account">Preencha todos os campos para criar sua conta</string>
 
 </resources>

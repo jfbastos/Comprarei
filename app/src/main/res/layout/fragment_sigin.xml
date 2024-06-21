@@ -13,33 +13,57 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/roboto_medium"
-        android:text="Sign up"
+        android:text="@string/sign_up"
         android:textSize="36sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/email_layout"
+        app:layout_constraintTop_toTopOf="parent"
         android:layout_marginBottom="36dp"/>
 
     <TextView
+        android:id="@+id/msg_fill_fields"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Please fill in the fields to create a new account."
+        android:text="@string/please_fill_in_the_fields_to_create_a_new_account"
         app:layout_constraintTop_toBottomOf="@id/label_signup"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/profile_picture"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
+        android:layout_marginTop="12dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/msg_fill_fields"
+        app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+        android:src="@drawable/component_2"/>
+
+    <ImageButton
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/edit_profile_picture_background"
+        android:padding="12dp"
+        android:src="@drawable/edit_black_24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.6"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/profile_picture"
+        app:tint="@color/white" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/email_layout"
         style="@style/MyLoginTextStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.3"
+        app:layout_constraintTop_toBottomOf="@id/profile_picture"
+        android:layout_marginTop="12dp"
         android:background="@drawable/login_inputtext_background"
         app:startIconDrawable="@drawable/email_black_24dp">
 
@@ -47,7 +71,7 @@
             android:id="@+id/email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="E-mail"
+            android:hint="@string/e_mail"
             android:inputType="textEmailAddress"
             tools:text="jfbastos.nascimento@gmail.com" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -68,7 +92,7 @@
             android:id="@+id/user"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/user_hint"
+            android:hint="@string/name"
             tools:text="João Felipe" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -226,5 +250,27 @@
         app:layout_constraintTop_toBottomOf="@id/password_second_layout"
         android:layout_marginTop="24dp"
         android:text="@string/create_account"/>
+
+    <LinearLayout
+        android:id="@+id/loading_btn"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:background="@drawable/btn_loading_background"
+        app:layout_constraintTop_toTopOf="@id/btn_login"
+        app:layout_constraintEnd_toEndOf="@id/btn_login"
+        app:layout_constraintStart_toStartOf="@id/btn_login"
+        app:layout_constraintBottom_toBottomOf="@id/btn_login"
+        android:orientation="horizontal">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:indeterminate="true"
+            app:indicatorColor="@color/white"
+            app:indicatorSize="32dp"/>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

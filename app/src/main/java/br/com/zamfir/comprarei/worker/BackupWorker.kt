@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.edit
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import br.com.zamfir.comprarei.R
@@ -21,7 +22,10 @@ class BackupWorker(context : Context, parameters: WorkerParameters) : CoroutineW
             firestoreRepository.saveCategories()
             firestoreRepository.saveProducts()
             firestoreRepository.saveCategories()
-            Log.d("DEBUG", "Backup runned at : ${LocalDateTime.now()}")
+            applicationContext.getSharedPreferences("shared", Context.MODE_PRIVATE).edit {
+                putString("last_backup", LocalDateTime.now().toString())
+            }
+            sendNotification("Backup Comprarei", "Backup realizado com sucesso.")
             Result.success()
         }catch (e : Exception){
             Log.d("DEBUG", "Backup runned at : ${LocalDateTime.now()} with error : $e")
@@ -46,7 +50,7 @@ class BackupWorker(context : Context, parameters: WorkerParameters) : CoroutineW
         // Set notification content
         builder.setContentTitle(title)
             .setContentText(msg)
-            .setSmallIcon(R.drawable.logo_texto_fundo_preto) // Replace with your icon resource
+            .setSmallIcon(R.mipmap.ic_launcher_comprarei) // Replace with your icon resource
 
         // Send notification
         notificationManager?.notify(notificationId, builder.build())

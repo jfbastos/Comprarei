@@ -2,7 +2,10 @@ package br.com.zamfir.comprarei.view.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.work.Constraints
@@ -13,6 +16,8 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.ActivityMainBinding
+import br.com.zamfir.comprarei.view.listeners.PhotoSelectedListener
+import br.com.zamfir.comprarei.view.listeners.PhotopickerListener
 import br.com.zamfir.comprarei.viewmodel.LoginViewModel
 import br.com.zamfir.comprarei.worker.BackupWorker
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -29,6 +34,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen().apply {
             loginViewModel.hasLoggedUser()
+        }
+
+        val pickedMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) {uri ->
+            if(uri != null){
+               PhotoSelectedListener.photoSelectedListener.onPhotoSelected(uri)
+            }else{
+                Log.d("DEBUG", "No media selected")
+            }
         }
 
         loginViewModel.userLoggedState.observe(this) { isUserLogged ->
@@ -48,6 +61,12 @@ class MainActivity : AppCompatActivity() {
                 startBackupWorker()
             }
         }
+
+        PhotopickerListener.setOnListener(object : PhotopickerListener{
+            override fun onPhotoClicked() {
+               pickedMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            }
+        })
     }
 
     private fun startBackupWorker() {

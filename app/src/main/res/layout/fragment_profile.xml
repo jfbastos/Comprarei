@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:backgroundTint="?attr/colorPrimary"
+        android:elevation="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/md_nav_back"
+        app:title="Editar perfil"
+        app:titleTextColor="@color/white" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:src="?attr/colorPrimary"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/profile_picture"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
+        android:layout_margin="12dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+        app:srcCompat="@drawable/component_2" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/loading_profile_picture"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
+        android:scaleType="centerInside"
+        android:adjustViewBounds="true"
+        app:srcCompat="@color/white"
+        android:layout_margin="12dp"
+        tools:visibility="gone"
+        app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/loading_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        app:layout_constraintStart_toStartOf="@id/loading_profile_picture"
+        app:layout_constraintEnd_toEndOf="@id/loading_profile_picture"
+        app:layout_constraintTop_toTopOf="@id/loading_profile_picture"
+        app:layout_constraintBottom_toBottomOf="@id/loading_profile_picture"/>
+
+    <ImageButton
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/edit_profile_picture_background"
+        android:padding="12dp"
+        android:src="@drawable/edit_black_24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.6"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/profile_picture"
+        app:tint="@color/white" />
+
+    <TextView
+        android:id="@+id/profile_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="jfbastos.nascimento@gmail.com"
+        android:textSize="21sp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintBottom_toTopOf="@id/user_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profile_picture" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/user_layout"
+        style="@style/MyLoginTextStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/login_inputtext_background"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profile_email">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/name"
+            tools:text="João Felipe Bastos do Nascimento" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:id="@+id/password_placeholder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="12dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/user_layout">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/current_password_layout"
+            style="@style/MyLoginTextStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/login_inputtext_background"
+            app:passwordToggleEnabled="true"
+            app:startIconDrawable="@drawable/lock_black_24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/current_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/senha_atual"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                tools:text="123454" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/new_password_layout"
+            style="@style/MyLoginTextStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/login_inputtext_background"
+            app:passwordToggleEnabled="true"
+            app:startIconDrawable="@drawable/lock_black_24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/new_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/nova_senha"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                tools:text="123454" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+       <LinearLayout
+           android:id="@+id/password_indicators_placeholder"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:visibility="gone"
+           android:orientation="vertical">
+
+           <LinearLayout
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:gravity="center">
+
+               <ImageView
+                   android:id="@+id/img_err_qnt_char"
+                   android:layout_width="16dp"
+                   android:layout_height="16dp"
+                   android:src="@drawable/ic_baseline_close_24"
+                   app:tint="@color/delete_red" />
+
+               <ImageView
+                   android:id="@+id/img_ok_qnt_char"
+                   android:layout_width="16dp"
+                   android:layout_height="16dp"
+                   android:src="@drawable/ic_baseline_done_24"
+                   android:visibility="gone"
+                   app:tint="@color/primary_green" />
+
+               <TextView
+                   android:id="@+id/txv_qnt_char"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:text="@string/six_chars_hint"
+                   android:textColor="@color/delete_red"
+                   android:textSize="11sp" />
+           </LinearLayout>
+
+           <LinearLayout
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:gravity="center">
+
+               <ImageView
+                   android:id="@+id/img_err_uppercase"
+                   android:layout_width="16dp"
+                   android:layout_height="16dp"
+                   android:src="@drawable/ic_baseline_close_24"
+                   app:tint="@color/delete_red" />
+
+               <ImageView
+                   android:id="@+id/img_ok_uppercase"
+                   android:layout_width="16dp"
+                   android:layout_height="16dp"
+                   android:src="@drawable/ic_baseline_done_24"
+                   android:visibility="gone"
+                   app:tint="@color/primary_green" />
+
+               <TextView
+                   android:id="@+id/txv_uppercase"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:text="@string/uppercase_hint"
+                   android:textColor="@color/delete_red"
+                   android:textSize="11sp" />
+           </LinearLayout>
+
+           <LinearLayout
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:gravity="center">
+
+               <ImageView
+                   android:id="@+id/img_err_number"
+                   android:layout_width="16dp"
+                   android:layout_height="16dp"
+                   android:src="@drawable/ic_baseline_close_24"
+                   app:tint="@color/delete_red" />
+
+               <ImageView
+                   android:id="@+id/img_ok_number"
+                   android:layout_width="16dp"
+                   android:layout_height="16dp"
+                   android:src="@drawable/ic_baseline_done_24"
+                   android:visibility="gone"
+                   app:tint="@color/primary_green" />
+
+               <TextView
+                   android:id="@+id/txv_number"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:text="@string/number_hint"
+                   android:textColor="@color/delete_red"
+                   android:textSize="11sp" />
+           </LinearLayout>
+       </LinearLayout>
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_delete_account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="@color/delete_red"
+        android:text="@string/excluir_conta"
+        app:cornerRadius="12dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/password_placeholder" />
+
+    <LinearLayout
+        android:id="@+id/loading_btn"
+        android:layout_width="0dp"
+        android:layout_height="51dp"
+        android:gravity="center"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:background="@drawable/btn_loading_background"
+        app:layout_constraintTop_toTopOf="@id/btn_salvar"
+        app:layout_constraintEnd_toEndOf="@id/btn_salvar"
+        app:layout_constraintStart_toStartOf="@id/btn_salvar"
+        app:layout_constraintBottom_toBottomOf="@id/btn_salvar"
+        android:orientation="horizontal">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:indeterminate="true"
+            app:indicatorColor="@color/white"
+            app:indicatorSize="32dp"/>
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_salvar"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_margin="18dp"
+        android:text="@string/salvar"
+        android:textAllCaps="false"
+        android:textSize="14sp"
+        app:cornerRadius="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

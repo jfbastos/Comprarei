@@ -105,5 +105,26 @@
     <string name="select_dates">Select dates</string>
     <string name="range">Range</string>
     <string name="edit_category">Edit category</string>
+    <string name="shared_file_name" translatable="false">SHARED_COMPRAREI</string>
+    <string name="donetobottom_key" translatable="false">DONE_BOTTOM_KEY</string>
+    <string name="showtotalcart_key" translatable="false">SHOW_TOTAL_CART_KEY</string>
+    <string name="last_backup_key" translatable="false">LAST_BACKUP_KEY</string>
+    <string name="configuration">Configurations</string>
+    <string name="editar_perfil">Edit profile</string>
+    <string name="gerais">General</string>
+    <string name="move_to_end_of_list">Move done products to bottom</string>
+    <string name="mostrar_total_do_carrinho">Show cart total</string>
+    <string name="backup">Backup</string>
+    <string name="ultimo_backup">Last backup done at :</string>
+    <string name="realizar_backup">Do backup</string>
+    <string name="logoff">Log off</string>
+    <string name="senha_atual">Current password</string>
+    <string name="nova_senha">New password</string>
+    <string name="excluir_conta">Delete account</string>
+    <string name="salvar">Save changes</string>
+    <string name="sign_up">Create account</string>
+    <string name="please_fill_in_the_fields_to_create_a_new_account">Please fill in the fields to create a new account.</string>
+    <string name="e_mail" translatable="false">E-mail</string>
+    <string name="image_uri_key" translatable="false">IMAGE_URI_KEY</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

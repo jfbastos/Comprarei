@@ -10,11 +10,14 @@ import android.view.WindowManager
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.LoginActivityBinding
 import br.com.zamfir.comprarei.view.listeners.LoginWithGoogleListener
+import br.com.zamfir.comprarei.view.listeners.PhotoSelectedListener
+import br.com.zamfir.comprarei.view.listeners.PhotopickerListener
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
@@ -44,6 +47,14 @@ class LoginActivity : AppCompatActivity() {
 
         setContentView(binding.root)
 
+        val pickedMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) {uri ->
+            if(uri != null){
+                PhotoSelectedListener.photoSelectedListener.onPhotoSelected(uri)
+            }else{
+                Log.d("DEBUG", "No media selected")
+            }
+        }
+
         activityResult =
             registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result: ActivityResult ->
                 if (result.resultCode == Activity.RESULT_OK) {
@@ -64,6 +75,12 @@ class LoginActivity : AppCompatActivity() {
         signUpRequest = BeginSignInRequest.builder()
                             .setGoogleIdTokenRequestOptions(getGoogleRequestToken())
                             .build()
+
+        PhotopickerListener.setOnListener(object : PhotopickerListener {
+            override fun onPhotoClicked() {
+                pickedMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            }
+        })
     }
 
     private fun getGoogleRequestToken() =

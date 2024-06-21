@@ -2,6 +2,9 @@ package br.com.zamfir.comprarei.view.fragments
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,9 +18,12 @@ import br.com.zamfir.comprarei.util.errorAnimation
 import br.com.zamfir.comprarei.util.resetErrorAnimation
 import br.com.zamfir.comprarei.util.isVisible
 import br.com.zamfir.comprarei.view.activity.MainActivity
+import br.com.zamfir.comprarei.view.listeners.PhotoSelectedListener
+import br.com.zamfir.comprarei.view.listeners.PhotopickerListener
 import br.com.zamfir.comprarei.viewmodel.LoginViewModel
 import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.io.ByteArrayOutputStream
 
 class CreateAccountFragment : Fragment() {
 
@@ -26,6 +32,7 @@ class CreateAccountFragment : Fragment() {
 
     private val loginViewModel : LoginViewModel by viewModel()
 
+    private var editedProfilePicture : Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,12 +51,14 @@ class CreateAccountFragment : Fragment() {
             if (loginState.loading) return@observe
 
             if(loginState.success && loginState.user != null){
+                showLoading(false)
                 requireActivity().startActivity(Intent(requireActivity(), MainActivity::class.java))
                 requireActivity().finish()
                 return@observe
             }
 
             if(!loginState.success && loginState.msgError.isNullOrBlank()){
+                showLoading(false)
                 Snackbar
                     .make(requireView(),
                         getString(R.string.something_went_wrong), Snackbar.LENGTH_SHORT)
@@ -68,8 +77,13 @@ class CreateAccountFragment : Fragment() {
                     }
                     .show()
             }else{
+                showLoading(false)
                 Snackbar.make(requireView(), loginState.msgError.toString(), Snackbar.LENGTH_LONG).show()
             }
+        }
+
+        binding.profilePicture.setOnClickListener {
+            PhotopickerListener.photopickerListener.onPhotoClicked()
         }
 
         binding.passwordFirst.doOnTextChanged { text, _, _, _ ->
@@ -79,14 +93,33 @@ class CreateAccountFragment : Fragment() {
             updateCharLengthIndicator(text.toString().length >= 6)
         }
 
+        PhotoSelectedListener.setOnListener(object : PhotoSelectedListener {
+            override fun onPhotoSelected(uri: Uri) {
+                binding.profilePicture.setImageURI(uri)
+                editedProfilePicture = true
+            }
+        })
+
         binding.btnLogin.setOnClickListener {
+            var photoByte : ByteArray? = null
             arguments = Bundle().apply {
                 putString("USER_KEY", binding.user.text.toString())
                 putString("PASSWORD_KEY", binding.passwordFirst.text.toString())
             }
 
+            if(editedProfilePicture){
+                binding.profilePicture.isDrawingCacheEnabled = true
+                binding.profilePicture.buildDrawingCache()
+                val bitmap = ( binding.profilePicture.drawable as BitmapDrawable).bitmap
+                val baos = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                photoByte = baos.toByteArray()
+            }
+
+
             if(validateFields()){
-                loginViewModel.createUser(binding.email.text.toString(), binding.user.text.toString(), binding.passwordFirst.text.toString())
+                showLoading(true)
+                loginViewModel.createUser(binding.email.text.toString(), binding.user.text.toString(), binding.passwordFirst.text.toString(), photoByte)
             }
         }
     }
@@ -109,6 +142,10 @@ class CreateAccountFragment : Fragment() {
         binding.txvQntChar.setTextColor(if(isValid) AppCompatResources.getColorStateList(requireContext(), R.color.primary_green) else AppCompatResources.getColorStateList(requireContext(), R.color.delete_red))
     }
 
+    private fun showLoading(isLoading : Boolean){
+        binding.btnLogin.visibility = if(isLoading) View.INVISIBLE else View.VISIBLE
+        binding.loadingBtn.isVisible(isLoading)
+    }
 
     private fun validateFields() : Boolean{
         val emailRegex = Regex("""^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$""")

@@ -49,8 +49,8 @@
         app:showAsAction="ifRoom"/>
 
     <item
-        android:id="@+id/log_off"
-        android:title="Logoff"
+        android:id="@+id/configuracao_menu"
+        android:title="@string/configuration"
         app:showAsAction="never"/>
 
 </menu>

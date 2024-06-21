@@ -11,7 +11,6 @@ import br.com.zamfir.comprarei.util.exceptions.InvalidPassword
 import br.com.zamfir.comprarei.util.exceptions.UserAlreadyExists
 import br.com.zamfir.comprarei.viewmodel.states.LoginState
 import kotlinx.coroutines.launch
-import java.lang.RuntimeException
 
 class LoginViewModel(private val fireAuthRepository : FireAuthRepository, private val firestoreRepository: FirestoreRepository) : ViewModel() {
 
@@ -43,10 +42,10 @@ class LoginViewModel(private val fireAuthRepository : FireAuthRepository, privat
         }
     }
 
-    fun createUser(email : String, userName : String, password : String) = viewModelScope.launch{
+    fun createUser(email: String, userName: String, password: String, photoByte: ByteArray?) = viewModelScope.launch{
         try{
             _loginState.value = LoginState(loading = true)
-            val user = fireAuthRepository.createUser(email,userName, password)
+            val user = fireAuthRepository.createUser(email,userName, password, photoByte)
             _loginState.value = LoginState(success = true,user = user)
         }catch (e : Exception){
             when (e) {

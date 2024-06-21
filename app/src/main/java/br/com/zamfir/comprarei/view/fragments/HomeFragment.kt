@@ -5,12 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Canvas
-import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
-import android.text.SpannableString
 import android.text.TextWatcher
-import android.text.style.ForegroundColorSpan
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -58,9 +55,9 @@ class HomeFragment : Fragment(), BaseFragment {
     private lateinit var sortMenu: MenuItem
     private lateinit var searchMenu: MenuItem
     private lateinit var selectAllMenu : MenuItem
-    private lateinit var logoffMenu : MenuItem
     private lateinit var categories : MenuItem
     private lateinit var deleteManyMenu : MenuItem
+    private lateinit var configurationMenu : MenuItem
     private var originalList: MutableList<Cart> = mutableListOf()
     private var categoriesList : MutableList<Category> = mutableListOf()
     private var selectionMode = false
@@ -264,7 +261,6 @@ class HomeFragment : Fragment(), BaseFragment {
         findNavController().navigate(R.id.action_homeFragment_to_productsFragment, arguments)
     }
 
-
     private fun  setupMenuItems() {
         cancelActionMenu = binding.toolbar.menu.findItem(R.id.cancel_action)
         searchMenu = binding.toolbar.menu.findItem(R.id.search_menu)
@@ -272,11 +268,13 @@ class HomeFragment : Fragment(), BaseFragment {
         categories = binding.toolbar.menu.findItem(R.id.categories_menu)
         selectAllMenu = binding.toolbar.menu.findItem(R.id.select_all)
         deleteManyMenu = binding.toolbar.menu.findItem(R.id.delete_menu)
-        logoffMenu = binding.toolbar.menu.findItem(R.id.log_off)
+        configurationMenu = binding.toolbar.menu.findItem(R.id.configuracao_menu)
 
-        val menu = SpannableString(logoffMenu.title)
-        menu.setSpan(ForegroundColorSpan(Color.RED), 0, menu.length, 0)
-        logoffMenu.setTitle(menu)
+        configurationMenu.setOnMenuItemClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_configuracaoFragment)
+
+           true
+        }
 
         searchMenu.setOnMenuItemClickListener {
             doSearch()
@@ -293,11 +291,6 @@ class HomeFragment : Fragment(), BaseFragment {
 
         cancelActionMenu.setOnMenuItemClickListener {
             changeSelectState()
-            true
-        }
-
-        logoffMenu.setOnMenuItemClickListener {
-            loginViewModel.logOff()
             true
         }
 
