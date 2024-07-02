@@ -48,4 +48,9 @@
         android:title="@string/cancel"
         app:showAsAction="ifRoom"/>
 
+    <item
+        android:id="@+id/log_off"
+        android:title="Logoff"
+        app:showAsAction="never"/>
+
 </menu>

@@ -2,18 +2,23 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
-        android:name="br.com.zamfir.comprarei.MyApplication"
         android:icon="@mipmap/ic_launcher_comprarei"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_comprarei_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Starting">
         <activity
-            android:name="br.com.zamfir.comprarei.view.activity.MainActivity"
-            android:windowSoftInputMode="stateAlwaysHidden"
+            android:name=".view.activity.LoginActivity"
+            android:theme="@style/Theme.Comprarei"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".view.activity.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.Starting">
+            android:theme="@style/Theme.Starting"
+            android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

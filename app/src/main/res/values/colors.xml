@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <color name="primary_green">#96AC60</color>
-    <color name="secondary_green">#606D40</color>
+    <color name="primary_green">#186F35</color>
+    <color name="secondary_green">#478D5F</color>
+    <color name="_green">#2AA653</color>
     <color name="secundary_green_transparent">#4D606D40</color>
     <color name="black">#FF000000</color>
     <color name="dark_gray">#333333</color>
@@ -9,6 +10,7 @@
     <color name="light_gray">#B1B3B1</color>
     <color name="white">#FFFFFFFF</color>
     <color name="delete_red">#BF0000</color>
+    <color name="google_button">#F2F2F2</color>
 
     <color name="mtrl_textinput_default_box_stroke_color" tools:override="true">@color/secundary_green_transparent</color>
 </resources>

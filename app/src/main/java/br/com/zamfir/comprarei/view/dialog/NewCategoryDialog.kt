@@ -10,7 +10,7 @@ import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.DialogNewCategoryBinding
 import br.com.zamfir.comprarei.model.entity.Category
 import br.com.zamfir.comprarei.util.errorAnimation
-import br.com.zamfir.comprarei.util.setVisibility
+import br.com.zamfir.comprarei.util.isVisible
 import com.flask.colorpicker.ColorPickerView
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder
 
@@ -42,11 +42,12 @@ class NewCategoryDialog() : DialogFragment() {
         }
 
         category?.let{ category ->
+            binding.dialogTitle.text = getString(R.string.edit_category)
             binding.categoryName.setText(category.description)
-            binding.imageCategoryColor.setVisibility(true)
+            binding.imageCategoryColor.isVisible(true)
             binding.imageCategoryColor.setColorFilter(category.color, android.graphics.PorterDuff.Mode.MULTIPLY)
             categoryColor = category.color
-            binding.deleteButton.setVisibility(true)
+            binding.deleteButton.isVisible(true)
 
             binding.deleteButton.setOnClickListener {
                 AlertDialog.Builder(requireContext())
@@ -66,9 +67,7 @@ class NewCategoryDialog() : DialogFragment() {
         binding.btnOk.setOnClickListener {
             when {
                 binding.categoryName.text.isNullOrBlank() -> {
-                    binding.categoryNameLayout.isErrorEnabled = true
-                    binding.categoryNameLayout.errorAnimation()
-                    binding.categoryNameLayout.error = getString(R.string.blank_name)
+                    binding.categoryNameLayout.errorAnimation(getString(R.string.blank_name))
                     Toast.makeText(requireContext(), getString(R.string.blank_name), Toast.LENGTH_SHORT).show()
                 }
                 categoryColor == 0 -> Toast.makeText(requireContext(), getString(R.string.select_category_color), Toast.LENGTH_SHORT).show()
@@ -109,7 +108,7 @@ class NewCategoryDialog() : DialogFragment() {
             .lightnessSliderOnly()
             .setOnColorSelectedListener {}
             .setPositiveButton(getString(R.string.ok)) { dialog, selectedColor, allColors ->
-                binding.imageCategoryColor.setVisibility(true)
+                binding.imageCategoryColor.isVisible(true)
                 binding.imageCategoryColor.setColorFilter(selectedColor, android.graphics.PorterDuff.Mode.MULTIPLY)
                 categoryColor = selectedColor
                 dialog.dismiss()

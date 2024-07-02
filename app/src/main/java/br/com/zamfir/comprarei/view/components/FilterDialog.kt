@@ -2,15 +2,12 @@ package br.com.zamfir.comprarei.view.components
 
 import android.graphics.Color
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.core.util.Pair
 import androidx.core.view.isVisible
-import androidx.core.widget.doOnTextChanged
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FilterDialogBinding
 import br.com.zamfir.comprarei.model.entity.ByCategory
@@ -21,7 +18,7 @@ import br.com.zamfir.comprarei.model.entity.Filter
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.convertMonetaryToDouble
 import br.com.zamfir.comprarei.util.setMonetary
-import br.com.zamfir.comprarei.util.setVisibility
+import br.com.zamfir.comprarei.util.isVisible
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
@@ -84,9 +81,9 @@ class FilterDialog() : BottomSheetDialogFragment() {
                 }
             }
 
-            binding.chipCategory.setVisibility(categories.isNotEmpty())
+            binding.chipCategory.isVisible(categories.isNotEmpty())
 
-            binding.categoryLayoutPlaceholder.setVisibility(categories.isNotEmpty())
+            binding.categoryLayoutPlaceholder.isVisible(categories.isNotEmpty())
 
             filter.byDate?.let { date ->
                 binding.datePickerBtn.text = "${formatDate(date.startDate)} ${getString(R.string.to)} ${formatDate(date.endDate)}"
@@ -96,7 +93,9 @@ class FilterDialog() : BottomSheetDialogFragment() {
                 binding.minValue.setMonetary(value.valueMin.toString())
                 binding.maxValue.setMonetary(value.valueMax.toString())
                 binding.valueOperator.setText(value.operator, false)
-                binding.valueMaxLayout.setVisibility(binding.valueOperator.text.toString() == "Range")
+                binding.valueMaxLayout.isVisible(binding.valueOperator.text.toString() == getString(
+                    R.string.range
+                ))
             }
 
             filter.byCategory?.let {
@@ -121,7 +120,7 @@ class FilterDialog() : BottomSheetDialogFragment() {
 
         binding.clearFilterBtn.setOnClickListener {
             binding.chipGroup.clearCheck()
-            binding.datePickerBtn.text = "Select date range"
+            binding.datePickerBtn.text = getText(R.string.select_date_range)
             binding.valueOperator.setText(Constants.OPERATOR_EQUAL, false)
             binding.minValue.setMonetary("0")
             binding.maxValue.setMonetary("0")
@@ -146,8 +145,11 @@ class FilterDialog() : BottomSheetDialogFragment() {
         binding.minValue.setMonetary(initialValue = "0")
         binding.maxValue.setMonetary(initialValue = "0")
         binding.valueOperator.setOnItemClickListener { _, _, position, _ ->
-            binding.valueMaxLayout.setVisibility(position == 3)
-            if (position != 3) binding.valueMinLayout.hint = "Value" else binding.valueMinLayout.hint = "Min"
+            binding.valueMaxLayout.isVisible(position == 3)
+            if (position != 3) binding.valueMinLayout.hint = getString(R.string.value) else binding.valueMinLayout.hint =
+                getString(
+                    R.string.min
+                )
         }
 
         if(binding.valueOperator.text.toString().isBlank()) binding.valueOperator.setText(Constants.OPERATOR_EQUAL, false)
@@ -156,7 +158,7 @@ class FilterDialog() : BottomSheetDialogFragment() {
 
     private fun dateFilter() {
         binding.datePickerBtn.setOnClickListener {
-            val datePicker = MaterialDatePicker.Builder.dateRangePicker().setTitleText("Select dates").setSelection(
+            val datePicker = MaterialDatePicker.Builder.dateRangePicker().setTitleText(getString(R.string.select_dates)).setSelection(
                 Pair(
                     MaterialDatePicker.thisMonthInUtcMilliseconds(), MaterialDatePicker.todayInUtcMilliseconds()
                 )

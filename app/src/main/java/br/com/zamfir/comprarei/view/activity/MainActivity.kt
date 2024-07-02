@@ -1,57 +1,42 @@
 package br.com.zamfir.comprarei.view.activity
 
-import android.content.Context
-import android.os.Build
+import android.content.Intent
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.ActivityMainBinding
-import br.com.zamfir.comprarei.util.Constants
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-
+import br.com.zamfir.comprarei.viewmodel.LoginViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
     private var _binding: ActivityMainBinding? = null
     private val binding: ActivityMainBinding get() = _binding!!
 
+    private val loginViewModel: LoginViewModel by viewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         installSplashScreen().apply {
-            CoroutineScope(Dispatchers.IO).launch{
-                delay(3000)
+            loginViewModel.hasLoggedUser()
+        }
+
+        loginViewModel.userLoggedState.observe(this) { isUserLogged ->
+            if (!isUserLogged) {
+                this.startActivity(Intent(this, LoginActivity::class.java))
+                this.finish()
+            } else {
+                _binding = ActivityMainBinding.inflate(layoutInflater)
+
+                setContentView(binding.root)
+
+                supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                window.statusBarColor = resources.getColor(R.color.primary_green, null)
             }
         }
-
-        _binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setDarkMode()
-
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
-
-    fun saveShared(modeNightMode: Int){
-        val sharedPreferences = this.getPreferences(Context.MODE_PRIVATE)
-        with (sharedPreferences.edit()){
-            putInt(Constants.DARK_MODE, modeNightMode)
-            apply()
-        }
-    }
-
-    private fun setDarkMode() {
-        val sharedPreferences = this.getPreferences(Context.MODE_PRIVATE)
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-            AppCompatDelegate.setDefaultNightMode(sharedPreferences.getInt(Constants.DARK_MODE, -1))
-        }else{
-            AppCompatDelegate.setDefaultNightMode(sharedPreferences.getInt(Constants.DARK_MODE, 0))
-        }
-
-    }
-
 }

@@ -34,7 +34,7 @@
     <string name="night_on_msg">Modo noturno ligado</string>
     <string name="swipe_delete_msg">Deletar</string>
     <string name="swipe_to_edit">Editar</string>
-    <string name="valor_total">Valor total</string>
+    <string name="total_value">Valor total</string>
     <string name="be_careful_title">Cuidado</string>
     <string name="carts_with_category">Existem carrinho(s) vinculdos a esta categoria, Deseja realmente deleta-la?</string>
     <string name="select_items">Selecione os itens...</string>
@@ -55,5 +55,46 @@
     <string name="lowest_value">"Valor - Decrescente "</string>
     <string name="by_done">Marcados</string>
     <string name="by_undone">Não marcados</string>
+    <string name="password_hint">Senha</string>
+    <string name="forgot_password">Esqueceu a senha?</string>
+    <string name="log_in">Entrar</string>
+    <string name="or">ou</string>
+    <string name="msg_not_have_account">Ainda não tem conta?\nClique aqui</string>
+    <string name="sign_in_with_google">Entrar com a conta Google</string>
+    <string name="something_went_wrong">Opa, ocorreu um erro.</string>
+    <string name="more">Mais</string>
+    <string name="more_info">Mais informações</string>
+    <string name="create_account_error_detail">Ocorreu um erro ao criar o seu usuário. Detalhes do erro: \n\n %1$s</string>
+    <string name="invalid_email">Este não é um e-mail válido.</string>
+    <string name="invalid_name">Seu nome não pode ser vazio.</string>
+    <string name="password_requisites">Senha não atende os requisitos mínimos.</string>
+    <string name="not_same_password">As senhas não são iguais.</string>
+    <string name="reenter_password">Digite novamente a senha</string>
+    <string name="login_error_detail">Ocorreu um erro ao realizar o login.\n\nDetalhes do erro:  %1$s</string>
+    <string name="none_category">Sem categoria</string>
+    <string name="name_your_cart">Dê um nome ao seu carrinho!</string>
+    <string name="six_chars_hint">Ao menos 6 caracteres.</string>
+    <string name="uppercase_hint">Ao menos 1 letra maiúscula</string>
+    <string name="number_hint">Ao menos 1 numero</string>
+    <string name="create_account">Criar conta</string>
+    <string name="search_products">Procurar produtos</string>
+    <string name="required">(Obrigatório)</string>
+    <string name="sort_and_filter">Filtar e ordenar</string>
+    <string name="sort_by">Ordenar por</string>
+    <string name="category">Categoria</string>
+    <string name="filter_by">Filtrar por</string>
+    <string name="select_date_range">Selecione o período</string>
+    <string name="value">Valor</string>
+    <string name="operator">Operador</string>
+    <string name="clear_all">Limpar todos</string>
+    <string name="apply">Aplicar</string>
+    <string name="select_dates">Selecione as datas</string>
+    <string-array name="operators">
+        <item>Igual</item>
+        <item>Menor que</item>
+        <item>Maior que</item>
+        <item>Entre</item>
+    </string-array>
+    <string name="edit_category">Editar categoria</string>
 
 </resources>

@@ -26,7 +26,7 @@ import br.com.zamfir.comprarei.model.entity.Product
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.FormatFrom
 import br.com.zamfir.comprarei.util.Share
-import br.com.zamfir.comprarei.util.setVisibility
+import br.com.zamfir.comprarei.util.isVisible
 import br.com.zamfir.comprarei.view.adapters.ProductsAdapter
 import br.com.zamfir.comprarei.view.fragments.NewProductFragment.Companion.openEditProductBottomSheet
 import br.com.zamfir.comprarei.view.fragments.NewProductFragment.Companion.openNewProductBottomSheet
@@ -211,7 +211,7 @@ class ProductsFragment : Fragment(), BaseFragment {
 
     private fun changeSelectState() {
         selectionMode = !selectionMode
-        binding.deleteSelection.setVisibility(selectionMode)
+        binding.deleteSelection.isVisible(selectionMode)
 
         selectAllMenu.isVisible = selectionMode
         cancelActionMenu.isVisible = selectionMode
@@ -358,10 +358,10 @@ class ProductsFragment : Fragment(), BaseFragment {
 
     override fun doSearch(): Boolean {
         if (binding.searchView.isVisible) {
-            binding.searchView.setVisibility(false)
+            binding.searchView.isVisible(false)
         } else {
-            binding.searchView.hint = "Search products"
-            binding.searchView.setVisibility(true)
+            binding.searchView.hint = getString(R.string.search_products)
+            binding.searchView.isVisible(true)
             binding.searchView.requestFocus()
         }
 
@@ -387,12 +387,12 @@ class ProductsFragment : Fragment(), BaseFragment {
     }
 
     private fun showEmptyMessage(visibility: Boolean) {
-        binding.productsRv.setVisibility(!visibility)
-        binding.emptyList.root.setVisibility(visibility)
+        binding.productsRv.isVisible(!visibility)
+        binding.emptyList.root.isVisible(visibility)
     }
 
     override fun sortList(): Boolean {
-        binding.searchSortPlaceholder.setVisibility(!binding.searchSortPlaceholder.isVisible)
+        binding.searchSortPlaceholder.isVisible(!binding.searchSortPlaceholder.isVisible)
 
         if(!binding.searchSortPlaceholder.isVisible) {
             productsAdapter.differ.submitList(originalList)
@@ -423,8 +423,12 @@ class ProductsFragment : Fragment(), BaseFragment {
         sortMenu = binding.toolbar.menu.findItem(R.id.sort_menu)
         selectAllMenu = binding.toolbar.menu.findItem(R.id.select_all)
         deleteManyMenu = binding.toolbar.menu.findItem(R.id.delete_menu)
-
         shareMenu = binding.toolbar.menu.findItem(R.id.share_menu)
+
+        binding.toolbar.menu.findItem(R.id.log_off).apply {
+            isVisible = false
+        }
+
         binding.toolbar.menu.findItem(R.id.categories_menu).apply {
             isVisible = false
         }
@@ -485,7 +489,7 @@ class ProductsFragment : Fragment(), BaseFragment {
                         changeSelectState()
                     }
                     binding.searchView.isVisible -> {
-                        binding.searchView.setVisibility(false)
+                        binding.searchView.isVisible(false)
                     }
                     else -> {
                         findNavController().navigateUp()
