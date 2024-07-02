@@ -425,9 +425,6 @@ class ProductsFragment : Fragment(), BaseFragment {
         deleteManyMenu = binding.toolbar.menu.findItem(R.id.delete_menu)
         shareMenu = binding.toolbar.menu.findItem(R.id.share_menu)
 
-        binding.toolbar.menu.findItem(R.id.log_off).apply {
-            isVisible = false
-        }
 
         binding.toolbar.menu.findItem(R.id.categories_menu).apply {
             isVisible = false

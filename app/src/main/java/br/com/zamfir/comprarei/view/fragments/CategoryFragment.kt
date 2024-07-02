@@ -170,10 +170,6 @@ class CategoryFragment : Fragment() {
             this.isVisible = false
         }
 
-        binding.toolbar.menu.findItem(R.id.log_off).apply {
-            isVisible = false
-        }
-
         searchMenu = binding.toolbar.menu.findItem(R.id.search_menu)
 
         searchMenu.setOnMenuItemClickListener {

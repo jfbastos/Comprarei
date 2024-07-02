@@ -10,6 +10,7 @@ import br.com.zamfir.comprarei.model.entity.ByValue
 import br.com.zamfir.comprarei.model.entity.Cart
 import br.com.zamfir.comprarei.model.entity.Filter
 import br.com.zamfir.comprarei.repositories.CartRepository
+import br.com.zamfir.comprarei.repositories.FirestoreRepository
 import br.com.zamfir.comprarei.repositories.ProductRepository
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.convertMonetaryToDouble
@@ -21,7 +22,7 @@ import java.lang.Exception
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class CartViewModel(private val repository: CartRepository, private val productsRepository: ProductRepository) : ViewModel() {
+class CartViewModel(private val repository: CartRepository, private val productsRepository: ProductRepository, private val firestoreRepository: FirestoreRepository) : ViewModel() {
 
     private var _cartsState = MutableLiveData<CartsState>()
     val cartsState : LiveData<CartsState> get() = _cartsState
@@ -39,6 +40,9 @@ class CartViewModel(private val repository: CartRepository, private val products
 
     fun updateAllData() = viewModelScope.launch {
         _cartsState.value = CartsState(loading = true)
+/*        firestoreRepository.saveCarts()
+        firestoreRepository.saveProducts()
+        firestoreRepository.saveCategories()*/
 
         val carts = repository.getCarts().onEach {
             it.category = repository.getCategoryById(it.categoryId)

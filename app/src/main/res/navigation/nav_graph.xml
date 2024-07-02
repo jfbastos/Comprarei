@@ -8,7 +8,7 @@
         android:id="@+id/homeFragment"
         android:name="br.com.zamfir.comprarei.view.fragments.HomeFragment"
         android:label="fragment_home"
-        tools:layout="@layout/fragment_home" >
+        tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_homeFragment_to_productsFragment"
             app:destination="@id/productsFragment"
@@ -21,12 +21,17 @@
             app:enterAnim="@android:anim/slide_in_left"
             app:exitAnim="@android:anim/slide_out_right"
             app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_homeFragment_to_configuracaoFragment"
+            app:destination="@id/configuracaoFragment"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/productsFragment"
         android:name="br.com.zamfir.comprarei.view.fragments.ProductsFragment"
         android:label="fragment_products"
-        tools:layout="@layout/fragment_products" >
+        tools:layout="@layout/fragment_products">
         <argument
             android:name="cartName"
             app:argType="string" />
@@ -38,7 +43,7 @@
         android:id="@+id/newProductFragment"
         android:name="br.com.zamfir.comprarei.view.fragments.NewProductFragment"
         android:label="fragment_new_product"
-        tools:layout="@layout/bottom_sheet_new_product" >
+        tools:layout="@layout/bottom_sheet_new_product">
         <argument
             android:name="cartId"
             app:argType="string" />
@@ -47,8 +52,24 @@
             app:argType="string" />
     </fragment>
     <fragment
-        tools:layout="@layout/fragment_category"
         android:id="@+id/categoryFragment"
         android:name="br.com.zamfir.comprarei.view.fragments.CategoryFragment"
-        android:label="CategoryFragment" />
+        android:label="CategoryFragment"
+        tools:layout="@layout/fragment_category" />
+    <fragment
+        android:id="@+id/configuracaoFragment"
+        android:name="br.com.zamfir.comprarei.view.fragments.ConfiguracaoFragment"
+        android:label="ConfiguracaoFragment"
+        tools:layout="@layout/fragment_configuracao">
+        <action
+            android:id="@+id/action_configuracaoFragment_to_profileFragment"
+            app:destination="@id/profileFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"/>
+    </fragment>
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="br.com.zamfir.comprarei.view.fragments.ProfileFragment"
+        android:label="ProfileFragment"
+        tools:layout="@layout/fragment_profile"/>
 </navigation>

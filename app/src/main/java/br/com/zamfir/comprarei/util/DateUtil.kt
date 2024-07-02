@@ -3,6 +3,8 @@ package br.com.zamfir.comprarei.util
 import android.util.Log
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 object  DateUtil {
@@ -29,6 +31,16 @@ object  DateUtil {
     fun getTodayDate() : String{
         return try{
             SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR")).format(Date())
+        }catch (e : Exception){
+            Log.e(this.javaClass.name, e.toString())
+            ""
+        }
+    }
+
+    fun formatDate(date : String) : String{
+        return try{
+            val localdate = LocalDateTime.parse(date, DateTimeFormatter.ISO_DATE_TIME)
+            localdate.format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy"))
         }catch (e : Exception){
             Log.e(this.javaClass.name, e.toString())
             ""

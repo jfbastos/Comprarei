@@ -19,14 +19,14 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <argument
             android:name="user"
+            android:defaultValue=""
             app:argType="string"
-            app:nullable="true"
-            android:defaultValue=""/>
+            app:nullable="true" />
         <argument
             android:name="password"
+            android:defaultValue=""
             app:argType="string"
-            app:nullable="true"
-            android:defaultValue=""/>
+            app:nullable="true" />
     </fragment>
     <fragment
         android:id="@+id/signinFragment"
