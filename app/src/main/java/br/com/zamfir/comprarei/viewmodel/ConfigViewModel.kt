@@ -5,13 +5,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.zamfir.comprarei.repositories.ConfigRepository
-import br.com.zamfir.comprarei.repositories.FireAuthRepository
 import br.com.zamfir.comprarei.repositories.FirestoreRepository
+import br.com.zamfir.comprarei.repositories.UserRepository
 import br.com.zamfir.comprarei.viewmodel.states.ConfigState
 import kotlinx.coroutines.launch
 
 class ConfigViewModel(
-    private val configRepository: ConfigRepository
+    private val configRepository: ConfigRepository, private val firestoreRepository: FirestoreRepository, private val userRepository: UserRepository
 ) : ViewModel() {
 
     private var _configData : MutableLiveData<ConfigState> = MutableLiveData<ConfigState>()
@@ -26,16 +26,16 @@ class ConfigViewModel(
     }
 
     fun doBackup() = viewModelScope.launch {
-        configRepository.doBackup()
+        firestoreRepository.doBackup()
     }
 
     fun getConfigData() = viewModelScope.launch {
         val lastTimeBackup = configRepository.getLastBackupTime()
         val isToMoveItensToBottom = configRepository.getIsToMoveToBottomDoneItens()
         val isToShowCartTotal = configRepository.getIsToShowTotalCart()
-        val userName = configRepository.getUserName()
+        val userName = userRepository.getUserName()
 
-        configRepository.getUserProfilePictureUrl{ profilePictureUri ->
+        userRepository.getUserProfilePicture{ profilePictureUri ->
             _configData.value = ConfigState(
                 dateLastBackup = lastTimeBackup,
                 isToMoveItensToBottom = isToMoveItensToBottom,

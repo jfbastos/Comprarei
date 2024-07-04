@@ -56,6 +56,7 @@ class ProductsFragment : Fragment(), BaseFragment {
     private var lastAction = -1
     private var cartId = -1
     private var cartName = ""
+    private var isMoveToBottom : Boolean = false
 
     private val viewModelProduct: ProductViewModel by viewModel()
     private val viewModelCart: CartViewModel by viewModel()
@@ -87,8 +88,9 @@ class ProductsFragment : Fragment(), BaseFragment {
 
         viewModelProduct.getProducts(cartId)
 
-        viewModelProduct.products.observe(viewLifecycleOwner) { products ->
-            showProductsList(products)
+        viewModelProduct.products.observe(viewLifecycleOwner) { productSatate ->
+            isMoveToBottom = productSatate.moveToBottom
+            showProductsList(productSatate.products)
         }
 
         viewModelProduct.saveState.observe(viewLifecycleOwner){saveState ->
@@ -114,13 +116,13 @@ class ProductsFragment : Fragment(), BaseFragment {
                 updateSummary()
             }
         }
-
     }
 
     private fun showProductsList(productList: List<Product>) {
         if (productList.isEmpty()) {
             showEmptyMessage(true)
         } else {
+            if(isMoveToBottom) productList.sortedBy { it.done }.reversed()
             showEmptyMessage(false)
             shareMenu.isVisible = true
             originalList.addAll(productList)
@@ -142,6 +144,7 @@ class ProductsFragment : Fragment(), BaseFragment {
         viewModelProduct.saveProduct(newProduct)
         originalList.add(newProduct)
         showEmptyMessage(originalList.isEmpty())
+        if(isMoveToBottom) originalList.sortedBy { it.done }.reversed()
         productsAdapter.differ.submitList(originalList)
         productsAdapter.notifyItemInserted(productsAdapter.differ.currentList.size)
 

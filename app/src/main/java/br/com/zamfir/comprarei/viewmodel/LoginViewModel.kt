@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.zamfir.comprarei.repositories.FireAuthRepository
+import br.com.zamfir.comprarei.repositories.UserRepository
 import br.com.zamfir.comprarei.repositories.FirestoreRepository
 import br.com.zamfir.comprarei.util.exceptions.InvalidLogin
 import br.com.zamfir.comprarei.util.exceptions.InvalidPassword
@@ -12,7 +12,7 @@ import br.com.zamfir.comprarei.util.exceptions.UserAlreadyExists
 import br.com.zamfir.comprarei.viewmodel.states.LoginState
 import kotlinx.coroutines.launch
 
-class LoginViewModel(private val fireAuthRepository : FireAuthRepository, private val firestoreRepository: FirestoreRepository) : ViewModel() {
+class LoginViewModel(private val userRepository : UserRepository, private val firestoreRepository: FirestoreRepository) : ViewModel() {
 
     private var _loginState = MutableLiveData<LoginState>()
     val loginState : LiveData<LoginState> get() = _loginState
@@ -27,9 +27,10 @@ class LoginViewModel(private val fireAuthRepository : FireAuthRepository, privat
     fun loginWithEmail(email : String, password : String) = viewModelScope.launch {
         try{
             _loginState.value = LoginState(loading = true)
-            val user = fireAuthRepository.loginUser(email, password)
+            val user = userRepository.loginUser(email, password)
             firestoreRepository.obterDadosDoUsuario{
                 viewModelScope.launch {
+                    userRepository.saveUserInfo()
                     _loginState.value = LoginState(success = true, user = user)
                 }
             }
@@ -45,7 +46,8 @@ class LoginViewModel(private val fireAuthRepository : FireAuthRepository, privat
     fun createUser(email: String, userName: String, password: String, photoByte: ByteArray?) = viewModelScope.launch{
         try{
             _loginState.value = LoginState(loading = true)
-            val user = fireAuthRepository.createUser(email,userName, password, photoByte)
+            val user = userRepository.createUser(email,userName, password, photoByte)
+            userRepository.saveUserInfo()
             _loginState.value = LoginState(success = true,user = user)
         }catch (e : Exception){
             when (e) {
@@ -56,15 +58,19 @@ class LoginViewModel(private val fireAuthRepository : FireAuthRepository, privat
         }
     }
 
+    fun saveUserData() = viewModelScope.launch {
+        userRepository.saveUserInfo()
+    }
+
     fun hasLoggedUser() = viewModelScope.launch {
-        _userLoggedState.value = fireAuthRepository.hasUserLogged()
+        _userLoggedState.value = userRepository.hasUserLogged()
     }
 
     fun logOff() = viewModelScope.launch {
-        _userLoggedOffState.value = fireAuthRepository.logOffUser()
+        _userLoggedOffState.value = userRepository.logOffUser()
     }
 
     fun forgotPassword(email : String) = viewModelScope.launch {
-        fireAuthRepository.forgotPassword(email)
+        userRepository.forgotPassword(email)
     }
 }

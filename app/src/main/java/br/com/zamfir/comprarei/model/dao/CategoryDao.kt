@@ -17,10 +17,10 @@ interface CategoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(categories : List<Category>)
 
-    @get: Query("SELECT * FROM categories")
+    @get: Query("SELECT * FROM CATEGORIES")
     val allCategories : List<Category>
 
-    @Query("SELECT * FROM categories WHERE id = :id")
+    @Query("SELECT * FROM CATEGORIES WHERE id = :id")
     fun getCategoryById(id : Int) : Category
 
     @Update

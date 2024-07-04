@@ -28,13 +28,12 @@ class BackupWorker(context : Context, parameters: WorkerParameters) : CoroutineW
             sendNotification("Backup Comprarei", "Backup realizado com sucesso.")
             Result.success()
         }catch (e : Exception){
-            Log.d("DEBUG", "Backup runned at : ${LocalDateTime.now()} with error : $e")
             e.printStackTrace()
             Result.failure()
         }
     }
 
-    private fun sendNotification(title : String,msg : String) {
+    private fun sendNotification(title : String, msg : String) {
         val channelName = "COMPRAREI_CHANNEL"
         val channelId = "99999"
         val notificationId = 99999

@@ -45,11 +45,7 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        arguments?.let {bundle: Bundle ->
-            cachedUserPictureUri = bundle.getParcelable(getString(R.string.image_uri_key))
-        }
-
-        profileViewModel.getProfileInfos( isPhotoCached = cachedUserPictureUri != null)
+        profileViewModel.getProfileInfos()
 
         PhotoSelectedListener.setOnListener(object : PhotoSelectedListener{
             override fun onPhotoSelected(uri: Uri) {

@@ -1,11 +1,13 @@
 package br.com.zamfir.comprarei.repositories
 
+import android.content.Context
+import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.model.entity.Product
 import br.com.zamfir.comprarei.model.dao.ProductDao
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
-class ProductRepository(private val productDao: ProductDao, private val dispacher: CoroutineDispatcher) {
+class ProductRepository(private val context : Context, private val productDao: ProductDao, private val dispacher: CoroutineDispatcher) {
 
     suspend fun getProducts(cartId: Int) = withContext(dispacher){ productDao.getProducts(cartId) }
 
@@ -34,5 +36,4 @@ class ProductRepository(private val productDao: ProductDao, private val dispache
     suspend fun updateOrder(reorderedList: List<Product>) = withContext(dispacher) {
         productDao.updateOrder(reorderedList)
     }
-
 }

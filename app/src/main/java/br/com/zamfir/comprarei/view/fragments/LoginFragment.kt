@@ -41,6 +41,7 @@ class LoginFragment : Fragment() {
 
         LoginWithGoogleListener.setOnListener(object : LoginWithGoogleListener {
             override fun userLoggedIn() {
+                loginViewModel.saveUserData()
                 requireActivity().startActivity(Intent(requireActivity(), MainActivity::class.java))
                 requireActivity().finish()
             }

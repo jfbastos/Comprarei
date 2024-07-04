@@ -2,21 +2,26 @@ package br.com.zamfir.comprarei.viewmodel
 
 import androidx.lifecycle.*
 import br.com.zamfir.comprarei.model.entity.Product
+import br.com.zamfir.comprarei.repositories.ConfigRepository
 import br.com.zamfir.comprarei.repositories.ProductRepository
 import br.com.zamfir.comprarei.util.Constants
+import br.com.zamfir.comprarei.viewmodel.states.ProductState
 import br.com.zamfir.comprarei.viewmodel.states.SaveState
 import kotlinx.coroutines.launch
 
-class ProductViewModel(private val productRepository: ProductRepository) : ViewModel() {
+class ProductViewModel(private val productRepository: ProductRepository, private val configRepository: ConfigRepository) : ViewModel() {
 
-    private var _products = MutableLiveData<List<Product>>()
-    val products : LiveData<List<Product>> get() = _products
+    private var _products = MutableLiveData<ProductState>()
+    val products : LiveData<ProductState> get() = _products
 
     private var _saveState = MutableLiveData<SaveState>()
     val saveState : LiveData<SaveState> get() = _saveState
 
     fun getProducts(cartId : Int) = viewModelScope.launch {
-        _products.value = productRepository.getProducts(cartId)
+        val products =  productRepository.getProducts(cartId)
+        val isMoveToBottom = configRepository.getIsToMoveToBottomDoneItens()
+
+        _products.value = ProductState(products, isMoveToBottom)
     }
 
     fun updateProduct(product: Product) {

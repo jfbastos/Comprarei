@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import java.io.Serializable
 import java.util.UUID
 
-@Entity(tableName = "products")
+@Entity(tableName = "PRODUCTS")
 data class Product(
     var name : String,
     var brand: String = "",

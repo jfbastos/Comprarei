@@ -1,11 +1,18 @@
 package br.com.zamfir.comprarei.repositories
 
+import android.content.Context
 import android.util.Log
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import br.com.zamfir.comprarei.model.AppDatabase
 import br.com.zamfir.comprarei.model.entity.Cart
 import br.com.zamfir.comprarei.model.entity.Category
 import br.com.zamfir.comprarei.model.entity.Product
 import br.com.zamfir.comprarei.model.mappers.FirebaseMapper
+import br.com.zamfir.comprarei.worker.BackupWorker
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
@@ -20,7 +27,7 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.time.LocalTime
 
-class FirestoreRepository(private val appDatabase: AppDatabase, private val dispatcher : CoroutineDispatcher) {
+class FirestoreRepository(private val context : Context, private val appDatabase: AppDatabase, private val dispatcher : CoroutineDispatcher) {
 
     /*
     * Obter os registros do firestore
@@ -268,5 +275,14 @@ class FirestoreRepository(private val appDatabase: AppDatabase, private val disp
                 callback.invoke(if(task.exception != null) task.exception else RuntimeException("Houve uma falha ao criar o arquivo."))
             }
         }
+    }
+
+    suspend fun doBackup() = withContext(dispatcher){
+        val uploadWorkRequest: WorkRequest =
+            OneTimeWorkRequestBuilder<BackupWorker>()
+                .setConstraints(Constraints(requiredNetworkType = NetworkType.UNMETERED))
+                .build()
+
+        WorkManager.getInstance(context).enqueue(uploadWorkRequest)
     }
 }

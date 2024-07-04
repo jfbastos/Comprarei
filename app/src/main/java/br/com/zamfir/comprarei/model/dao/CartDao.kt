@@ -11,16 +11,16 @@ interface CartDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(cartList : List<Cart>)
 
-    @get: Query("SELECT * FROM carts ORDER BY position")
+    @get: Query("SELECT * FROM CARTS ORDER BY position")
     val carts: List<Cart>
 
-    @Query("DELETE FROM carts WHERE id = :id")
+    @Query("DELETE FROM CARTS WHERE id = :id")
     fun delete(id : Int)
 
-    @Query("DELETE FROM carts")
+    @Query("DELETE FROM CARTS")
     fun deleteAll() : Int
 
-    @Query("UPDATE carts SET total = :total WHERE id = :id")
+    @Query("UPDATE CARTS SET total = :total WHERE id = :id")
     fun updateTotal(total : String, id : Int)
 
     @Update
@@ -29,6 +29,6 @@ interface CartDao {
     @Update
     fun updateOrder(carts : List<Cart>)
 
-    @Query("DELETE FROM carts WHERE id IN (:carts)")
+    @Query("DELETE FROM CARTS WHERE id IN (:carts)")
     fun deleteCarts(carts: List<Int>)
 }

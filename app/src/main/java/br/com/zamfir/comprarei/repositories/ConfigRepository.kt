@@ -21,8 +21,6 @@ class ConfigRepository(private val context : Context,private val dispatcher: Cor
 
     private val sharedPref = context.getSharedPreferences(context.getString(R.string.shared_file_name), Context.MODE_PRIVATE)
 
-    private val auth = Firebase.auth
-
     suspend fun toggleDoneItensToBottom(isEnable : Boolean) = withContext(dispatcher) {
         with (sharedPref.edit()) {
             putBoolean(context.getString(R.string.donetobottom_key), isEnable)
@@ -37,15 +35,6 @@ class ConfigRepository(private val context : Context,private val dispatcher: Cor
         }
     }
 
-    suspend fun doBackup() = withContext(dispatcher){
-        val uploadWorkRequest: WorkRequest =
-            OneTimeWorkRequestBuilder<BackupWorker>()
-                .setConstraints(Constraints(requiredNetworkType = NetworkType.UNMETERED))
-                .build()
-
-        WorkManager.getInstance(context).enqueue(uploadWorkRequest)
-    }
-
     suspend fun getLastBackupTime() = withContext(dispatcher){
         return@withContext DateUtil.formatDate(sharedPref.getString(context.getString(R.string.last_backup_key), "") ?: "")
     }
@@ -58,26 +47,6 @@ class ConfigRepository(private val context : Context,private val dispatcher: Cor
         return@withContext sharedPref.getBoolean(context.getString(R.string.showtotalcart_key), true)
     }
 
-    suspend fun getUserName() = withContext(dispatcher){
-        return@withContext auth.currentUser?.displayName ?: ""
-    }
 
-    suspend fun getUserProfilePictureUrl(callback : (Uri?) -> Unit) = withContext(dispatcher){
-        val storage = Firebase.storage
-        val storageRef = storage.reference
-        val imagesRef = storageRef.child("profilePictures")
-
-        auth.currentUser?.let { user ->
-            val userRef = imagesRef.child(user.uid)
-            val imageRef = userRef.child("profilePicture.jpg")
-
-            imageRef.downloadUrl.addOnSuccessListener {
-                callback.invoke(it)
-            }.addOnFailureListener {
-                Log.e("DEBUG", "Failed to load profile picture : $it")
-                callback.invoke(null)
-            }
-        }
-    }
 
 }
