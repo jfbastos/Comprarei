@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import java.io.Serializable
 import java.util.UUID
 
-@Entity(tableName = "categories")
+@Entity(tableName = "CATEGORIES")
 data class Category(
     var description : String,
     var color : Int,

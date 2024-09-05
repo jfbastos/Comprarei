@@ -4,20 +4,18 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.IntentSender
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.IntentSenderRequest
-import androidx.core.widget.doOnTextChanged
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentLoginBinding
-import br.com.zamfir.comprarei.util.errorAnimation
+import br.com.zamfir.comprarei.util.exceptions.InvalidLogin
 import br.com.zamfir.comprarei.util.isConectadoInternet
 import br.com.zamfir.comprarei.util.isVisible
-import br.com.zamfir.comprarei.util.resetErrorAnimation
 import br.com.zamfir.comprarei.view.activity.LoginActivity
 import br.com.zamfir.comprarei.view.activity.MainActivity
 import br.com.zamfir.comprarei.view.listeners.LoginWithGoogleListener
@@ -41,8 +39,7 @@ class LoginFragment : Fragment() {
 
         LoginWithGoogleListener.setOnListener(object : LoginWithGoogleListener {
             override fun userLoggedIn() {
-                requireActivity().startActivity(Intent(requireActivity(), MainActivity::class.java))
-                requireActivity().finish()
+                loginViewModel.saveUserData()
             }
 
             override fun loginError(exception: Exception?) {
@@ -57,16 +54,7 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val login: String? = arguments?.getString("USER_KEY")
-        val password: String? = arguments?.getString("PASSWORD_KEY")
-
-        login?.let {
-            binding.user.setText(it)
-        }
-
-        password?.let {
-            binding.password.setText(it)
-        }
+        setInfoFromLogonScreen()
 
         binding.createAccountLabel.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_signinFragment)
@@ -96,6 +84,11 @@ class LoginFragment : Fragment() {
             ForgotPasswordDialog().show(parentFragmentManager, "")
         }
 
+        loginViewModel.localSaveState.observe(viewLifecycleOwner) {
+            requireActivity().startActivity(Intent(requireActivity(), MainActivity::class.java))
+            requireActivity().finish()
+        }
+
         loginViewModel.loginState.observe(viewLifecycleOwner) { loginState ->
             showLoading(loginState.loading)
             if (loginState.loading) return@observe
@@ -106,39 +99,29 @@ class LoginFragment : Fragment() {
                 return@observe
             }
 
-            if (!loginState.success && loginState.msgError.isNullOrBlank()) {
-                Snackbar
-                    .make(requireView(), R.string.something_went_wrong, Snackbar.LENGTH_SHORT)
-                    .setAction(R.string.more) {
-                        AlertDialog.Builder(requireContext())
-                            .setTitle(R.string.more_info)
-                            .setMessage(getString(R.string.login_error_detail, loginState.error))
-                            .setPositiveButton(R.string.ok) { dialog, _ ->
-                                dialog.dismiss()
-                            }
-                            .show()
+            if (!loginState.success && loginState.error != null) {
+                when(loginState.error){
+                    is InvalidLogin -> {
+                        showWarningInfo(isOnlyWarning = false, loginState.msgError ?: "Wrong user or password.")
                     }
-                    .show()
-            } else {
-                Snackbar.make(requireView(), loginState.msgError.toString(), Snackbar.LENGTH_LONG)
-                    .show()
+                }
             }
         }
 
         binding.btnLoginGoogle.root.setOnClickListener {
             if(!requireContext().isConectadoInternet()){
-                Snackbar.make(requireView(), "Sem conexão com a internet", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(requireView(), getString(R.string.no_internet_connection), Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val snack = Snackbar.make(requireView(), "Trying to login with Google account...", Snackbar.LENGTH_INDEFINITE)
+            binding.animationView.isVisible(true)
+            binding.btnLoginGoogle.root.isVisible(false)
 
-            snack.show()
+            val snack = Snackbar.make(requireView(), "Trying to login with Google account...", Snackbar.LENGTH_INDEFINITE)
 
             val activity = (requireActivity() as LoginActivity)
             activity.oneTapClient.beginSignIn(activity.signUpRequest)
                 .addOnSuccessListener(requireActivity()) { result ->
-                    snack.dismiss()
                     try {
                         activity.activityResult.launch(
                             IntentSenderRequest.Builder(result.pendingIntent.intentSender).build()
@@ -158,6 +141,8 @@ class LoginFragment : Fragment() {
                     }
                 }
                 .addOnFailureListener(requireActivity()) { e ->
+                    binding.animationView.isVisible(false)
+                    binding.btnLoginGoogle.root.isVisible(true)
                     snack.setText(R.string.something_went_wrong)
                     snack.setAction(R.string.more){
                         AlertDialog.Builder(requireContext())
@@ -170,6 +155,33 @@ class LoginFragment : Fragment() {
                     }
                     snack.show()
                 }
+        }
+    }
+
+    private fun showWarningInfo(isOnlyWarning : Boolean = true, msg : String) {
+        binding.warningPlaceholder.isVisible(true)
+        binding.warningMsg.text = msg
+        if(!isOnlyWarning){
+            binding.warningIcon.setImageResource(R.drawable.round_warning_24_red)
+            binding.warningPlaceholder.background = ResourcesCompat.getDrawable(requireContext().resources, R.drawable.error_background, null)
+            binding.warningMsg.setTextColor(requireActivity().resources.getColor(R.color.delete_red_text, null))
+        }else{
+            binding.warningIcon.setImageResource(R.drawable.round_warning_24_yellow)
+            binding.warningPlaceholder.background = ResourcesCompat.getDrawable(requireContext().resources, R.drawable.warning_background, null)
+            binding.warningMsg.setTextColor(requireActivity().resources.getColor(R.color.warning_yellow_text, null))
+        }
+    }
+
+    private fun setInfoFromLogonScreen() {
+        val login: String? = arguments?.getString("USER_KEY")
+        val password: String? = arguments?.getString("PASSWORD_KEY")
+
+        login?.let {
+            binding.user.setText(it)
+        }
+
+        password?.let {
+            binding.password.setText(it)
         }
     }
 
@@ -186,20 +198,13 @@ class LoginFragment : Fragment() {
         val emailRegex = Regex("""^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$""")
 
         if(!emailRegex.matches(binding.user.text.toString())){
-            binding.userLayout.errorAnimation(getString(R.string.invalid_email))
-            binding.user.doOnTextChanged { _, _, _, _ ->
-                binding.userLayout.resetErrorAnimation()
-            }
+            showWarningInfo(true, getString(R.string.invalid_email))
             binding.userLayout.requestFocus()
             return false
         }
 
         if(binding.password.text.toString().length < 6){
-            binding.passwordLayout.errorAnimation("Senha inválida", true)
-            binding.password.doOnTextChanged { _, _, _, _ ->
-                binding.passwordLayout.resetErrorAnimation()
-            }
-            binding.passwordLayout.requestFocus()
+            showWarningInfo(true, getString(R.string.msg_warning_invalid_password))
             return false
         }
 

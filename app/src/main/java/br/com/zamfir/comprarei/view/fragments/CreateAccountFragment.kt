@@ -10,11 +10,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentSiginBinding
-import br.com.zamfir.comprarei.util.errorAnimation
 import br.com.zamfir.comprarei.util.resetErrorAnimation
 import br.com.zamfir.comprarei.util.isVisible
 import br.com.zamfir.comprarei.view.activity.MainActivity
@@ -78,7 +78,7 @@ class CreateAccountFragment : Fragment() {
                     .show()
             }else{
                 showLoading(false)
-                Snackbar.make(requireView(), loginState.msgError.toString(), Snackbar.LENGTH_LONG).show()
+                showWarningInfo(false, loginState.msgError.toString())
             }
         }
 
@@ -147,40 +147,42 @@ class CreateAccountFragment : Fragment() {
         binding.loadingBtn.isVisible(isLoading)
     }
 
+    private fun showWarningInfo(isOnlyWarning : Boolean = true, msg : String) {
+        binding.warningPlaceholder.isVisible(true)
+        binding.warningMsg.text = msg
+        if(!isOnlyWarning){
+            binding.warningIcon.setImageResource(R.drawable.round_warning_24_red)
+            binding.warningPlaceholder.background = ResourcesCompat.getDrawable(requireContext().resources, R.drawable.error_background, null)
+            binding.warningMsg.setTextColor(requireActivity().resources.getColor(R.color.delete_red_text, null))
+        }else{
+            binding.warningIcon.setImageResource(R.drawable.round_warning_24_yellow)
+            binding.warningPlaceholder.background = ResourcesCompat.getDrawable(requireContext().resources, R.drawable.warning_background, null)
+            binding.warningMsg.setTextColor(requireActivity().resources.getColor(R.color.warning_yellow_text, null))
+        }
+    }
+
     private fun validateFields() : Boolean{
         val emailRegex = Regex("""^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$""")
 
         if(!emailRegex.matches(binding.email.text.toString())){
-            binding.emailLayout.errorAnimation(getString(R.string.invalid_email))
-            binding.email.doOnTextChanged { _, _, _, _ ->
-                binding.emailLayout.resetErrorAnimation()
-            }
+            showWarningInfo(true, getString(R.string.invalid_email))
             binding.emailLayout.requestFocus()
             return false
         }
 
         if(binding.user.text.isNullOrBlank()){
-            binding.userLayout.errorAnimation(getString(R.string.invalid_name))
-            binding.user.doOnTextChanged { _, _, _, _ ->
-                binding.userLayout.resetErrorAnimation()
-            }
-            binding.userLayout.requestFocus()
+            showWarningInfo(true, getString(R.string.invalid_name))
             return false
         }
 
         if(binding.passwordFirst.text.toString().none { it.isDigit() } || binding.passwordFirst.text.toString().none { it.isUpperCase() } || binding.passwordFirst.text.toString().length < 6){
-            binding.passwordFirstLayout.errorAnimation(getString(R.string.password_requisites), true)
-            binding.passwordFirstLayout.requestFocus()
+            showWarningInfo(true, getString(R.string.password_requisites))
+
             return false
         }
 
         if(binding.passwordFirst.text.toString() != binding.passwordSecond.text.toString()){
-            binding.passwordFirstLayout.errorAnimation(getString(R.string.not_same_password), true)
-            binding.passwordSecondLayout.errorAnimation(getString(R.string.not_same_password), true)
-            binding.passwordSecond.doOnTextChanged { _, _, _, _ ->
-                binding.passwordSecondLayout.resetErrorAnimation()
-            }
-            binding.passwordFirstLayout.requestFocus()
+            showWarningInfo(true, getString(R.string.not_same_password))
             return false
         }
 

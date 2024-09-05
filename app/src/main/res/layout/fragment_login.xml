@@ -17,16 +17,56 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/warning_placeholder"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/warning_background"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/user_layout"
+        app:layout_constraintStart_toStartOf="@id/user_layout"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.3">
+
+        <ImageView
+            android:id="@+id/warning_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/round_warning_24_yellow"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="12dp"/>
+
+        <TextView
+            android:id="@+id/warning_msg"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="8dp"
+            android:gravity="center_vertical"
+            tools:text="Isso é uma mensagem de erro simples."
+            android:textColor="@color/warning_yellow_text"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/warning_icon"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/user_layout"
         style="@style/MyLoginTextStyle"
         android:layout_width="0dp"
+        android:layout_marginTop="12dp"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.4"
+        app:layout_constraintTop_toBottomOf="@id/warning_placeholder"
         app:startIconDrawable="@drawable/email_black_24dp">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -135,6 +175,19 @@
         app:layout_constraintStart_toStartOf="@id/password_layout"
         app:layout_constraintTop_toBottomOf="@id/or_lbl" />
 
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/animation_view"
+        android:layout_width="100dp"
+        android:layout_height="80dp"
+        app:lottie_rawRes="@raw/google_loading_4"
+        app:lottie_loop="true"
+        app:lottie_autoPlay="true"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:layout_constraintEnd_toEndOf="@id/password_layout"
+        app:layout_constraintStart_toStartOf="@id/password_layout"
+        app:layout_constraintTop_toBottomOf="@id/or_lbl" />
+
 
     <TextView
         android:id="@+id/create_account_label"
@@ -144,7 +197,8 @@
         android:textAlignment="center"
         android:textStyle="bold"
         android:alpha="0.6"
-        android:textSize="12sp"
+        android:textSize="14sp"
+        android:textColor="@color/primary_green"
         android:fontFamily="@font/roboto_medium"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

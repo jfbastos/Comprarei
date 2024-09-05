@@ -12,16 +12,16 @@ interface ProductDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(products : List<Product>)
 
-    @Query("SELECT * FROM products WHERE cartId = :cartId ORDER BY position")
+    @Query("SELECT * FROM PRODUCTS WHERE cartId = :cartId ORDER BY position")
     fun getProducts(cartId : Int) : List<Product>
 
-    @get: Query("SELECT * FROM products")
+    @get: Query("SELECT * FROM PRODUCTS")
     val allProducts : List<Product>
 
-    @Query("DELETE FROM products WHERE id IN (:ids)")
+    @Query("DELETE FROM PRODUCTS WHERE id IN (:ids)")
     fun delete(ids : List<Int>)
 
-    @Query("DELETE FROM products WHERE cartId = :cartId")
+    @Query("DELETE FROM PRODUCTS WHERE cartId = :cartId")
     fun deleteProductsFromCart(cartId : Int) : Int
 
     @Update
@@ -30,7 +30,7 @@ interface ProductDao {
     @Update
     fun updateOrder(reorderedList : List<Product>)
 
-    @Query("UPDATE products SET done=:isDone WHERE id = :id")
+    @Query("UPDATE PRODUCTS SET done=:isDone WHERE id = :id")
     fun updateDone(isDone : Boolean, id : Int)
 
 }

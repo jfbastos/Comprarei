@@ -126,5 +126,7 @@
     <string name="please_fill_in_the_fields_to_create_a_new_account">Please fill in the fields to create a new account.</string>
     <string name="e_mail" translatable="false">E-mail</string>
     <string name="image_uri_key" translatable="false">IMAGE_URI_KEY</string>
+    <string name="no_internet_connection">No internet connection.</string>
+    <string name="msg_warning_invalid_password">Password must have at least 6 characters.</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

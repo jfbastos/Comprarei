@@ -8,7 +8,7 @@ import com.google.firebase.firestore.IgnoreExtraProperties
 import java.io.Serializable
 import java.util.UUID
 
-@Entity(tableName = "carts")
+@Entity(tableName = "CARTS")
 data class Cart(
     var name: String,
     var data: String,
