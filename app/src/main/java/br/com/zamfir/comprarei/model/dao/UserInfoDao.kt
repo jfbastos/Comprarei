@@ -15,7 +15,6 @@ interface UserInfoDao {
     @Query("UPDATE USER_INFO SET profilePicture = :path")
     fun updateProfilePicturePath(path : String)
 
-
     @Query("SELECT * FROM USER_INFO")
     fun getUserInfo() : UserInfo?
 

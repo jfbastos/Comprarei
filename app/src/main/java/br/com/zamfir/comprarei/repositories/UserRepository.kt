@@ -27,7 +27,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.time.LocalDateTime
 
-class UserRepository(private val context : Context, private val appDatabase: AppDatabase, private val dispatcher: CoroutineDispatcher) {
+class UserRepository(private val appDatabase: AppDatabase, private val dispatcher: CoroutineDispatcher) {
 
     private var auth : FirebaseAuth = Firebase.auth
 
@@ -52,7 +52,7 @@ class UserRepository(private val context : Context, private val appDatabase: App
     }
 
     @Throws
-    suspend fun createUser(email: String, user: String, password: String, photoByte: ByteArray?) = withContext(dispatcher){
+    suspend fun createUserInFirebase(email: String, user: String, password: String, photoByte: ByteArray?) = withContext(dispatcher){
         try {
             auth.createUserWithEmailAndPassword(email, password).await()
             val profileChangeRequest = userProfileChangeRequest {
@@ -130,14 +130,14 @@ class UserRepository(private val context : Context, private val appDatabase: App
     }
 
     @Throws
-    suspend fun saveUserInfo() = withContext(dispatcher){
+    suspend fun saveUserInfo(saveDone : () -> Unit) = withContext(dispatcher){
         try{
             val storage = Firebase.storage
             val storageRef = storage.reference
             val imagesRef = storageRef.child("profilePictures")
 
             auth.currentUser?.let { user ->
-                val localFile =  File.createTempFile("profilePhoto_", ".jpg")
+                val localFile = File.createTempFile("profilePhoto_", ".jpg")
 
                 val userRef = imagesRef.child(user.uid)
                 val imageRef = userRef.child("profilePicture.jpg")
@@ -145,7 +145,8 @@ class UserRepository(private val context : Context, private val appDatabase: App
                 val download = imageRef.getFile(localFile).await()
 
                 if(download.task.isSuccessful){
-                    persistInfos(localFile.absolutePath ?: "")
+                    if(persistInfos(localFile.absolutePath ?: "")) launch(Dispatchers.Main) { saveDone.invoke() }
+                    else throw RuntimeException("Nao foi possivel salvar os dados")
                 }else{
                     if (download.task.exception is StorageException) {
                         val errorCode = (download.task.exception as StorageException).errorCode
@@ -204,6 +205,14 @@ class UserRepository(private val context : Context, private val appDatabase: App
     @Throws
     suspend fun updateProfilePicture(data: ByteArray) = withContext(dispatcher){
         try{
+
+            appDatabase.UserInfoDao().getUserInfo()?.let {
+                if (it.profilePicture.isNotBlank()) {
+                    Log.d("DEBUG", "Deleting file ${it.profilePicture}")
+                    File(it.profilePicture).delete()
+                }
+            }
+
             val storage = Firebase.storage
             val storageRef = storage.reference
             val imagesRef = storageRef.child("profilePictures")
@@ -214,7 +223,7 @@ class UserRepository(private val context : Context, private val appDatabase: App
 
                 val upload = imageRef.putBytes(data).await()
 
-                if(upload.task.isSuccessful) saveUserInfo()
+                if(upload.task.isSuccessful) saveUserInfo {}
                 else Log.e("ERROR", "Problema ao persistir a foto ${upload.task.exception}")
             }
         }catch (e : Exception){
@@ -225,6 +234,7 @@ class UserRepository(private val context : Context, private val appDatabase: App
     suspend fun logOffUser() = withContext(dispatcher){
         return@withContext try{
             auth.signOut()
+            appDatabase.UserInfoDao().getUserInfo()?.profilePicture?.let { File(it).delete() }
             appDatabase.clearAllTables()
             true
         }catch (e : Exception){
@@ -234,13 +244,26 @@ class UserRepository(private val context : Context, private val appDatabase: App
     }
 
     private suspend fun persistInfos(photoPath : String) = withContext(dispatcher){
-        if(photoPath.isNotBlank() && File(photoPath).exists()){
+        return@withContext try{
             val userName = auth.currentUser?.displayName
             val userEmail = auth.currentUser?.email
-            appDatabase.UserInfoDao().save(UserInfo(userName ?: "", userEmail ?: "", photoPath))
-            Log.d("DEBUG", "Updating profile picture path...")
-        }else{
-            Log.d("DEBUG", "Photo doent existis...")
+
+            val idRegistroExistente = appDatabase.UserInfoDao().getUserInfo()?.id
+
+            val user = UserInfo(
+                name = userName ?: "",
+                email = userEmail ?: "",
+                profilePicture = photoPath.takeIf { photoPath.isNotBlank() && File(photoPath).exists() } ?: ""
+            ).apply {
+                if(idRegistroExistente != null) id = idRegistroExistente
+            }
+
+            appDatabase.UserInfoDao().save(user)
+            true
+        }catch (e : Exception){
+            Log.d("DEBUG", "Problema em salvar dados no banco : ${e.stackTraceToString()}")
+            false
         }
+
     }
 }

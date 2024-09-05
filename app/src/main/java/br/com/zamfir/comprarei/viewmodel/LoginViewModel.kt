@@ -23,6 +23,9 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
     private var _userLoggedOffState = MutableLiveData<Boolean>()
     val userLoggedOffState : LiveData<Boolean> get() = _userLoggedOffState
 
+    private var _localSaveState = MutableLiveData<Boolean>()
+    val localSaveState : LiveData<Boolean> get() = _localSaveState
+
 
     fun loginWithEmail(email : String, password : String) = viewModelScope.launch {
         try{
@@ -30,8 +33,9 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
             val user = userRepository.loginUser(email, password)
             firestoreRepository.obterDadosDoUsuario{
                 viewModelScope.launch {
-                    userRepository.saveUserInfo()
-                    _loginState.value = LoginState(success = true, user = user)
+                    userRepository.saveUserInfo{
+                        _loginState.value = LoginState(success = true, user = user)
+                    }
                 }
             }
 
@@ -46,9 +50,10 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
     fun createUser(email: String, userName: String, password: String, photoByte: ByteArray?) = viewModelScope.launch{
         try{
             _loginState.value = LoginState(loading = true)
-            val user = userRepository.createUser(email,userName, password, photoByte)
-            userRepository.saveUserInfo()
-            _loginState.value = LoginState(success = true,user = user)
+            val user = userRepository.createUserInFirebase(email,userName, password, photoByte)
+            userRepository.saveUserInfo{
+                _loginState.value = LoginState(success = true, user = user)
+            }
         }catch (e : Exception){
             when (e) {
                 is UserAlreadyExists -> _loginState.value = LoginState(success = false, error = e, msgError = e.msg)
@@ -59,7 +64,9 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
     }
 
     fun saveUserData() = viewModelScope.launch {
-        userRepository.saveUserInfo()
+        userRepository.saveUserInfo{
+            _localSaveState.value = true
+        }
     }
 
     fun hasLoggedUser() = viewModelScope.launch {

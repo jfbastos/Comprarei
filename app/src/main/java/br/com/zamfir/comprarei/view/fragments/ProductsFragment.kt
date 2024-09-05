@@ -415,8 +415,6 @@ class ProductsFragment : Fragment(), BaseFragment {
             }
             productsAdapter.notifyDataSetChanged()
         }
-
-
         return true
     }
 
@@ -432,6 +430,8 @@ class ProductsFragment : Fragment(), BaseFragment {
         binding.toolbar.menu.findItem(R.id.categories_menu).apply {
             isVisible = false
         }
+
+        binding.toolbar.menu.findItem(R.id.configuracao_menu).apply { isVisible = false }
 
         searchMenu.setOnMenuItemClickListener {
             doSearch()
