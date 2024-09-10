@@ -126,6 +126,7 @@
                 android:id="@+id/product_quantity"
                 android:imeOptions="actionDone"
                 android:singleLine="true"
+                android:text="@string/initial_product_quantity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"/>

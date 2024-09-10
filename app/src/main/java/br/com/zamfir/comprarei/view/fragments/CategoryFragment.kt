@@ -76,13 +76,13 @@ class CategoryFragment : Fragment() {
         }
 
         binding.newCategoryBtn.setOnClickListener {
-            NewCategoryDialog{ newCategory, _ ->
+            NewCategoryDialog(categoriesList){ newCategory, _ ->
                 saveCategory(newCategory)
             }.show(parentFragmentManager, "")
         }
 
         categoryAdapter.setOnItemClickListener {
-            NewCategoryDialog(it){editedCategory, isDeletion ->
+            NewCategoryDialog(categoriesList,it){editedCategory, isDeletion ->
                 if(isDeletion) deleteCategory(editedCategory)
                 else updateCategory(editedCategory)
             }.show(parentFragmentManager, "")

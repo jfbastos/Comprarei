@@ -4,31 +4,32 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.graphics.Color
 import android.os.Bundle
-import android.widget.Toast
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.DialogNewCategoryBinding
 import br.com.zamfir.comprarei.model.entity.Category
-import br.com.zamfir.comprarei.util.errorAnimation
 import br.com.zamfir.comprarei.util.isVisible
 import com.flask.colorpicker.ColorPickerView
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder
 
 class NewCategoryDialog() : DialogFragment() {
 
-
     private var _binding : DialogNewCategoryBinding? = null
     private val binding : DialogNewCategoryBinding get() = _binding!!
     private var categoryColor : Int = 0
     private var category : Category? = null
     private lateinit var callback : (Category, Boolean) -> Unit
+    private var existingCategories = listOf<Category>()
 
-    constructor(category: Category, callback : (Category, Boolean) -> Unit) : this(){
+    constructor(categories : List<Category>,category: Category, callback : (Category, Boolean) -> Unit) : this(){
+        this.existingCategories = categories
         this.category = category
         this.callback = callback
     }
 
-    constructor(callback: (Category, Boolean) -> Unit) : this(){
+    constructor(categories : List<Category>,callback: (Category, Boolean) -> Unit) : this(){
+        this.existingCategories = categories
         this.callback = callback
     }
 
@@ -67,10 +68,10 @@ class NewCategoryDialog() : DialogFragment() {
         binding.btnOk.setOnClickListener {
             when {
                 binding.categoryName.text.isNullOrBlank() -> {
-                    binding.categoryNameLayout.errorAnimation(getString(R.string.blank_name))
-                    Toast.makeText(requireContext(), getString(R.string.blank_name), Toast.LENGTH_SHORT).show()
+                    showWarningInfo(true, getString(R.string.blank_name))
                 }
-                categoryColor == 0 -> Toast.makeText(requireContext(), getString(R.string.select_category_color), Toast.LENGTH_SHORT).show()
+                isNewCategoryAndAlreadyExists() -> showWarningInfo(true, getString(R.string.category_name_already_exists))
+                categoryColor == 0 -> showWarningInfo(true, getString(R.string.select_category_color))
                 else -> {
                     category?.apply{
                         description = binding.categoryName.text.toString()
@@ -93,9 +94,25 @@ class NewCategoryDialog() : DialogFragment() {
         return builder.create()
     }
 
+    private fun isNewCategoryAndAlreadyExists() = existingCategories.map { it.description.uppercase() }.contains(binding.categoryName.text.toString().uppercase()) && category == null
+
     private fun dismissThis(){
         isCancelable = true
         dismiss()
+    }
+
+    private fun showWarningInfo(isOnlyWarning : Boolean = true, msg : String) {
+        binding.warningPlaceholder.isVisible(true)
+        binding.warningMsg.text = msg
+        if(!isOnlyWarning){
+            binding.warningIcon.setImageResource(R.drawable.round_warning_24_red)
+            binding.warningPlaceholder.background = ResourcesCompat.getDrawable(requireContext().resources, R.drawable.error_background, null)
+            binding.warningMsg.setTextColor(requireActivity().resources.getColor(R.color.delete_red_text, null))
+        }else{
+            binding.warningIcon.setImageResource(R.drawable.round_warning_24_yellow)
+            binding.warningPlaceholder.background = ResourcesCompat.getDrawable(requireContext().resources, R.drawable.warning_background, null)
+            binding.warningMsg.setTextColor(requireActivity().resources.getColor(R.color.warning_yellow_text, null))
+        }
     }
 
     private fun callColorSelectionLib(){

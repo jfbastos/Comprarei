@@ -128,5 +128,8 @@
     <string name="image_uri_key" translatable="false">IMAGE_URI_KEY</string>
     <string name="no_internet_connection">No internet connection.</string>
     <string name="msg_warning_invalid_password">Password must have at least 6 characters.</string>
+    <string name="select_date">Select date</string>
+    <string name="initial_product_quantity" translatable="false">1</string>
+    <string name="category_name_already_exists">Category name already exists.</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

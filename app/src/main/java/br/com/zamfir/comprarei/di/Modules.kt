@@ -45,7 +45,7 @@ val dataBaseModule = module {
 }
 
 val viewModelModule = module {
-    viewModel { CartViewModel(get(), get(), get()) }
+    viewModel { CartViewModel(get(), get(), get(), get()) }
     viewModel { ProductViewModel(get(), get()) }
     viewModel { CategoryViewModel(get()) }
     viewModel { LoginViewModel(get(), get()) }

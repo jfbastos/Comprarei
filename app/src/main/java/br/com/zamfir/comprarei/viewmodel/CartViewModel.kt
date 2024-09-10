@@ -1,5 +1,6 @@
 package br.com.zamfir.comprarei.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,19 +11,19 @@ import br.com.zamfir.comprarei.model.entity.ByValue
 import br.com.zamfir.comprarei.model.entity.Cart
 import br.com.zamfir.comprarei.model.entity.Filter
 import br.com.zamfir.comprarei.repositories.CartRepository
+import br.com.zamfir.comprarei.repositories.ConfigRepository
 import br.com.zamfir.comprarei.repositories.FirestoreRepository
 import br.com.zamfir.comprarei.repositories.ProductRepository
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.convertMonetaryToDouble
-import br.com.zamfir.comprarei.viewmodel.states.DeleteState
 import br.com.zamfir.comprarei.viewmodel.states.CartsState
+import br.com.zamfir.comprarei.viewmodel.states.DeleteState
 import br.com.zamfir.comprarei.viewmodel.states.SaveState
 import kotlinx.coroutines.launch
-import java.lang.Exception
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class CartViewModel(private val repository: CartRepository, private val productsRepository: ProductRepository, private val firestoreRepository: FirestoreRepository) : ViewModel() {
+class CartViewModel(private val repository: CartRepository, private val productsRepository: ProductRepository, private val firestoreRepository: FirestoreRepository, private val configRepository: ConfigRepository) : ViewModel() {
 
     private var _cartsState = MutableLiveData<CartsState>()
     val cartsState : LiveData<CartsState> get() = _cartsState
@@ -50,7 +51,7 @@ class CartViewModel(private val repository: CartRepository, private val products
 
         val categories = repository.getCategories()
 
-        _cartsState.value = CartsState(loading = false, carts = carts, categories = categories)
+        _cartsState.value = CartsState(loading = false, carts = carts, categories = categories, configRepository.getIsToShowTotalCart())
     }
 
     fun deleteCarts(carts : List<Int>) = viewModelScope.launch{

@@ -17,13 +17,15 @@ class CategoryViewModel(private val categoryRepository: CategoryRepository) : Vi
     private var _deleteState = MutableLiveData<DeleteState>()
     val deleteState : LiveData<DeleteState> get() = _deleteState
 
+    private var _idCreatedCategory = MutableLiveData<Boolean>()
+    val idCreatedCategory : LiveData<Boolean> get() = _idCreatedCategory
 
     fun getCategories() =  viewModelScope.launch {
         _categories.value = categoryRepository.getCategories()
     }
 
     fun saveCategory(category: Category) = viewModelScope.launch {
-        categoryRepository.saveCategory(category)
+        _idCreatedCategory.value = categoryRepository.saveCategory(category) > 0
     }
 
     fun updateCategory(category: Category) = viewModelScope.launch {
@@ -37,10 +39,6 @@ class CategoryViewModel(private val categoryRepository: CategoryRepository) : Vi
             categoryRepository.deleteCategory(category)
             _deleteState.value = DeleteState(itemDeleted = category)
         }
-    }
-
-    fun saveCategories(categories : List<Category>) = viewModelScope.launch {
-        categoryRepository.saveCategories(categories)
     }
 }
 

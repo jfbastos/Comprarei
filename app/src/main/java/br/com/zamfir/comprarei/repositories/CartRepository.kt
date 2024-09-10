@@ -24,8 +24,7 @@ class CartRepository(
     suspend fun updateTotal(total: String, id: Int) =
         withContext(dispatcher) { appDatabase.CartDao().updateTotal(total, id) }
 
-    suspend fun updateCart(cart: Cart) =
-        withContext(dispatcher) { appDatabase.CartDao().updateCart(cart) }
+    suspend fun updateCart(cart: Cart) = withContext(dispatcher) { appDatabase.CartDao().updateCart(cart) }
 
     suspend fun updateAll(cartList: List<Cart>) =
         withContext(dispatcher) { appDatabase.CartDao().insertAll(cartList) }

@@ -74,10 +74,9 @@ class MainActivity : AppCompatActivity() {
             Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
 
         val periodicWorker = PeriodicWorkRequestBuilder<BackupWorker>(
-            PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
-            TimeUnit.MILLISECONDS
-        )
-            .setConstraints(constraints).build()
+            6,
+            TimeUnit.HOURS
+        ).setConstraints(constraints).build()
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "Backup_Unique_Job",

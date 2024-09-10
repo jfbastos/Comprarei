@@ -19,13 +19,13 @@ class BackupWorker(context : Context, parameters: WorkerParameters) : CoroutineW
 
     override suspend fun doWork(): Result {
         return try{
-            firestoreRepository.saveCategories()
+            firestoreRepository.saveCarts()
             firestoreRepository.saveProducts()
             firestoreRepository.saveCategories()
             applicationContext.getSharedPreferences("shared", Context.MODE_PRIVATE).edit {
                 putString("last_backup", LocalDateTime.now().toString())
             }
-            sendNotification("Backup Comprarei", "Backup realizado com sucesso.")
+            sendNotification("Backup", "Compras salvas com sucesso.")
             Result.success()
         }catch (e : Exception){
             e.printStackTrace()
@@ -34,7 +34,7 @@ class BackupWorker(context : Context, parameters: WorkerParameters) : CoroutineW
     }
 
     private fun sendNotification(title : String, msg : String) {
-        val channelName = "COMPRAREI_CHANNEL"
+        val channelName = "comprarei"
         val channelId = "99999"
         val notificationId = 99999
 
@@ -49,7 +49,7 @@ class BackupWorker(context : Context, parameters: WorkerParameters) : CoroutineW
         // Set notification content
         builder.setContentTitle(title)
             .setContentText(msg)
-            .setSmallIcon(R.mipmap.ic_launcher_comprarei) // Replace with your icon resource
+            .setSmallIcon(R.drawable.icone_fundo_branco) // Replace with your icon resource
 
         // Send notification
         notificationManager?.notify(notificationId, builder.build())

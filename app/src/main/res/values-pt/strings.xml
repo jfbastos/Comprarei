@@ -113,5 +113,7 @@
     <string name="please_fill_in_the_fields_to_create_a_new_account">Preencha todos os campos para criar sua conta</string>
     <string name="no_internet_connection">Sem conexão com a internet</string>
     <string name="msg_warning_invalid_password">A senha deve conter pelo menos 6 dígitos</string>
+    <string name="select_date">Selecione a data</string>
+    <string name="category_name_already_exists">Já existe uma categoria com esse nome.</string>
 
 </resources>

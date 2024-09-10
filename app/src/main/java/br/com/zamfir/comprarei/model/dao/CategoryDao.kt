@@ -12,7 +12,7 @@ import br.com.zamfir.comprarei.model.entity.Category
 interface CategoryDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insertCategory(category: Category)
+    fun insertCategory(category: Category) : Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(categories : List<Category>)

@@ -8,6 +8,7 @@ import android.graphics.Canvas
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -20,7 +21,6 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -75,17 +75,13 @@ class HomeFragment : Fragment(), BaseFragment {
 
     private var selectedFilter : Filter? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?,): View {
         _binding = FragmentHomeBinding.inflate(inflater)
         InfoUpdateListener.setOnListener(object : InfoUpdateListener {
             override fun infoUpdated() {
                 viewModel.updateAllData()
             }
         })
-
         return binding.root
     }
 
@@ -94,27 +90,29 @@ class HomeFragment : Fragment(), BaseFragment {
 
         setupMenuItems()
         setupAdapter()
-        handleItemMove()
-        observables()
-        configDeleteListeners()
+        setupItemMoveHandler()
+        setupObservables()
+        setupListeners()
+
+        viewModel.updateAllData()
+    }
+
+    private fun setupListeners() {
+        cartsAdapter.setOnItemClickListener { cart ->
+            if (selectionMode) {
+                setItemSelected(cart)
+            } else {
+                goToProduct(cart)
+            }
+        }
 
         binding.expandFab.setOnClickListener {
             toggleExpandedFab()
         }
 
-        viewModel.updateAllData()
-
-        cartsAdapter.setOnItemClickListener { cart ->
-            if(selectionMode){
-               setItemSelected(cart)
-            }else{
-                goToProduct(cart)
-            }
-        }
-
         binding.addCategory.setOnClickListener {
             binding.expandFab.performClick()
-            NewCategoryDialog{ newCategory, _ ->
+            NewCategoryDialog(categoriesList) { newCategory, _ ->
                 categoryViewModel.saveCategory(newCategory)
                 categoriesList.add(newCategory)
             }.show(parentFragmentManager, "")
@@ -122,16 +120,19 @@ class HomeFragment : Fragment(), BaseFragment {
 
         binding.addCart.setOnClickListener {
             binding.expandFab.performClick()
-            NewCartFragment(originalList.takeIf { it.isNotEmpty() }?.maxOf { it.position }?.plus(1) ?: 0, categoriesList).show(parentFragmentManager, Constants.NEW_CART_KEY)
+            val lastKnownPosition = originalList.takeIf { it.isNotEmpty() }?.maxOf { it.position }?.plus(1) ?: 0
+            NewCartFragment(lastKnownPosition, categoriesList) { cart ->
+                saveNewCart(cart)
+            }.show(parentFragmentManager, Constants.NEW_CART_KEY)
         }
 
-        setFragmentResultListener(Constants.NEW_CART_KEY) { _, bundle ->
-            val result = bundle.getSerializable(Constants.CART_BUNDLE_KEY) as Cart
-            if(cartsAdapter.differ.currentList.contains(result)){
-                updateCart(result)
-            }else{
-                saveNewCart(result)
-            }
+        binding.deleteSelection.setOnClickListener {
+            deleteItems()
+        }
+
+        deleteManyMenu.setOnMenuItemClickListener {
+            changeSelectState()
+            false
         }
     }
 
@@ -140,14 +141,12 @@ class HomeFragment : Fragment(), BaseFragment {
         animationToggleFab()
     }
 
-
     private fun animationToggleFab() {
         if (fabExapanded) {
             animationOpen()
         } else {
             animationClose()
         }
-
     }
 
     private fun animationOpen() {
@@ -168,7 +167,7 @@ class HomeFragment : Fragment(), BaseFragment {
         binding.addCategory.isVisible(fabExapanded)
     }
 
-    private fun observables() {
+    private fun setupObservables() {
         viewModel.cartsState.observe(viewLifecycleOwner) { infoState ->
             showLoading(infoState)
         }
@@ -189,13 +188,18 @@ class HomeFragment : Fragment(), BaseFragment {
                 requireActivity().finish()
             }
         }
+
+        categoryViewModel.idCreatedCategory.observe(viewLifecycleOwner){
+            //viewModel.updateAllData()
+        }
     }
 
-    private fun showCartsItems(cartsList: List<Cart>?) {
+    private fun showCartsItems(cartsList: List<Cart>?, showTotal: Boolean) {
         if (cartsList.isNullOrEmpty()) {
             showEmptyMessage(true)
         } else {
             showEmptyMessage(false)
+            cartsAdapter.isShowTotal = showTotal
             originalList.clear()
             originalList.addAll(cartsList)
             cartsAdapter.differ.submitList(cartsList)
@@ -215,14 +219,19 @@ class HomeFragment : Fragment(), BaseFragment {
     }
 
     private fun updateCart(cart : Cart){
-        viewModel.updateCart(cart)
-        val index = originalList.indexOf(originalList.find { it.id == cart.id })
-        originalList[index].apply {
-            categoryId = cart.categoryId
-            category = cart.category
+        try {
+            viewModel.updateCart(cart)
+            val index = originalList.indexOf( originalList.find { it.id == cart.id })
+            originalList[index].apply {
+                categoryId = cart.categoryId
+                category = cart.category
+            }
+            cartsAdapter.differ.submitList(originalList)
+            cartsAdapter.notifyItemChanged(cartsAdapter.getCartPosition(cart))
+        }catch (e : Exception){
+            Log.e("DEBUG", "Falha ao atualizar na fragment : ${e.stackTraceToString()}")
         }
-        cartsAdapter.differ.submitList(originalList)
-        cartsAdapter.notifyItemChanged(cartsAdapter.getCartPosition(cart))
+
     }
 
     private fun deleteCarts(carts : List<Cart>){
@@ -313,7 +322,7 @@ class HomeFragment : Fragment(), BaseFragment {
         binding.cartsRv.adapter = cartsAdapter
     }
 
-    private fun handleItemMove() {
+    private fun setupItemMoveHandler() {
         ItemTouchHelper(object :
             ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
                 override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder ) : Boolean {
@@ -333,7 +342,9 @@ class HomeFragment : Fragment(), BaseFragment {
                     val cart = cartsAdapter.differ.currentList[position]
                     when(direction){
                         ItemTouchHelper.RIGHT -> {
-                            NewCartFragment(cart, categoriesList).show(parentFragmentManager, Constants.NEW_CART_KEY)
+                            NewCartFragment(cart, categoriesList){ updatedCart ->
+                                updateCart(updatedCart)
+                            }.show(parentFragmentManager, Constants.NEW_CART_KEY)
                         }
                         ItemTouchHelper.LEFT -> {
                             deleteOneItem(cart)
@@ -369,18 +380,6 @@ class HomeFragment : Fragment(), BaseFragment {
     }
 
     //region Deletion
-
-    private fun configDeleteListeners(){
-        binding.deleteSelection.setOnClickListener {
-            deleteItems()
-        }
-
-        deleteManyMenu.setOnMenuItemClickListener {
-            changeSelectState()
-            false
-        }
-    }
-
     private fun deleteItems(){
         if(selectionMode && cartsAdapter.selectedItems.isNotEmpty()) confirmDeletion(cartsAdapter.selectedItems)
         else changeSelectState()
@@ -480,7 +479,7 @@ class HomeFragment : Fragment(), BaseFragment {
         binding.loading.isVisible(infoState.loading)
 
         if(!infoState.loading){
-            showCartsItems(infoState.carts)
+            showCartsItems(infoState.carts, infoState.isShowTotal)
             categoriesList.clear()
             categoriesList.addAll(infoState.categories)
         }

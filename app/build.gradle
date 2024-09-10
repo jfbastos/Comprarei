@@ -64,7 +64,7 @@ dependencies {
     implementation 'androidx.work:work-runtime-ktx:2.8.0'
 
     // Material design
-    implementation 'com.google.android.material:material:1.6.0'
+    implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     // Architectural Components

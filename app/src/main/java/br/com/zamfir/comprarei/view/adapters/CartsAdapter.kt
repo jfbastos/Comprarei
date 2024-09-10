@@ -14,13 +14,14 @@ import br.com.zamfir.comprarei.util.isVisible
 class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallback) {
 
     var selectedItems = mutableListOf<Cart>()
+    var isShowTotal = true
     val differ = AsyncListDiffer(this, differCallback)
 
     inner class CartsViewHolder(private val binding: CartItemBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(cart: Cart) {
             binding.cartName.text = cart.name
             binding.cartDate.text = cart.data
-            binding.totalCart.text = cart.total
+            if(isShowTotal) binding.totalCart.text = cart.total else binding.totalCart.isVisible(false)
             binding.selectedBackground.visibility = if(selectedItems.contains(cart)) View.VISIBLE else View.INVISIBLE
             cart.category?.let {
                 binding.categoryPlaceHolder.isVisible(true)

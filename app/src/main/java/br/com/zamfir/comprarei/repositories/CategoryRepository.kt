@@ -9,13 +9,11 @@ class CategoryRepository(private val appDatabase: AppDatabase, private val dispa
 
     suspend fun getCategories() =  withContext(dispatcher) {appDatabase.CategoryDao().allCategories}
 
-    suspend fun saveCategory(category: Category) = withContext(dispatcher) {appDatabase.CategoryDao().insertCategory(category)}
+    suspend fun saveCategory(category: Category) = withContext(dispatcher) { return@withContext appDatabase.CategoryDao().insertCategory(category)}
 
     suspend fun deleteCategory(category: Category) = withContext(dispatcher) {appDatabase.CategoryDao().deleteCategory(category)}
 
     suspend fun updateCategory(category: Category) = withContext(dispatcher) {appDatabase.CategoryDao().updateCategory(category)}
-
-    suspend fun saveCategories(categories : List<Category>) = withContext(dispatcher) {appDatabase.CategoryDao().insertAll(categories)}
 
     suspend fun hasCartWithCategorie(id : Int) = withContext(dispatcher) {appDatabase.CartDao().carts.find { it.categoryId == id } != null}
 

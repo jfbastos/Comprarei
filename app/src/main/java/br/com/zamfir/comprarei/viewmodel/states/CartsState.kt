@@ -8,5 +8,6 @@ data class CartsState(
     val loading : Boolean = false,
     val carts : List<Cart>? = listOf(),
     val categories : List<Category> = listOf(),
+    val isShowTotal : Boolean = true,
     val error : Exception? = null
 )
