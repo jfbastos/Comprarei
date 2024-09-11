@@ -9,6 +9,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import br.com.zamfir.comprarei.R
+import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.DateUtil
 import br.com.zamfir.comprarei.worker.BackupWorker
 import com.google.firebase.auth.ktx.auth
@@ -17,7 +18,7 @@ import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
-class ConfigRepository(private val context : Context,private val dispatcher: CoroutineDispatcher) {
+class ConfigRepository(private val context : Context, private val dispatcher: CoroutineDispatcher) {
 
     private val sharedPref = context.getSharedPreferences(context.getString(R.string.shared_file_name), Context.MODE_PRIVATE)
 
@@ -35,6 +36,13 @@ class ConfigRepository(private val context : Context,private val dispatcher: Cor
         }
     }
 
+    suspend fun loggedWithGoogle(isFromGoogle : Boolean) = withContext(dispatcher){
+        with(sharedPref.edit()){
+            putBoolean(Constants.SHARED_LOGIN_GOOGLE_KEY, isFromGoogle)
+            apply()
+        }
+    }
+
     suspend fun getLastBackupTime() = withContext(dispatcher){
         return@withContext DateUtil.formatDate(sharedPref.getString(context.getString(R.string.last_backup_key), "") ?: "")
     }
@@ -47,6 +55,7 @@ class ConfigRepository(private val context : Context,private val dispatcher: Cor
         return@withContext sharedPref.getBoolean(context.getString(R.string.showtotalcart_key), true)
     }
 
-
-
+    suspend fun getIsUserLoggedFromGoogle() = withContext(dispatcher){
+        return@withContext sharedPref.getBoolean(Constants.SHARED_LOGIN_GOOGLE_KEY, true)
+    }
 }

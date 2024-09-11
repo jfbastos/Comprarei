@@ -58,9 +58,9 @@
         tools:layout="@layout/fragment_category" />
     <fragment
         android:id="@+id/configuracaoFragment"
-        android:name="br.com.zamfir.comprarei.view.fragments.ConfiguracaoFragment"
+        android:name="br.com.zamfir.comprarei.view.fragments.ConfigurationFragment"
         android:label="ConfiguracaoFragment"
-        tools:layout="@layout/fragment_configuracao">
+        tools:layout="@layout/fragment_configuration">
         <action
             android:id="@+id/action_configuracaoFragment_to_profileFragment"
             app:destination="@id/profileFragment"

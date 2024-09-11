@@ -1,11 +1,11 @@
 package br.com.zamfir.comprarei.repositories
 
-import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.core.net.toUri
 import br.com.zamfir.comprarei.model.AppDatabase
 import br.com.zamfir.comprarei.model.entity.UserInfo
+import br.com.zamfir.comprarei.util.exceptions.InvalidEmail
 import br.com.zamfir.comprarei.util.exceptions.InvalidLogin
 import br.com.zamfir.comprarei.util.exceptions.InvalidPassword
 import br.com.zamfir.comprarei.util.exceptions.UserAlreadyExists
@@ -20,6 +20,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -155,12 +156,13 @@ class UserRepository(private val appDatabase: AppDatabase, private val dispatche
                     }else{
                         Log.e("DEBUG", "Unknown exceptuion : ${download.task.exception}")
                     }
+                    saveDone.invoke()
                 }
             }
         }catch (e : Exception){
             Log.d("DEBUG", "Exception on download image : ${e.stackTraceToString()}")
+            saveDone.invoke()
         }
-
     }
 
     @Throws
@@ -208,7 +210,6 @@ class UserRepository(private val appDatabase: AppDatabase, private val dispatche
 
             appDatabase.UserInfoDao().getUserInfo()?.let {
                 if (it.profilePicture.isNotBlank()) {
-                    Log.d("DEBUG", "Deleting file ${it.profilePicture}")
                     File(it.profilePicture).delete()
                 }
             }
@@ -241,6 +242,34 @@ class UserRepository(private val appDatabase: AppDatabase, private val dispatche
             e.printStackTrace()
             false
         }
+    }
+
+    @Throws(InvalidEmail::class)
+    suspend fun deleteUser() = withContext(dispatcher){
+        val currentUser = auth.currentUser ?: throw RuntimeException("No user logged.")
+
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+        val imagesRef = storageRef.child("profilePictures")
+
+        val userRef = imagesRef.child(currentUser.uid)
+        val imageRef = userRef.child("profilePicture.jpg")
+
+        imageRef.delete()
+        currentUser.delete()
+        auth.signOut()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            appDatabase.UserInfoDao().getUserInfo()?.let {
+                if (it.profilePicture.isNotBlank()) {
+                    File(it.profilePicture).delete()
+                }
+            }
+
+            appDatabase.UserInfoDao().getUserInfo()?.profilePicture?.let { File(it).delete() }
+            appDatabase.clearAllTables()
+        }
+
     }
 
     private suspend fun persistInfos(photoPath : String) = withContext(dispatcher){

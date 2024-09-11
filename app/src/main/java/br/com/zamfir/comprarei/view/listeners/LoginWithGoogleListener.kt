@@ -4,6 +4,7 @@ import java.lang.Exception
 
 interface LoginWithGoogleListener {
     fun userLoggedIn()
+    fun userCancelled()
     fun loginError(exception: Exception?)
 
     companion object{

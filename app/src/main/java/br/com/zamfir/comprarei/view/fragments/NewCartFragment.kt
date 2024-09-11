@@ -5,10 +5,8 @@ import android.app.Dialog
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.ArrayAdapter
-import androidx.core.os.bundleOf
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.setFragmentResult
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentNewCartBinding
 import br.com.zamfir.comprarei.model.entity.Cart
@@ -17,8 +15,8 @@ import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.DateInputMask
 import br.com.zamfir.comprarei.util.DateUtil
 import br.com.zamfir.comprarei.util.errorAnimation
-import br.com.zamfir.comprarei.util.isVisible
-import java.util.*
+import com.google.android.material.datepicker.MaterialDatePicker
+import java.util.Calendar
 
 class NewCartFragment() : DialogFragment() {
 
@@ -27,17 +25,23 @@ class NewCartFragment() : DialogFragment() {
     private var cart : Cart? = null
     private var categories : List<Category> = listOf()
     private var lastKnowPosition : Int = -1
+    private lateinit var onSave : (Cart) -> Unit
+    private lateinit var onUpdate : (Cart) -> Unit
+    private var isUpdate = false
 
-    constructor(cart : Cart, categories : List<Category>) : this(){
+    constructor(cart : Cart, categories : List<Category>, onFinish : (Cart) -> Unit) : this(){
         this.cart = cart
         this.categories = categories
+        this.onUpdate = onFinish
+        this.isUpdate = true
     }
 
-    constructor(lastKnowPosition : Int, categories : List<Category>) : this(){
+    constructor(lastKnowPosition : Int, categories : List<Category>, onFinish : (Cart) -> Unit) : this(){
         this.lastKnowPosition = lastKnowPosition
         this.categories = categories
+        this.onSave = onFinish
+        this.isUpdate = false
     }
-
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(context)
@@ -95,27 +99,28 @@ class NewCartFragment() : DialogFragment() {
                 }
 
                 DateUtil.validateDate(binding.cartDate.text.toString()) -> {
-                    cart = if(cart != null){
+                    val selectedCategory = categories.firstOrNull { it.description == binding.categoriesMenu.text.toString() }
+                    if(isUpdate){
                         cart?.apply {
                             name = binding.cartName.text.toString()
                             data = binding.cartDate.text.toString().takeIf { it.isNotBlank() } ?: DateUtil.getTodayDate()
-                            categoryId = categories.find { it.description == binding.categoriesMenu.text.toString() }?.id ?: 0
-                            category = categories.find { it.description == binding.categoriesMenu.text.toString() }
+                            categoryId = selectedCategory?.id ?: 0
+                            category = selectedCategory
                             store = binding.cartStore.text.toString()
+                            onUpdate.invoke(this)
                         }
                     }else{
-                        Cart(
+                        onSave.invoke(Cart(
                             name = binding.cartName.text.toString(),
                             data = binding.cartDate.text.toString().takeIf { it.isNotBlank() } ?: DateUtil.getTodayDate(),
                             total = Constants.EMPTY_CART_VALUE,
                             position = lastKnowPosition,
-                            categoryId = categories.find { it.description == binding.categoriesMenu.text.toString() }?.id ?: 0,
+                            categoryId = selectedCategory?.id ?: 0,
                             store = binding.cartStore.text.toString()).apply {
-                                category = categories.find { it.description == binding.categoriesMenu.text.toString() }
-                        }
+                            category = selectedCategory
+                        })
                     }
 
-                    setFragmentResult(Constants.NEW_CART_KEY, bundleOf(Constants.CART_BUNDLE_KEY to cart))
                     this.dismiss()
                 }
                 else -> {
@@ -133,27 +138,34 @@ class NewCartFragment() : DialogFragment() {
 
     private fun dateHandler() {
 
-        DateInputMask(binding.cartDate).listen()
+        val materialDatePicker = MaterialDatePicker.Builder.datePicker()
+            .setTitleText(getString(R.string.select_date))
+            .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+            .setPositiveButtonText(R.string.ok)
+            .build()
 
-        binding.datePicker.init(
-            Calendar.getInstance().get(Calendar.YEAR),
-            Calendar.getInstance().get(Calendar.MONTH),
-            Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-        ) { _, year, month, day ->
+        materialDatePicker.addOnPositiveButtonClickListener { timeInMillis ->
+            val retrievedData = Calendar.getInstance().apply {
+                this.timeInMillis = timeInMillis
+            }
 
-            val formattedDay = if (day < 10) "0${day}" else "$day"
+            val day = retrievedData.get(Calendar.DAY_OF_MONTH)
+            val month = retrievedData.get(Calendar.MONTH)
+            val year = retrievedData.get(Calendar.YEAR)
+
+            val formattedDay = if (day < 10) "0${day + 1}" else "${day + 1}"
             val formattedMonth = if (month < 10) "0${month + 1}" else "${month + 1}"
 
             val date = "$formattedDay/$formattedMonth/$year"
 
             binding.cartDate.setText(date)
-            binding.datePicker.isVisible(false)
-            binding.newCartForm.isVisible(true)
+            materialDatePicker.dismiss()
         }
 
+        DateInputMask(binding.cartDate).listen()
+
         binding.cartDateLayout.setEndIconOnClickListener {
-            binding.newCartForm.isVisible(false)
-            binding.datePicker.isVisible(true)
+            materialDatePicker.show(parentFragmentManager, "")
         }
     }
 

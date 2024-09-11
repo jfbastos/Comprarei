@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.IntentSender
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentLoginBinding
+import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.exceptions.InvalidLogin
 import br.com.zamfir.comprarei.util.isConectadoInternet
 import br.com.zamfir.comprarei.util.isVisible
@@ -39,7 +41,12 @@ class LoginFragment : Fragment() {
 
         LoginWithGoogleListener.setOnListener(object : LoginWithGoogleListener {
             override fun userLoggedIn() {
-                loginViewModel.saveUserData()
+                loginViewModel.saveUserData(true)
+            }
+
+            override fun userCancelled() {
+                binding.animationView.isVisible(false)
+                binding.btnLoginGoogle.root.isVisible(true)
             }
 
             override fun loginError(exception: Exception?) {
@@ -62,10 +69,9 @@ class LoginFragment : Fragment() {
 
         binding.btnLogin.setOnClickListener {
             if(!requireContext().isConectadoInternet()){
-                Snackbar.make(requireView(), "Sem conexão com a internet", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(requireView(), getString(R.string.no_internet_connection), Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
 
             if(validateFields()){
                 loginViewModel.loginWithEmail(
@@ -77,7 +83,7 @@ class LoginFragment : Fragment() {
 
         binding.forgotPassword.setOnClickListener {
             if(!requireContext().isConectadoInternet()){
-                Snackbar.make(requireView(), "Sem conexão com a internet", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(requireView(), getString(R.string.no_internet_connection), Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -102,7 +108,7 @@ class LoginFragment : Fragment() {
             if (!loginState.success && loginState.error != null) {
                 when(loginState.error){
                     is InvalidLogin -> {
-                        showWarningInfo(isOnlyWarning = false, loginState.msgError ?: "Wrong user or password.")
+                        showWarningInfo(isOnlyWarning = false, loginState.msgError ?: getString(R.string.wrong_user_or_password))
                     }
                 }
             }
@@ -120,7 +126,7 @@ class LoginFragment : Fragment() {
             val snack = Snackbar.make(requireView(), "Trying to login with Google account...", Snackbar.LENGTH_INDEFINITE)
 
             val activity = (requireActivity() as LoginActivity)
-            activity.oneTapClient.beginSignIn(activity.signUpRequest)
+            activity.googleSigninUtil.oneTapClient.beginSignIn( activity.googleSigninUtil.signUpRequest)
                 .addOnSuccessListener(requireActivity()) { result ->
                     try {
                         activity.activityResult.launch(
@@ -173,8 +179,8 @@ class LoginFragment : Fragment() {
     }
 
     private fun setInfoFromLogonScreen() {
-        val login: String? = arguments?.getString("USER_KEY")
-        val password: String? = arguments?.getString("PASSWORD_KEY")
+        val login: String? = arguments?.getString(Constants.USER_KEY)
+        val password: String? = arguments?.getString(Constants.PASSWORD_KEY)
 
         login?.let {
             binding.user.setText(it)

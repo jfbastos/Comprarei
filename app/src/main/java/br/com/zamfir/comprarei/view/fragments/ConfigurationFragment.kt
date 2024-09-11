@@ -6,12 +6,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.R
-import br.com.zamfir.comprarei.databinding.FragmentConfiguracaoBinding
+import br.com.zamfir.comprarei.databinding.FragmentConfigurationBinding
 import br.com.zamfir.comprarei.util.isVisible
 import br.com.zamfir.comprarei.view.activity.LoginActivity
 import br.com.zamfir.comprarei.viewmodel.ConfigViewModel
@@ -21,10 +19,10 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class ConfiguracaoFragment : Fragment() {
+class ConfigurationFragment : Fragment() {
 
-    private var _binding : FragmentConfiguracaoBinding? = null
-    private val binding : FragmentConfiguracaoBinding get() = _binding!!
+    private var _binding : FragmentConfigurationBinding? = null
+    private val binding : FragmentConfigurationBinding get() = _binding!!
 
     private val loginViewModel : LoginViewModel by viewModel()
     private val configViewModel : ConfigViewModel by viewModel()
@@ -36,7 +34,7 @@ class ConfiguracaoFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentConfiguracaoBinding.inflate(layoutInflater)
+        _binding = FragmentConfigurationBinding.inflate(layoutInflater)
         return binding.root
     }
 
@@ -73,7 +71,11 @@ class ConfiguracaoFragment : Fragment() {
 
         loginViewModel.userLoggedOffState.observe(viewLifecycleOwner){ success ->
             if(success){
-                requireActivity().startActivity(Intent(requireContext(), LoginActivity::class.java))
+                val intent = Intent(requireContext(), LoginActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
+                requireActivity().startActivity(intent)
+                requireActivity().finish()
             }else{
                 Snackbar.make(requireView(), "", Snackbar.LENGTH_SHORT).show()
             }

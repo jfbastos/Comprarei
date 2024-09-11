@@ -115,5 +115,17 @@
     <string name="msg_warning_invalid_password">A senha deve conter pelo menos 6 dígitos</string>
     <string name="select_date">Selecione a data</string>
     <string name="category_name_already_exists">Já existe uma categoria com esse nome.</string>
+    <string name="sorry_that_you_re_leaving">Sentiremos sua falta 😓</string>
+    <string name="to_delete_account_we_must_re_autenticate_your_user">Para deletar sua conta, precisaremos reautenticar seu usuário.</string>
+    <string name="account_deletion">Exclusão de conta</string>
+    <string name="something_went_wrong_google_account">Algo deu erro ao logar com o Google. Tente novamente depois.</string>
+    <string name="confirm">Confirmar</string>
+    <string name="no_connection_google_account">Para logar com o google, você precisa ter conexão com a internet.</string>
+    <string name="info_logged_with_google">Querido usuário, você logou usando sua conta google. Para reautentica-la você precisará apertar no botão \'Entrar com a conta Google\'</string>
+    <string name="successfully_re_authenticated">✅ Reautenticação realizada com sucesso.</string>
+    <string name="user_already_re_autenticated">Usuário já reautenticado</string>
+    <string name="wrong_user_or_password">Usuário ou senha inválidos.</string>
+    <string name="re_autenticate">Reautenticar</string>
+    <string name="re_autentication_offline">Para reautenticar, você precisa ter conexão com a internet.</string>
 
 </resources>

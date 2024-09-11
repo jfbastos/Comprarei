@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.zamfir.comprarei.di.viewModelModule
+import br.com.zamfir.comprarei.repositories.ConfigRepository
 import br.com.zamfir.comprarei.repositories.UserRepository
 import br.com.zamfir.comprarei.repositories.FirestoreRepository
 import br.com.zamfir.comprarei.util.exceptions.InvalidLogin
@@ -12,7 +14,7 @@ import br.com.zamfir.comprarei.util.exceptions.UserAlreadyExists
 import br.com.zamfir.comprarei.viewmodel.states.LoginState
 import kotlinx.coroutines.launch
 
-class LoginViewModel(private val userRepository : UserRepository, private val firestoreRepository: FirestoreRepository) : ViewModel() {
+class LoginViewModel(private val userRepository : UserRepository, private val firestoreRepository: FirestoreRepository, private val configRepository: ConfigRepository) : ViewModel() {
 
     private var _loginState = MutableLiveData<LoginState>()
     val loginState : LiveData<LoginState> get() = _loginState
@@ -26,6 +28,9 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
     private var _localSaveState = MutableLiveData<Boolean>()
     val localSaveState : LiveData<Boolean> get() = _localSaveState
 
+    private var _isLoginWithGoogle = MutableLiveData<Boolean>()
+    val isLoginWithGoogle : LiveData<Boolean> get() = _isLoginWithGoogle
+
 
     fun loginWithEmail(email : String, password : String) = viewModelScope.launch {
         try{
@@ -33,8 +38,11 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
             val user = userRepository.loginUser(email, password)
             firestoreRepository.obterDadosDoUsuario{
                 viewModelScope.launch {
+                    configRepository.loggedWithGoogle(false)
                     userRepository.saveUserInfo{
-                        _loginState.value = LoginState(success = true, user = user)
+                        viewModelScope.launch {
+                            _loginState.value = LoginState(success = true, user = user)
+                        }
                     }
                 }
             }
@@ -47,12 +55,18 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
         }
     }
 
+    fun getUserInfo() = viewModelScope.launch {
+        _isLoginWithGoogle.value = configRepository.getIsUserLoggedFromGoogle()
+    }
+
     fun createUser(email: String, userName: String, password: String, photoByte: ByteArray?) = viewModelScope.launch{
         try{
             _loginState.value = LoginState(loading = true)
             val user = userRepository.createUserInFirebase(email,userName, password, photoByte)
             userRepository.saveUserInfo{
-                _loginState.value = LoginState(success = true, user = user)
+                viewModelScope.launch {
+                    _loginState.value = LoginState(success = true, user = user)
+                }
             }
         }catch (e : Exception){
             when (e) {
@@ -63,9 +77,12 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
         }
     }
 
-    fun saveUserData() = viewModelScope.launch {
+    fun saveUserData(isFromGoogle : Boolean) = viewModelScope.launch {
+        configRepository.loggedWithGoogle(isFromGoogle)
         userRepository.saveUserInfo{
-            _localSaveState.value = true
+            viewModelScope.launch {
+                _localSaveState.value = true
+            }
         }
     }
 

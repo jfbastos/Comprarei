@@ -1,5 +1,6 @@
 package br.com.zamfir.comprarei.view.fragments
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
@@ -13,12 +14,14 @@ import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentProfileBinding
 import br.com.zamfir.comprarei.util.isVisible
+import br.com.zamfir.comprarei.view.activity.DeleteAccountActivity
 import br.com.zamfir.comprarei.view.listeners.PhotoSelectedListener
 import br.com.zamfir.comprarei.view.listeners.PhotopickerListener
 import br.com.zamfir.comprarei.viewmodel.ProfileViewModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.ByteArrayOutputStream
 
@@ -66,6 +69,10 @@ class ProfileFragment : Fragment() {
             PhotopickerListener.photopickerListener.onPhotoClicked()
         }
 
+        binding.btnDeleteAccount.setOnClickListener {
+            requireActivity().startActivity(Intent(requireActivity(), DeleteAccountActivity::class.java))
+        }
+
         binding.btnSalvar.setOnClickListener {
             var photoByte : ByteArray? = null
 
@@ -78,7 +85,7 @@ class ProfileFragment : Fragment() {
                 photoByte = baos.toByteArray()
             }
 
-            profileViewModel.salvarInfos(
+            profileViewModel.saveInfos(
                 photo = photoByte,
                 profileName = binding.user.text.takeIf { it != null }?.toString() ?: "",
                 currentPassword = binding.currentPassword.text.takeIf { it != null }?.toString() ?: "",

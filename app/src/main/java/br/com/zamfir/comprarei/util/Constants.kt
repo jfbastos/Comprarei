@@ -12,6 +12,8 @@ class Constants {
         const val MAX_DATE_VALID = "31/12/2050"
         const val CART_ID_KEY = "cartId"
         const val CART_NAME_KEY = "cartName"
+        const val USER_KEY = "USER_KEY"
+        const val PASSWORD_KEY = "PASSWORD_KEY"
 
         const val FILTER_NAME = "Name"
         const val FILTER_DATE = "Date"
@@ -26,5 +28,8 @@ class Constants {
         const val OPERATOR_LESS_THAN = "Less"
         const val OPERATOR_GRATER_THAN = "Greater"
         const val OPERATOR_RANGE = "Range"
+
+        const val SHARED_LOGIN_GOOGLE_KEY = "LOGIN_WITH_GOOGLE"
+
     }
 }
