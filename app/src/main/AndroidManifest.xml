@@ -12,15 +12,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Starting">
         <activity
+            android:name=".view.activity.CrashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Comprarei"/>
+        <activity
             android:name=".view.activity.LoginActivity"
-            android:theme="@style/Theme.Comprarei"
-            android:exported="true">
-        </activity>
+            android:exported="true"
+            android:theme="@style/Theme.Comprarei"/>
         <activity
             android:name=".view.activity.DeleteAccountActivity"
-            android:theme="@style/Theme.Comprarei"
-            android:exported="true">
-        </activity>
+            android:exported="true"
+            android:theme="@style/Theme.Comprarei"/>
         <activity
             android:name=".view.activity.MainActivity"
             android:exported="true"

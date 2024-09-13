@@ -45,7 +45,6 @@ class FirestoreRepository(private val context : Context, private val appDatabase
     private val auth = Firebase.auth
     private val firestore = Firebase.firestore
 
-
     @Throws
     suspend fun saveCarts() = withContext(dispatcher){
         //validate auth

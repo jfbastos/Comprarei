@@ -16,6 +16,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.ActivityMainBinding
+import br.com.zamfir.comprarei.util.CrashHandler
 import br.com.zamfir.comprarei.view.listeners.PhotoSelectedListener
 import br.com.zamfir.comprarei.view.listeners.PhotopickerListener
 import br.com.zamfir.comprarei.viewmodel.LoginViewModel
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         installSplashScreen().apply {
             loginViewModel.hasLoggedUser()
         }
