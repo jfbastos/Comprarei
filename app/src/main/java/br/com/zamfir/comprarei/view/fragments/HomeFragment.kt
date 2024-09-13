@@ -88,9 +88,6 @@ class HomeFragment : Fragment(), BaseFragment {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        throw RuntimeException("BOOM")
-
-
         setupMenuItems()
         setupAdapter()
         setupItemMoveHandler()
