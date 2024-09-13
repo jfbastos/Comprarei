@@ -141,5 +141,9 @@
     <string name="can_t_get_products_registers">Não é possível obter os produtos.</string>
     <string name="can_t_get_categories_registers">Não é possível obter as categorias.</string>
     <string name="something_went_wrong_on_document_creation">Algo deu errado na criação dos documentos na núvem.</string>
+    <string name="ops_something_went_wrong">Ops... algo deu errado!</string>
+    <string name="exception_screen_message">Tivemos um erro inexperado. Os detalhes foram enviados para nosso time e iremos arruma-lo o mais rápido possível. Pedimos desculpas pelo inconveniente.</string>
+    <string name="restart_comprarei">Reiniciar o Comprarei</string>
+    <string name="details">Detalhes</string>
 
 </resources>
