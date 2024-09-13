@@ -4,10 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.zamfir.comprarei.di.viewModelModule
 import br.com.zamfir.comprarei.repositories.ConfigRepository
-import br.com.zamfir.comprarei.repositories.UserRepository
 import br.com.zamfir.comprarei.repositories.FirestoreRepository
+import br.com.zamfir.comprarei.repositories.UserRepository
 import br.com.zamfir.comprarei.util.exceptions.InvalidLogin
 import br.com.zamfir.comprarei.util.exceptions.InvalidPassword
 import br.com.zamfir.comprarei.util.exceptions.UserAlreadyExists

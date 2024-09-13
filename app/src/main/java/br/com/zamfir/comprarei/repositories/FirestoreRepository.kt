@@ -7,11 +7,15 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
+import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.model.AppDatabase
 import br.com.zamfir.comprarei.model.entity.Cart
 import br.com.zamfir.comprarei.model.entity.Category
 import br.com.zamfir.comprarei.model.entity.Product
 import br.com.zamfir.comprarei.model.mappers.FirebaseMapper
+import br.com.zamfir.comprarei.util.Constants
+import br.com.zamfir.comprarei.util.exceptions.FirestoreDocumentCreationException
+import br.com.zamfir.comprarei.util.exceptions.FirestoreLoadRegistersException
 import br.com.zamfir.comprarei.worker.BackupWorker
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.CollectionReference
@@ -41,17 +45,18 @@ class FirestoreRepository(private val context : Context, private val appDatabase
     private val auth = Firebase.auth
     private val firestore = Firebase.firestore
 
+
     @Throws
     suspend fun saveCarts() = withContext(dispatcher){
         //validate auth
         if(auth.currentUser == null) return@withContext
-        val docRef = firestore.collection(auth.uid!!).document("user_data")
+        val docRef = firestore.collection(auth.uid!!).document(Constants.FIRESTORE_DOCUMENT_PATH)
 
         createUserDataIfNotExists(docRef){ docRefException ->
             CoroutineScope(dispatcher).launch(CoroutineExceptionHandler{ _, throwable ->
                throw throwable
             }) {
-                val collectionRef = docRef.collection("Carts")
+                val collectionRef = docRef.collection(Constants.FIRESTORE_CARTS_DOCUMENT_PATH)
                 if(docRefException != null){
                     throw docRefException
                 }else{
@@ -90,13 +95,13 @@ class FirestoreRepository(private val context : Context, private val appDatabase
     suspend fun saveProducts() = withContext(dispatcher){
         //validate auth
         if(auth.currentUser == null) return@withContext
-        val docRef = firestore.collection(auth.uid!!).document("user_data")
+        val docRef = firestore.collection(auth.uid!!).document(Constants.FIRESTORE_DOCUMENT_PATH)
 
         createUserDataIfNotExists(docRef){ docRefException ->
             CoroutineScope(dispatcher).launch(CoroutineExceptionHandler{ _, throwable ->
                 throw throwable
             }) {
-                val collectionRef = docRef.collection("Products")
+                val collectionRef = docRef.collection(Constants.FIRESTORE_PRODUCTS_DOCUMENT_PATH)
                 if(docRefException != null){
                     throw docRefException
                 }else{
@@ -135,13 +140,13 @@ class FirestoreRepository(private val context : Context, private val appDatabase
     suspend fun saveCategories() = withContext(dispatcher){
         //validate auth
         if(auth.currentUser == null) return@withContext
-        val docRef = firestore.collection(auth.uid!!).document("user_data")
+        val docRef = firestore.collection(auth.uid!!).document(Constants.FIRESTORE_DOCUMENT_PATH)
 
         createUserDataIfNotExists(docRef){ docRefException ->
             CoroutineScope(dispatcher).launch(CoroutineExceptionHandler{ _, throwable ->
                 throw throwable
             }) {
-                val collectionRef = docRef.collection("Categories")
+                val collectionRef = docRef.collection(Constants.FIRESTORE_CATEGORIES_DOCUMENT_PATH)
                 if(docRefException != null){
                     throw docRefException
                 }else{
@@ -178,7 +183,7 @@ class FirestoreRepository(private val context : Context, private val appDatabase
 
     suspend fun obterDadosDoUsuario(callback : () -> Unit) = withContext(dispatcher){
         if(auth.currentUser == null) return@withContext
-        val docRef = firestore.collection(auth.uid!!).document("user_data")
+        val docRef = firestore.collection(auth.uid!!).document(Constants.FIRESTORE_DOCUMENT_PATH)
 
         val handler = CoroutineExceptionHandler{ _, throwable ->
             throw throwable
@@ -187,15 +192,15 @@ class FirestoreRepository(private val context : Context, private val appDatabase
         createUserDataIfNotExists(docRef){ docRefException ->
             CoroutineScope(Dispatchers.IO).launch(handler) {
                 if(docRefException != null) throw docRefException
-                docRef.collection("Carts").get().await().documents.map { FirebaseMapper.cartDocumentToEntity(it.data) }.also {
+                docRef.collection(Constants.FIRESTORE_CARTS_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.cartDocumentToEntity(it.data) }.also {
                     appDatabase.CartDao().insertAll(it)
                 }
 
-                docRef.collection("Products").get().await().documents.map { FirebaseMapper.productDocumentToEntity(it.data) }.also {
+                docRef.collection(Constants.FIRESTORE_PRODUCTS_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.productDocumentToEntity(it.data) }.also {
                     appDatabase.ProductDao().insertAll(it)
                 }
 
-                docRef.collection("Categories").get().await().documents.map { FirebaseMapper.categoryDocumentToEntity(it.data) }.also {
+                docRef.collection(Constants.FIRESTORE_CATEGORIES_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.categoryDocumentToEntity(it.data) }.also {
                     appDatabase.CategoryDao().insertAll(it)
                 }
                 callback.invoke()
@@ -204,7 +209,7 @@ class FirestoreRepository(private val context : Context, private val appDatabase
     }
 
     private suspend fun getCartsFirestore(collection : CollectionReference,callBack : (List<Cart>, Exception?) -> Unit) = withContext(dispatcher){
-        if(auth.currentUser == null) callBack.invoke(listOf(), RuntimeException("Sem usuário logado"))
+        if(auth.currentUser == null) callBack.invoke(listOf(), RuntimeException(context.getString(R.string.no_user_logged)))
 
         collection.get().addOnCompleteListener { documents ->
                 if(documents.isSuccessful){
@@ -216,13 +221,13 @@ class FirestoreRepository(private val context : Context, private val appDatabase
                 }
 
                 if(!documents.isSuccessful){
-                    callBack.invoke(listOf(), RuntimeException("Não foi possível obter os registros"))
+                    callBack.invoke(listOf(), FirestoreLoadRegistersException(context.getString(R.string.can_t_get_carts_registers)))
                 }
         }
     }
 
     private suspend fun getProductsFirestore(collection : CollectionReference,callBack : (List<Product>, Exception?) -> Unit) = withContext(dispatcher){
-        if(auth.currentUser == null) callBack.invoke(listOf(), RuntimeException("Sem usuário logado"))
+        if(auth.currentUser == null) callBack.invoke(listOf(), RuntimeException(context.getString(R.string.no_user_logged)))
 
         collection.get().addOnCompleteListener { documents ->
             if(documents.isSuccessful){
@@ -234,13 +239,13 @@ class FirestoreRepository(private val context : Context, private val appDatabase
             }
 
             if(!documents.isSuccessful){
-                callBack.invoke(listOf(), RuntimeException("Não foi possível obter os registros"))
+                callBack.invoke(listOf(), FirestoreLoadRegistersException(context.getString(R.string.can_t_get_products_registers)))
             }
         }
     }
 
     private suspend fun getCategoryFirestore(collection : CollectionReference,callBack : (List<Category>, Exception?) -> Unit) = withContext(dispatcher){
-        if(auth.currentUser == null) callBack.invoke(listOf(), RuntimeException("Sem usuário logado"))
+        if(auth.currentUser == null) callBack.invoke(listOf(), RuntimeException(context.getString(R.string.no_user_logged)))
 
         collection.get().addOnCompleteListener { documents ->
             if(documents.isSuccessful){
@@ -252,7 +257,7 @@ class FirestoreRepository(private val context : Context, private val appDatabase
             }
 
             if(!documents.isSuccessful){
-                callBack.invoke(listOf(), RuntimeException("Não foi possível obter os registros"))
+                callBack.invoke(listOf(),  FirestoreLoadRegistersException(context.getString(R.string.can_t_get_categories_registers)))
             }
         }
     }
@@ -265,14 +270,14 @@ class FirestoreRepository(private val context : Context, private val appDatabase
                     if(!document.exists()){
                         docRef.set(hashMapOf("userId" to auth.currentUser!!.uid)).addOnCompleteListener {
                             if(it.isSuccessful) callback.invoke(null)
-                            else callback.invoke(if(it.exception != null) it.exception else RuntimeException("Houve uma falha ao criar o arquivo."))
+                            else callback.invoke(if(it.exception != null) it.exception else FirestoreDocumentCreationException(context.getString(R.string.something_went_wrong_on_document_creation)))
                         }
                     }else{
                         callback.invoke(null)
                     }
                 }
             } else {
-                callback.invoke(if(task.exception != null) task.exception else RuntimeException("Houve uma falha ao criar o arquivo."))
+                callback.invoke(if(task.exception != null) task.exception else FirestoreDocumentCreationException(context.getString(R.string.something_went_wrong_on_document_creation)))
             }
         }
     }

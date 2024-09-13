@@ -508,4 +508,9 @@ class ProductsFragment : Fragment(), BaseFragment {
             }
         }
     }
+
+    override fun onDestroy() {
+        _binding = null
+        super.onDestroy()
+    }
 }

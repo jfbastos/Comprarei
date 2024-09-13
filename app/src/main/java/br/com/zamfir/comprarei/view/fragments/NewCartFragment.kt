@@ -169,9 +169,9 @@ class NewCartFragment() : DialogFragment() {
         }
     }
 
-    override fun onDetach() {
-        super.onDetach()
+    override fun onDestroy() {
         _binding = null
+        super.onDestroy()
     }
 }
 

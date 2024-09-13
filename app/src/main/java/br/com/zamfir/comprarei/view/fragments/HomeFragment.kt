@@ -544,4 +544,9 @@ class HomeFragment : Fragment(), BaseFragment {
             }
         }
     }
+
+    override fun onDestroy() {
+        _binding = null
+        super.onDestroy()
+    }
 }

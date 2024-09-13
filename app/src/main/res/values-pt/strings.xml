@@ -127,5 +127,19 @@
     <string name="wrong_user_or_password">Usuário ou senha inválidos.</string>
     <string name="re_autenticate">Reautenticar</string>
     <string name="re_autentication_offline">Para reautenticar, você precisa ter conexão com a internet.</string>
+    <string name="msg_exp_user_password_invalid">Usuário ou senha inválidos.</string>
+    <string name="msg_exp_upload_profile_picture_failed">Tivemos um problema ao salvar sua foto de perfil.</string>
+    <string name="user_already_exists">Usuário já existente.</string>
+    <string name="password_not_meet_minimum_requirement">A senha não atinge os requisitos mínimos.</string>
+    <string name="failed_to_retrieve_profile_picture">Falha ao obter foto do perfil.</string>
+    <string name="no_user_logged">Sem usuário logado.</string>
+    <string name="failed_to_save_user_but_exception_don_t_have_message">Falha ao salvar usuário, porém exception sem mensagem.</string>
+    <string name="your_current_password_is_incorrect">A senha atual está incorreta.</string>
+    <string name="something_went_wrong_on_updating_profile_picture">Falha ao atualizar foto de perfil.</string>
+    <string name="failed_to_download_profile_picture">Falha ao realizar o download da foto de perfil.</string>
+    <string name="can_t_get_carts_registers">Não é possível obter os carrinhos.</string>
+    <string name="can_t_get_products_registers">Não é possível obter os produtos.</string>
+    <string name="can_t_get_categories_registers">Não é possível obter as categorias.</string>
+    <string name="something_went_wrong_on_document_creation">Algo deu errado na criação dos documentos na núvem.</string>
 
 </resources>

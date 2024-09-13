@@ -1,6 +1,5 @@
 package br.com.zamfir.comprarei.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -41,9 +40,6 @@ class CartViewModel(private val repository: CartRepository, private val products
 
     fun updateAllData() = viewModelScope.launch {
         _cartsState.value = CartsState(loading = true)
-/*        firestoreRepository.saveCarts()
-        firestoreRepository.saveProducts()
-        firestoreRepository.saveCategories()*/
 
         val carts = repository.getCarts().onEach {
             it.category = repository.getCategoryById(it.categoryId)
@@ -114,7 +110,7 @@ class CartViewModel(private val repository: CartRepository, private val products
     }
 
     private fun compareDate(cartDate: String, byDate: ByDate) : Boolean{
-        val localCartDate = LocalDate.parse(cartDate, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+        val localCartDate = LocalDate.parse(cartDate, DateTimeFormatter.ofPattern(Constants.DATE_PATTERN))
 
         return (localCartDate > byDate.startDate && localCartDate < byDate.endDate) || (localCartDate == byDate.startDate || localCartDate == byDate.endDate)
     }

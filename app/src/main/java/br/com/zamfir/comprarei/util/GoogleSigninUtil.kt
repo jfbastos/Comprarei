@@ -46,8 +46,7 @@ class GoogleSigninUtil(private val callingActivity : Activity) {
     }
 
     private fun signInWithGoogle(idToken: String?) {
-        val firebaseCredential =
-            GoogleAuthProvider.getCredential(idToken, null)
+        val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(firebaseCredential)
             .addOnCompleteListener(callingActivity) { task ->
                 if (task.isSuccessful) {

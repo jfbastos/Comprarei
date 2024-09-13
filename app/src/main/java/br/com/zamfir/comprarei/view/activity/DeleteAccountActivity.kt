@@ -199,4 +199,9 @@ class DeleteAccountActivity : AppCompatActivity() {
 
         return true
     }
+
+    override fun onDestroy() {
+        _binding = null
+        super.onDestroy()
+    }
 }

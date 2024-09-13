@@ -102,4 +102,9 @@ class ConfigurationFragment : Fragment() {
     private fun voltarTela(){
         findNavController().popBackStack(R.id.homeFragment, false)
     }
+
+    override fun onDestroy() {
+        _binding = null
+        super.onDestroy()
+    }
 }

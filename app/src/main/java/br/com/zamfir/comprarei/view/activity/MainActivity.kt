@@ -83,4 +83,9 @@ class MainActivity : AppCompatActivity() {
             ExistingPeriodicWorkPolicy.KEEP, periodicWorker
         )
     }
+
+    override fun onDestroy() {
+        _binding = null
+        super.onDestroy()
+    }
 }

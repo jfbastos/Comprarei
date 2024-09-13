@@ -1,7 +1,8 @@
 package br.com.zamfir.comprarei.util
 
 class Constants {
-    companion object{
+    companion object {
+
         const val DATABASE_NAME = "comprarei_db"
         const val IO_DISPATCHER = "IODispacher"
         const val SORT_TAG = "BOTTOMSHEET"
@@ -14,6 +15,7 @@ class Constants {
         const val CART_NAME_KEY = "cartName"
         const val USER_KEY = "USER_KEY"
         const val PASSWORD_KEY = "PASSWORD_KEY"
+        const val EMPTY_STRING = ""
 
         const val FILTER_NAME = "Name"
         const val FILTER_DATE = "Date"
@@ -30,6 +32,15 @@ class Constants {
         const val OPERATOR_RANGE = "Range"
 
         const val SHARED_LOGIN_GOOGLE_KEY = "LOGIN_WITH_GOOGLE"
+
+        const val FIRESTORE_STORAGE_NAME = "profilePictures"
+        const val FIRESTORE_PROFILE_PICTURE_NAME = "profilePicture.jpg"
+        const val PROFILE_PICTURE_DEFAULT_NAME = "profilePhoto_"
+        const val PROFILE_PICTURE_DEFAULT_EXTENSION = ".jpg"
+        const val FIRESTORE_DOCUMENT_PATH = "user_data"
+        const val FIRESTORE_CARTS_DOCUMENT_PATH = "Carts"
+        const val FIRESTORE_PRODUCTS_DOCUMENT_PATH = "Products"
+        const val FIRESTORE_CATEGORIES_DOCUMENT_PATH = "Categories"
 
     }
 }

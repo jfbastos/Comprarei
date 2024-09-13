@@ -61,4 +61,9 @@ class ForgotPasswordDialog :  BottomSheetDialogFragment() {
 
         return true
     }
+
+    override fun onDestroy() {
+        _binding = null
+        super.onDestroy()
+    }
 }

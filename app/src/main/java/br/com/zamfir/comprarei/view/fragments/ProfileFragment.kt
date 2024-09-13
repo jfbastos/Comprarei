@@ -133,4 +133,9 @@ class ProfileFragment : Fragment() {
     private fun voltar() {
         findNavController().popBackStack(R.id.configuracaoFragment, false)
     }
+
+    override fun onDestroy() {
+        _binding = null
+        super.onDestroy()
+    }
 }

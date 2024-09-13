@@ -211,4 +211,9 @@ class NewProductFragment : BottomSheetDialogFragment() {
             bottomSheetFragment.show(parentFragmentManager, "BOTTOMNEWPRODUCT")
         }
     }
+
+    override fun onDestroy() {
+        _binding = null
+        super.onDestroy()
+    }
 }

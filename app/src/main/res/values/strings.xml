@@ -143,5 +143,19 @@
     <string name="wrong_user_or_password">Wrong user or password.</string>
     <string name="re_autenticate">Re-autenticate</string>
     <string name="re_autentication_offline">To re-autenticate user, you must have internet connection.</string>
+    <string name="msg_exp_user_password_invalid">Invalid user or password.</string>
+    <string name="msg_exp_upload_profile_picture_failed">We have some problem uploading profile picture.</string>
+    <string name="user_already_exists">User already exists.</string>
+    <string name="password_not_meet_minimum_requirement">Password not meet minimum requirement.</string>
+    <string name="failed_to_retrieve_profile_picture">Failed to retrieve profile picture</string>
+    <string name="no_user_logged">No user logged.</string>
+    <string name="failed_to_save_user_but_exception_don_t_have_message">Failed to save user but exception don\'t have message.</string>
+    <string name="your_current_password_is_incorrect">Your current password is incorrect.</string>
+    <string name="something_went_wrong_on_updating_profile_picture">Something went wrong on updating profile picture.</string>
+    <string name="failed_to_download_profile_picture">Failed to download profile picture.</string>
+    <string name="can_t_get_carts_registers">Can\'t get carts registers.</string>
+    <string name="can_t_get_products_registers">Can\'t get products registers.</string>
+    <string name="can_t_get_categories_registers">Can\'t get categories registers.</string>
+    <string name="something_went_wrong_on_document_creation">"Something went wrong on cloud document creation "</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>
