@@ -35,15 +35,13 @@ class ConfigViewModel(
         val isToShowCartTotal = configRepository.getIsToShowTotalCart()
         val userName = userRepository.getUserName()
 
-        userRepository.getUserProfilePicture{ profilePictureUri ->
-            _configData.value = ConfigState(
-                dateLastBackup = lastTimeBackup,
-                isToMoveItensToBottom = isToMoveItensToBottom,
-                isToShowCartTotal = isToShowCartTotal,
-                userName = userName,
-                userProfilePicture = profilePictureUri
-            )
-        }
+        _configData.value = ConfigState(
+            dateLastBackup = lastTimeBackup,
+            isToMoveItensToBottom = isToMoveItensToBottom,
+            isToShowCartTotal = isToShowCartTotal,
+            userName = userName,
+            userProfilePicture = userRepository.getUserProfilePicture()
+        )
     }
 
 

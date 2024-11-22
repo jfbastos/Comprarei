@@ -5,10 +5,17 @@
         android:checkableBehavior="single">
 
         <item
-            android:id="@+id/categories"
+            android:id="@+id/categories_navigation"
             android:title="@string/categories"
             android:icon="@drawable/category_icon_24"
             android:iconTint="@color/secundary_green_transparent"
             android:checked="true"/>
+
+
+        <item
+            android:id="@+id/configuration_navigation"
+            android:title="@string/configuration"
+            android:icon="@drawable/baseline_settings_24"
+            android:iconTint="@color/secundary_green_transparent"/>
     </group>
 </menu>

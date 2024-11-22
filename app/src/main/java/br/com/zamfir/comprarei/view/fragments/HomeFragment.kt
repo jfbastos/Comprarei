@@ -17,6 +17,7 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -29,6 +30,7 @@ import br.com.zamfir.comprarei.databinding.FragmentHomeBinding
 import br.com.zamfir.comprarei.model.entity.Cart
 import br.com.zamfir.comprarei.model.entity.Category
 import br.com.zamfir.comprarei.model.entity.Filter
+import br.com.zamfir.comprarei.model.entity.UserInfo
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.isVisible
 import br.com.zamfir.comprarei.view.activity.LoginActivity
@@ -41,10 +43,14 @@ import br.com.zamfir.comprarei.viewmodel.CartViewModel
 import br.com.zamfir.comprarei.viewmodel.CategoryViewModel
 import br.com.zamfir.comprarei.viewmodel.LoginViewModel
 import br.com.zamfir.comprarei.viewmodel.states.CartsState
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.google.android.material.imageview.ShapeableImageView
 import com.kevincodes.recyclerview.ItemDecorator
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.Collections
+import kotlin.math.log
 
 class HomeFragment : Fragment(), BaseFragment {
     private var _binding: FragmentHomeBinding? = null
@@ -55,9 +61,7 @@ class HomeFragment : Fragment(), BaseFragment {
     private lateinit var sortMenu: MenuItem
     private lateinit var searchMenu: MenuItem
     private lateinit var selectAllMenu : MenuItem
-    private lateinit var categories : MenuItem
     private lateinit var deleteManyMenu : MenuItem
-    private lateinit var configurationMenu : MenuItem
     private var originalList: MutableList<Cart> = mutableListOf()
     private var categoriesList : MutableList<Category> = mutableListOf()
     private var selectionMode = false
@@ -95,6 +99,48 @@ class HomeFragment : Fragment(), BaseFragment {
         setupListeners()
 
         viewModel.updateAllData()
+
+        binding.drawerLayout.close()
+
+    }
+
+    private fun setupNavigationDrawer(loggedUser : UserInfo?){
+        binding.navigationDrawer.getHeaderView(0).apply {
+            val userNameView = findViewById<TextView>(R.id.user_name_navigation)
+            val userEmailView = findViewById<TextView>(R.id.user_email_navigation)
+            val userProfileView = findViewById<ShapeableImageView>(R.id.profile_picture_navigation)
+
+            userNameView.text = loggedUser?.name ?: "Olá"
+            userEmailView.text = loggedUser?.email ?: "Bem-Vindo"
+            Glide.with(requireContext())
+                .load(loggedUser?.profilePicture)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .centerCrop()
+                .into(userProfileView)
+        }
+
+
+        binding.toolbar.setNavigationOnClickListener {
+            binding.drawerLayout.open()
+        }
+
+        binding.navigationDrawer.setNavigationItemSelectedListener { menuItem ->
+            when(menuItem){
+                binding.navigationDrawer.menu.findItem(R.id.categories_navigation) -> {
+                    findNavController().navigate(R.id.action_homeFragment_to_categoryFragment)
+                    menuItem.isChecked = true
+                    binding.drawerLayout.close()
+                    true
+                }
+                binding.navigationDrawer.menu.findItem(R.id.configuration_navigation) -> {
+                    findNavController().navigate(R.id.action_homeFragment_to_configuracaoFragment)
+                    menuItem.isChecked = true
+                    binding.drawerLayout.close()
+                    true
+                }
+                else -> true
+            }
+        }
     }
 
     private fun setupListeners() {
@@ -106,20 +152,7 @@ class HomeFragment : Fragment(), BaseFragment {
             }
         }
 
-        binding.expandFab.setOnClickListener {
-            toggleExpandedFab()
-        }
-
-        binding.addCategory.setOnClickListener {
-            binding.expandFab.performClick()
-            NewCategoryDialog(categoriesList) { newCategory, _ ->
-                categoryViewModel.saveCategory(newCategory)
-                categoriesList.add(newCategory)
-            }.show(parentFragmentManager, "")
-        }
-
-        binding.addCart.setOnClickListener {
-            binding.expandFab.performClick()
+        binding.newCart.setOnClickListener {
             val lastKnownPosition = originalList.takeIf { it.isNotEmpty() }?.maxOf { it.position }?.plus(1) ?: 0
             NewCartFragment(lastKnownPosition, categoriesList) { cart ->
                 saveNewCart(cart)
@@ -134,37 +167,6 @@ class HomeFragment : Fragment(), BaseFragment {
             changeSelectState()
             false
         }
-    }
-
-    private fun toggleExpandedFab() {
-        fabExapanded = !fabExapanded
-        animationToggleFab()
-    }
-
-    private fun animationToggleFab() {
-        if (fabExapanded) {
-            animationOpen()
-        } else {
-            animationClose()
-        }
-    }
-
-    private fun animationOpen() {
-        binding.addCart.startAnimation(fromBottomAnimation)
-        binding.addCategory.startAnimation(fromBottomAnimation)
-        binding.expandFab.startAnimation(rotateOpenAnimation)
-        binding.expandFab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.gray, null))
-        binding.addCart.isVisible(fabExapanded)
-        binding.addCategory.isVisible(fabExapanded)
-    }
-
-    private fun animationClose() {
-        binding.addCart.startAnimation(toBottomAnimation)
-        binding.addCategory.startAnimation(toBottomAnimation)
-        binding.expandFab.startAnimation(rotateCloseAnimation)
-        binding.expandFab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.primary_green, null))
-        binding.addCart.isVisible(fabExapanded)
-        binding.addCategory.isVisible(fabExapanded)
     }
 
     private fun setupObservables() {
@@ -274,16 +276,9 @@ class HomeFragment : Fragment(), BaseFragment {
         cancelActionMenu = binding.toolbar.menu.findItem(R.id.cancel_action)
         searchMenu = binding.toolbar.menu.findItem(R.id.search_menu)
         sortMenu = binding.toolbar.menu.findItem(R.id.sort_menu)
-        categories = binding.toolbar.menu.findItem(R.id.categories_menu)
         selectAllMenu = binding.toolbar.menu.findItem(R.id.select_all)
         deleteManyMenu = binding.toolbar.menu.findItem(R.id.delete_menu)
-        configurationMenu = binding.toolbar.menu.findItem(R.id.configuracao_menu)
 
-        configurationMenu.setOnMenuItemClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_configuracaoFragment)
-
-           true
-        }
 
         searchMenu.setOnMenuItemClickListener {
             doSearch()
@@ -291,11 +286,6 @@ class HomeFragment : Fragment(), BaseFragment {
 
         sortMenu.setOnMenuItemClickListener {
             sortList()
-        }
-
-        categories.setOnMenuItemClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_categoryFragment)
-            true
         }
 
         cancelActionMenu.setOnMenuItemClickListener {
@@ -422,14 +412,13 @@ class HomeFragment : Fragment(), BaseFragment {
 
     private fun changeSelectState() {
         selectionMode = !selectionMode
-        binding.expandFab.isVisible(!selectionMode)
+        binding.newCart.isVisible(!selectionMode)
         binding.deleteSelection.isVisible(selectionMode)
 
         selectAllMenu.isVisible = selectionMode
         cancelActionMenu.isVisible = selectionMode
 
         deleteManyMenu.isVisible = !selectionMode
-        categories.isVisible = !selectionMode
         sortMenu.isVisible = !selectionMode
 
         binding.toolbar.title = if(selectionMode) getString(R.string.select_items) else getString(R.string.app_name)
@@ -475,11 +464,12 @@ class HomeFragment : Fragment(), BaseFragment {
 
     private fun showLoading(infoState: CartsState){
         binding.cartsRv.isVisible(!infoState.loading)
-        binding.expandFab.isVisible(!infoState.loading)
+        binding.newCart.isVisible(!infoState.loading)
         binding.loading.isVisible(infoState.loading)
 
         if(!infoState.loading){
             showCartsItems(infoState.carts, infoState.isShowTotal)
+            setupNavigationDrawer(infoState.loggedUser)
             categoriesList.clear()
             categoriesList.addAll(infoState.categories)
         }

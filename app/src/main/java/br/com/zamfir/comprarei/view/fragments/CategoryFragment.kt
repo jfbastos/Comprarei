@@ -165,11 +165,6 @@ class CategoryFragment : Fragment() {
             this.isVisible = false
         }
 
-        binding.toolbar.menu.findItem(R.id.categories_menu).apply {
-            setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
-            this.isVisible = false
-        }
-
         searchMenu = binding.toolbar.menu.findItem(R.id.search_menu)
 
         searchMenu.setOnMenuItemClickListener {

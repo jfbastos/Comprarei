@@ -1,121 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:openDrawer="start"
     tools:context=".view.fragments.HomeFragment">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="0dp"
+   <androidx.coordinatorlayout.widget.CoordinatorLayout
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:fitsSystemWindows="true">
+
+       <androidx.constraintlayout.widget.ConstraintLayout
+           android:layout_width="match_parent"
+           android:layout_height="match_parent">
+
+           <com.google.android.material.appbar.MaterialToolbar
+               android:id="@+id/toolbar"
+               android:layout_width="match_parent"
+               android:layout_height="?attr/actionBarSize"
+               android:background="?attr/colorPrimary"
+               android:elevation="0dp"
+               app:navigationIcon="@drawable/baseline_menu_24"
+               app:layout_constraintTop_toTopOf="parent"
+               app:layout_constraintEnd_toEndOf="parent"
+               app:layout_constraintStart_toStartOf="parent"
+               app:menu="@menu/menu"
+               app:title="@string/app_name"
+               app:titleTextColor="@color/white" />
+
+           <com.google.android.material.textfield.TextInputLayout
+               android:id="@+id/search_view"
+               style="@style/MyInputTextStyle"
+               app:boxCornerRadiusBottomEnd="20dp"
+               app:boxCornerRadiusBottomStart="20dp"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:layout_marginHorizontal="4dp"
+               app:endIconMode="clear_text"
+               tools:hint="Search"
+               android:visibility="gone"
+               tools:visibility="visible"
+               app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+               <com.google.android.material.textfield.TextInputEditText
+                   android:id="@+id/search_text"
+                   android:imeOptions="actionNone"
+                   android:singleLine="true"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"/>
+           </com.google.android.material.textfield.TextInputLayout>
+
+           <androidx.recyclerview.widget.RecyclerView
+               android:id="@+id/cartsRv"
+               android:layout_width="match_parent"
+               android:layout_height="0dp"
+               android:visibility="visible"
+               app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+               app:layout_constraintBottom_toBottomOf="parent"
+               app:layout_constraintTop_toBottomOf="@id/search_view"
+               tools:listitem="@layout/cart_item" />
+
+           <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+               android:id="@+id/new_cart"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_margin="16dp"
+               android:visibility="visible"
+               android:text="New Cart"
+               android:textAllCaps="false"
+               android:textColor="@color/white"
+               app:iconTint="@color/white"
+               app:icon="@drawable/baseline_shopping_cart_24"
+               app:layout_constraintEnd_toEndOf="parent"
+               app:layout_constraintBottom_toBottomOf="parent"/>
+
+           <com.google.android.material.floatingactionbutton.FloatingActionButton
+               android:id="@+id/delete_selection"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_margin="16dp"
+               android:src="@drawable/ic_delete_24"
+               android:visibility="gone"
+               app:layout_constraintBottom_toBottomOf="parent"
+               app:layout_constraintEnd_toEndOf="parent"
+               app:tint="@color/white" />
+
+           <include
+               android:id="@+id/emptyMessage_placeholder"
+               layout="@layout/empty_list"
+               android:visibility="gone" />
+
+           <ProgressBar
+               android:id="@+id/loading"
+               style="@style/Widget.MaterialComponents.CircularProgressIndicator"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:indeterminate="true"
+               android:visibility="gone"
+               app:layout_constraintBottom_toBottomOf="parent"
+               app:layout_constraintEnd_toEndOf="parent"
+               app:layout_constraintStart_toStartOf="parent"
+               app:layout_constraintTop_toBottomOf="@id/search_view" />
+
+       </androidx.constraintlayout.widget.ConstraintLayout>
+
+   </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigation_drawer"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:menu="@menu/navigation_options"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="false"
+        app:headerLayout="@layout/header_navigation_drawer"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/menu"
-        app:title="@string/app_name"
-        app:titleTextColor="@color/white" />
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/search_view"
-        style="@style/MyInputTextStyle"
-        app:boxCornerRadiusBottomEnd="20dp"
-        app:boxCornerRadiusBottomStart="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="4dp"
-        app:endIconMode="clear_text"
-        tools:hint="Search"
-        android:visibility="gone"
-        tools:visibility="visible"
-        app:layout_constraintTop_toBottomOf="@id/toolbar">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/search_text"
-            android:imeOptions="actionNone"
-            android:singleLine="true"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/cartsRv"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:visibility="visible"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_view"
-        tools:listitem="@layout/cart_item" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/expand_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_add"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:tint="@color/white" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addCart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="12dp"
-        android:src="@drawable/ic_new_list"
-        android:visibility="gone"
-        tools:visibility="visible"
-        app:layout_constraintStart_toStartOf="@id/expand_fab"
-        app:layout_constraintBottom_toTopOf="@id/expand_fab"
-        app:layout_constraintEnd_toEndOf="@id/expand_fab"
-        app:tint="@color/white" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_category"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="12dp"
-        android:src="@drawable/category_icon_24_white"
-        android:visibility="gone"
-        tools:visibility="visible"
-        app:layout_constraintStart_toStartOf="@id/addCart"
-        app:layout_constraintBottom_toTopOf="@id/addCart"
-        app:layout_constraintEnd_toEndOf="@id/addCart"
-        app:tint="@color/white" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/delete_selection"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_delete_24"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:tint="@color/white" />
-
-    <include
-        android:id="@+id/emptyMessage_placeholder"
-        layout="@layout/empty_list"
-        android:visibility="gone" />
-
-    <ProgressBar
-        android:id="@+id/loading"
-        style="@style/Widget.MaterialComponents.CircularProgressIndicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_view" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

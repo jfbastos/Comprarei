@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.zamfir.comprarei.repositories.ConfigRepository
 import br.com.zamfir.comprarei.repositories.UserRepository
 import br.com.zamfir.comprarei.viewmodel.states.ProfileState
 import kotlinx.coroutines.launch
@@ -22,10 +21,7 @@ class ProfileViewModel(private val userRespository: UserRepository) : ViewModel(
     val deleteUserException : LiveData<Exception?> get() = _deleteUserException
 
     fun getProfileInfos() = viewModelScope.launch {
-        val userName = userRespository.getUserName()
-        userRespository.getUserProfilePicture {
-            _profileState.value = ProfileState(userName, it)
-        }
+        _profileState.value = ProfileState(userRespository.getUserName(), userRespository.getUserProfilePicture())
     }
 
     fun saveInfos(
@@ -35,7 +31,8 @@ class ProfileViewModel(private val userRespository: UserRepository) : ViewModel(
         newPassword: String
     ) = viewModelScope.launch {
         try{
-            if(profileName.isNotBlank()) userRespository.updateUser(profileName)
+
+            if(profileName.isNotBlank()) userRespository.updateUser(profileName, currentPassword, newPassword, photo)
             if((currentPassword.isNotBlank() && newPassword.isNotBlank()) && currentPassword != newPassword) userRespository.updatePassword(currentPassword, newPassword)
             if(photo != null)  userRespository.updateProfilePicture(photo)
             _successfullySave.value = true

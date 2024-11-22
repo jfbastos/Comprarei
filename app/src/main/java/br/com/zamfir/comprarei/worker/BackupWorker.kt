@@ -22,8 +22,8 @@ class BackupWorker(context : Context, parameters: WorkerParameters) : CoroutineW
             firestoreRepository.saveCarts()
             firestoreRepository.saveProducts()
             firestoreRepository.saveCategories()
-            applicationContext.getSharedPreferences("shared", Context.MODE_PRIVATE).edit {
-                putString("last_backup", LocalDateTime.now().toString())
+            applicationContext.getSharedPreferences(applicationContext.getString(R.string.shared_file_name), Context.MODE_PRIVATE).edit {
+                putString(applicationContext.getString(R.string.last_backup_key), LocalDateTime.now().toString())
             }
             sendNotification("Backup", "Compras salvas com sucesso.")
             Result.success()

@@ -181,38 +181,65 @@ class FirestoreRepository(private val context : Context, private val appDatabase
     }
 
     suspend fun obterDadosDoUsuario(callback : () -> Unit) = withContext(dispatcher){
-        if(auth.currentUser == null) return@withContext
-        val docRef = firestore.collection(auth.uid!!).document(Constants.FIRESTORE_DOCUMENT_PATH)
+        try {
+            if(auth.currentUser == null) return@withContext
+            val docRef = firestore.collection(auth.uid!!).document(Constants.FIRESTORE_DOCUMENT_PATH)
 
-        val handler = CoroutineExceptionHandler{ _, throwable ->
-            throw throwable
-        }
-
-        createUserDataIfNotExists(docRef){ docRefException ->
-            CoroutineScope(Dispatchers.IO).launch(handler) {
-                if(docRefException != null) throw docRefException
-                docRef.collection(Constants.FIRESTORE_CARTS_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.cartDocumentToEntity(it.data) }.also {
-                    appDatabase.CartDao().insertAll(it)
-                }
-
-                docRef.collection(Constants.FIRESTORE_PRODUCTS_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.productDocumentToEntity(it.data) }.also {
-                    appDatabase.ProductDao().insertAll(it)
-                }
-
-                docRef.collection(Constants.FIRESTORE_CATEGORIES_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.categoryDocumentToEntity(it.data) }.also {
-                    appDatabase.CategoryDao().insertAll(it)
-                }
-                callback.invoke()
+            val handler = CoroutineExceptionHandler{ _, throwable ->
+                throw throwable
             }
+
+            createUserDataIfNotExists(docRef){ docRefException ->
+                CoroutineScope(Dispatchers.IO).launch(handler) {
+                    if(docRefException != null) throw docRefException
+                    docRef.collection(Constants.FIRESTORE_CARTS_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.cartDocumentToEntity(it.data) }.also {
+                        appDatabase.CartDao().insertAll(it)
+                    }
+
+                    docRef.collection(Constants.FIRESTORE_PRODUCTS_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.productDocumentToEntity(it.data) }.also {
+                        appDatabase.ProductDao().insertAll(it)
+                    }
+
+                    docRef.collection(Constants.FIRESTORE_CATEGORIES_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.categoryDocumentToEntity(it.data) }.also {
+                        appDatabase.CategoryDao().insertAll(it)
+                    }
+                    callback.invoke()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("DEBUG", "Erro no método obterDadosDoUsuario ${e.stackTraceToString()}")
         }
     }
 
     private suspend fun getCartsFirestore(collection : CollectionReference,callBack : (List<Cart>, Exception?) -> Unit) = withContext(dispatcher){
-        if(auth.currentUser == null) callBack.invoke(listOf(), RuntimeException(context.getString(R.string.no_user_logged)))
+        try {
+            if(auth.currentUser == null) callBack.invoke(listOf(), RuntimeException(context.getString(R.string.no_user_logged)))
 
-        collection.get().addOnCompleteListener { documents ->
+            collection.get().addOnCompleteListener { documents ->
+                    if(documents.isSuccessful){
+                        callBack.invoke(documents.result.documents.map { FirebaseMapper.cartDocumentToEntity(it.data)}, null)
+                    }
+
+                    if(documents.exception != null){
+                        callBack.invoke(listOf(), documents.exception)
+                    }
+
+                    if(!documents.isSuccessful){
+                        callBack.invoke(listOf(), FirestoreLoadRegistersException(context.getString(R.string.can_t_get_carts_registers)))
+                    }
+            }
+        } catch (e: Exception) {
+            Log.e("DEBUG", "Erro no método getCartsFirestore ${e.stackTraceToString()}")
+        }
+    }
+
+    private suspend fun getProductsFirestore(collection : CollectionReference,callBack : (List<Product>, Exception?) -> Unit) = withContext(dispatcher){
+        try {
+            if(auth.currentUser == null) callBack.invoke(listOf(), RuntimeException(context.getString(R.string.no_user_logged)))
+
+            collection.get().addOnCompleteListener { documents ->
                 if(documents.isSuccessful){
-                    callBack.invoke(documents.result.documents.map { FirebaseMapper.cartDocumentToEntity(it.data)}, null)
+                    callBack.invoke(documents.result.documents.map { FirebaseMapper.productDocumentToEntity(it.data)}, null)
                 }
 
                 if(documents.exception != null){
@@ -220,64 +247,57 @@ class FirestoreRepository(private val context : Context, private val appDatabase
                 }
 
                 if(!documents.isSuccessful){
-                    callBack.invoke(listOf(), FirestoreLoadRegistersException(context.getString(R.string.can_t_get_carts_registers)))
+                    callBack.invoke(listOf(), FirestoreLoadRegistersException(context.getString(R.string.can_t_get_products_registers)))
                 }
-        }
-    }
-
-    private suspend fun getProductsFirestore(collection : CollectionReference,callBack : (List<Product>, Exception?) -> Unit) = withContext(dispatcher){
-        if(auth.currentUser == null) callBack.invoke(listOf(), RuntimeException(context.getString(R.string.no_user_logged)))
-
-        collection.get().addOnCompleteListener { documents ->
-            if(documents.isSuccessful){
-                callBack.invoke(documents.result.documents.map { FirebaseMapper.productDocumentToEntity(it.data)}, null)
             }
-
-            if(documents.exception != null){
-                callBack.invoke(listOf(), documents.exception)
-            }
-
-            if(!documents.isSuccessful){
-                callBack.invoke(listOf(), FirestoreLoadRegistersException(context.getString(R.string.can_t_get_products_registers)))
-            }
+        } catch (e: Exception) {
+            Log.e("DEBUG", "Erro no método getProductsFirestore ${e.stackTraceToString()}")
         }
     }
 
     private suspend fun getCategoryFirestore(collection : CollectionReference,callBack : (List<Category>, Exception?) -> Unit) = withContext(dispatcher){
-        if(auth.currentUser == null) callBack.invoke(listOf(), RuntimeException(context.getString(R.string.no_user_logged)))
+        try {
+            if(auth.currentUser == null) callBack.invoke(listOf(), RuntimeException(context.getString(R.string.no_user_logged)))
 
-        collection.get().addOnCompleteListener { documents ->
-            if(documents.isSuccessful){
-                callBack.invoke(documents.result.documents.map { FirebaseMapper.categoryDocumentToEntity(it.data)}, null)
-            }
+            collection.get().addOnCompleteListener { documents ->
+                if(documents.isSuccessful){
+                    callBack.invoke(documents.result.documents.map { FirebaseMapper.categoryDocumentToEntity(it.data)}, null)
+                }
 
-            if(documents.exception != null){
-                callBack.invoke(listOf(), documents.exception)
-            }
+                if(documents.exception != null){
+                    callBack.invoke(listOf(), documents.exception)
+                }
 
-            if(!documents.isSuccessful){
-                callBack.invoke(listOf(),  FirestoreLoadRegistersException(context.getString(R.string.can_t_get_categories_registers)))
+                if(!documents.isSuccessful){
+                    callBack.invoke(listOf(),  FirestoreLoadRegistersException(context.getString(R.string.can_t_get_categories_registers)))
+                }
             }
+        } catch (e: Exception) {
+            Log.e("DEBUG", "Erro no método getCategoryFirestore ${e.stackTraceToString()}")
         }
     }
 
     private suspend fun createUserDataIfNotExists(docRef : DocumentReference, callback : (exception : Exception?) -> Unit) = withContext(dispatcher){
-        docRef.get().addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val document = task.result
-                if(document != null) {
-                    if(!document.exists()){
-                        docRef.set(hashMapOf("userId" to auth.currentUser!!.uid)).addOnCompleteListener {
-                            if(it.isSuccessful) callback.invoke(null)
-                            else callback.invoke(if(it.exception != null) it.exception else FirestoreDocumentCreationException(context.getString(R.string.something_went_wrong_on_document_creation)))
+        try {
+            docRef.get().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val document = task.result
+                    if(document != null) {
+                        if(!document.exists()){
+                            docRef.set(hashMapOf("userId" to auth.currentUser!!.uid)).addOnCompleteListener {
+                                if(it.isSuccessful) callback.invoke(null)
+                                else callback.invoke(if(it.exception != null) it.exception else FirestoreDocumentCreationException(context.getString(R.string.something_went_wrong_on_document_creation)))
+                            }
+                        }else{
+                            callback.invoke(null)
                         }
-                    }else{
-                        callback.invoke(null)
                     }
+                } else {
+                    callback.invoke(if(task.exception != null) task.exception else FirestoreDocumentCreationException(context.getString(R.string.something_went_wrong_on_document_creation)))
                 }
-            } else {
-                callback.invoke(if(task.exception != null) task.exception else FirestoreDocumentCreationException(context.getString(R.string.something_went_wrong_on_document_creation)))
             }
+        } catch (e: Exception) {
+            Log.e("DEBUG", "Erro no método createUserDataIfNotExists ${e.stackTraceToString()}")
         }
     }
 

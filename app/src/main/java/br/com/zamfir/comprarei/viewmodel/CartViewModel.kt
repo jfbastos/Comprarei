@@ -11,8 +11,8 @@ import br.com.zamfir.comprarei.model.entity.Cart
 import br.com.zamfir.comprarei.model.entity.Filter
 import br.com.zamfir.comprarei.repositories.CartRepository
 import br.com.zamfir.comprarei.repositories.ConfigRepository
-import br.com.zamfir.comprarei.repositories.FirestoreRepository
 import br.com.zamfir.comprarei.repositories.ProductRepository
+import br.com.zamfir.comprarei.repositories.UserRepository
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.convertMonetaryToDouble
 import br.com.zamfir.comprarei.viewmodel.states.CartsState
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class CartViewModel(private val repository: CartRepository, private val productsRepository: ProductRepository, private val firestoreRepository: FirestoreRepository, private val configRepository: ConfigRepository) : ViewModel() {
+class CartViewModel(private val repository: CartRepository, private val productsRepository: ProductRepository, private val configRepository: ConfigRepository, private val userRepository: UserRepository) : ViewModel() {
 
     private var _cartsState = MutableLiveData<CartsState>()
     val cartsState : LiveData<CartsState> get() = _cartsState
@@ -45,9 +45,11 @@ class CartViewModel(private val repository: CartRepository, private val products
             it.category = repository.getCategoryById(it.categoryId)
         }
 
+        val user = userRepository.getUserFromDb()
+
         val categories = repository.getCategories()
 
-        _cartsState.value = CartsState(loading = false, carts = carts, categories = categories, configRepository.getIsToShowTotalCart())
+        _cartsState.value = CartsState(loading = false, carts = carts, categories = categories, isShowTotal = configRepository.getIsToShowTotalCart(), loggedUser = user)
     }
 
     fun deleteCarts(carts : List<Int>) = viewModelScope.launch{

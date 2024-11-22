@@ -38,11 +38,7 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
             firestoreRepository.obterDadosDoUsuario{
                 viewModelScope.launch {
                     configRepository.loggedWithGoogle(false)
-                    userRepository.saveUserInfo{
-                        viewModelScope.launch {
-                            _loginState.value = LoginState(success = true, user = user)
-                        }
-                    }
+                    _loginState.value = LoginState(success = true, user = user)
                 }
             }
 
@@ -61,12 +57,8 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
     fun createUser(email: String, userName: String, password: String, photoByte: ByteArray?) = viewModelScope.launch{
         try{
             _loginState.value = LoginState(loading = true)
-            val user = userRepository.createUserInFirebase(email,userName, password, photoByte)
-            userRepository.saveUserInfo{
-                viewModelScope.launch {
-                    _loginState.value = LoginState(success = true, user = user)
-                }
-            }
+            val user = userRepository.createNewUserInFirebase(email,userName, password, photoByte)
+            _loginState.value = LoginState(success = true, user = user)
         }catch (e : Exception){
             when (e) {
                 is UserAlreadyExists -> _loginState.value = LoginState(success = false, error = e, msgError = e.msg)
@@ -78,11 +70,8 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
 
     fun saveUserData(isFromGoogle : Boolean) = viewModelScope.launch {
         configRepository.loggedWithGoogle(isFromGoogle)
-        userRepository.saveUserInfo{
-            viewModelScope.launch {
-                _localSaveState.value = true
-            }
-        }
+        userRepository.saveUserInfo()
+        _localSaveState.value = true
     }
 
     fun hasLoggedUser() = viewModelScope.launch {
@@ -94,6 +83,6 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
     }
 
     fun forgotPassword(email : String) = viewModelScope.launch {
-        userRepository.forgotPassword(email)
+        userRepository.requestPasswordReset(email)
     }
 }

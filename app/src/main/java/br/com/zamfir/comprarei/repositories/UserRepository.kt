@@ -22,10 +22,10 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -39,20 +39,15 @@ class UserRepository(private val context : Context, private val appDatabase: App
 
     suspend fun hasUserLogged() = withContext(dispatcher){ auth.currentUser != null }
 
-    suspend fun forgotPassword(email : String) = withContext(dispatcher){ auth.sendPasswordResetEmail(email) }
+    suspend fun getUserFromDb() = withContext(dispatcher) { appDatabase.UserInfoDao().getUserInfo() }
 
-    @Throws
-    private fun getImageRef(): StorageReference {
-        val currentUser = auth.currentUser ?: throw NoUserLogged(context.getString(R.string.no_user_logged))
-        val userRef = Firebase.storage.reference.child(Constants.FIRESTORE_STORAGE_NAME).child(currentUser.uid)
+    suspend fun requestPasswordReset(email : String) = withContext(dispatcher){ auth.sendPasswordResetEmail(email) }
 
-        return userRef.child(Constants.FIRESTORE_PROFILE_PICTURE_NAME)
-    }
-
-    @Throws
     suspend fun loginUser(email : String, password : String) = withContext(dispatcher){
         try{
-            return@withContext auth.signInWithEmailAndPassword(email, password).await().user
+            val currentUser = auth.signInWithEmailAndPassword(email, password).await().user
+            saveUserInfo()
+            return@withContext currentUser
         }catch (e : Exception){
             when(e){
                 is FirebaseAuthInvalidCredentialsException -> throw InvalidLogin(context.getString(R.string.msg_exp_user_password_invalid))
@@ -61,23 +56,21 @@ class UserRepository(private val context : Context, private val appDatabase: App
         }
     }
 
-    @Throws
-    suspend fun createUserInFirebase(email: String, user: String, password: String, photoByte: ByteArray?) = withContext(dispatcher){
+    suspend fun createNewUserInFirebase(email: String, user: String, password: String, photoByte: ByteArray?) = withContext(dispatcher) {
         try {
             auth.createUserWithEmailAndPassword(email, password).await()
-            val profileChangeRequest = userProfileChangeRequest {
-                displayName = user
-            }
 
-            if(photoByte != null){
-                try{
-                    getImageRef().putBytes(photoByte).await()
-                }catch (e : Exception){
+            updateUserName(user)
+
+            if (photoByte != null) {
+                try {
+                    updateProfilePicture(photoByte)
+                } catch (e: Exception) {
                     throw UserProfilePictureException(context.getString(R.string.msg_exp_upload_profile_picture_failed))
                 }
+            } else {
+                saveUserInfo()
             }
-
-            auth.currentUser?.updateProfile(profileChangeRequest)?.await()
 
             return@withContext auth.currentUser
 
@@ -87,96 +80,112 @@ class UserRepository(private val context : Context, private val appDatabase: App
                 is FirebaseAuthWeakPasswordException -> throw InvalidPassword(context.getString(R.string.password_not_meet_minimum_requirement))
                 else -> throw e
             }
-      }
+        }
     }
 
-    @Throws
-    suspend fun getUserName() = withContext(dispatcher){
-        return@withContext appDatabase.UserInfoDao().getUserInfo()?.name.takeIf { it.isNullOrBlank().not() } ?: auth.currentUser?.displayName ?: ""
+    suspend fun getUserName() : String = withContext(dispatcher){
+        val firebaseUserName = auth.currentUser?.displayName ?: ""
+        if(firebaseUserName.isNotBlank()) return@withContext firebaseUserName
+
+        val currentUserName = appDatabase.UserInfoDao().getUserInfo()?.name
+        if(!currentUserName.isNullOrBlank()) return@withContext currentUserName
+
+        return@withContext ""
     }
 
-    @Throws
-    suspend fun getUserProfilePicture(callback: (Uri?) -> Unit) = withContext(dispatcher){
+    suspend fun getUserProfilePicture() = withContext(dispatcher){
         try{
-            appDatabase.UserInfoDao().getUserInfo()?.let { userData ->
-                File(userData.profilePicture).takeIf { it.exists() }?.let {
-                    launch(Dispatchers.Main) { callback.invoke(it.toUri()) }
-                    return@withContext
-                }
+            val userDb = getUserFromDb()
+
+            if(userDb != null){
+                val file = File(userDb.profilePicture)
+                if(file.exists()) return@withContext file.toUri()
+                else return@withContext null
             }
 
-            val imageUri = getImageRef().downloadUrl.await()
+            return@withContext getProfilePictureUriFromFirestore()
 
-            callback.invoke(imageUri)
         }catch (e : Exception){
-            throw UserProfilePictureException(context.getString(R.string.failed_to_retrieve_profile_picture))
+            return@withContext null
         }
     }
 
-    @Throws
-    suspend fun saveUserInfo(saveDone : () -> Unit) = withContext(dispatcher){
-        val localFile = File.createTempFile(Constants.PROFILE_PICTURE_DEFAULT_NAME, Constants.PROFILE_PICTURE_DEFAULT_EXTENSION )
+    suspend fun saveUserInfo() = withContext(dispatcher){
+        try{
+            val currenUserInfo = getUserFromDb()
 
-        val downloadUri = getImageRef().getFile(localFile).await()
+            if(currenUserInfo != null){
+                val updatedUser = UserInfo(
+                    name = getUserName(),
+                    lastUpdate = LocalDateTime.now().toString(),
+                    email = currenUserInfo.email,
+                    profilePicture = currenUserInfo.profilePicture
+                )
 
-        if(downloadUri.task.isSuccessful){
-            persistInfos(localFile.absolutePath ?: Constants.EMPTY_STRING){ exception ->
-                if(exception == null) launch(Dispatchers.Main) { saveDone.invoke() }
-                else throw exception
-            }
-        }else{
-            if (downloadUri.task.exception is StorageException) {
-                val errorCode = (downloadUri.task.exception as StorageException).errorCode
-                val innerException = (downloadUri.task.exception as StorageException)
-                Log.e("DEBUG", "Failed to download image with error code $errorCode and exception being $innerException")
+                appDatabase.UserInfoDao().save(updatedUser)
             }else{
-                Log.e("DEBUG", "Failed to download image unknown error. Details : ${downloadUri.task.exception?.stackTraceToString()}")
+                val newUser = UserInfo(
+                    name = getUserName(),
+                    lastUpdate = LocalDateTime.now().toString(),
+                    email = auth.currentUser?.email ?: Constants.EMPTY_STRING,
+                    profilePicture = getProfilePicturePath()
+                )
+
+                appDatabase.UserInfoDao().save(newUser)
             }
-            saveDone.invoke()
-            throw UserProfilePictureException(context.getString(R.string.failed_to_download_profile_picture))
+        }catch (e : Exception){
+            Log.e("DEBUG", "Failed to persist user info image. Details : ${e.stackTraceToString()}")
         }
     }
 
-    @Throws
-    suspend fun updateUser(userName : String) = withContext(dispatcher){
+    private suspend fun getProfilePicturePath() = withContext(dispatcher){
+        if(getProfilePictureUriFromFirestore() != null){
+            val localFile = File.createTempFile(Constants.PROFILE_PICTURE_DEFAULT_NAME, Constants.PROFILE_PICTURE_DEFAULT_EXTENSION)
+
+            getImageRef().getFile(localFile).await()
+
+            if(localFile.exists()) return@withContext localFile.absolutePath
+            else Constants.EMPTY_STRING
+        } else {
+            return@withContext Constants.EMPTY_STRING
+        }
+    }
+
+    suspend fun updateUser(userName: String, currentPassword: String, newPassword: String, photo: ByteArray?) = withContext(dispatcher){
+        updateUserName(userName)
+
+        updatePassword(currentPassword, newPassword)
+
+        if (photo != null) {
+            updateProfilePicture(photo)
+        }else{
+            saveUserInfo()
+        }
+    }
+
+    private suspend fun updateUserName(userName: String) {
         val profileChange = userProfileChangeRequest {
             displayName = userName
         }
 
         auth.currentUser?.updateProfile(profileChange)?.await()
-
-        appDatabase.UserInfoDao().getUserInfo()?.let { userData ->
-            val updatedUser = UserInfo(
-                name = userName,
-                lastUpdate = LocalDateTime.now().toString(),
-                email = userData.email,
-                profilePicture = userData.profilePicture
-            ).apply {
-                id = userData.id
-            }
-
-            appDatabase.UserInfoDao().save(updatedUser)
-        }
     }
 
-    @Throws
     suspend fun updatePassword(oldPassword : String, newPassword : String) = withContext(dispatcher){
-        auth.currentUser?.email?.let {email ->
-            val authProvider = EmailAuthProvider.getCredential(email, oldPassword)
+        try{
+            if((oldPassword.isBlank() || newPassword.isBlank()) || oldPassword == newPassword) return@withContext
+            val userEmail = auth.currentUser?.email ?: getUserFromDb()?.email ?: ""
+            val authProvider = EmailAuthProvider.getCredential(userEmail, oldPassword)
 
-            auth.currentUser?.reauthenticate(authProvider)?.addOnCompleteListener { task ->
-                if(task.isComplete){
-                    if(task.isSuccessful){
-                        auth.currentUser?.updatePassword(newPassword)
-                    }else{
-                        throw InvalidPassword(context.getString(R.string.your_current_password_is_incorrect))
-                    }
-                }
-            }
+            auth.currentUser?.reauthenticate(authProvider)?.await()
+            auth.currentUser?.updatePassword(newPassword)?.await()
+        }catch (e : Exception){
+            if(e is FirebaseAuthInvalidCredentialsException) throw InvalidPassword(context.getString(R.string.your_current_password_is_incorrect))
+            Log.e("DEBUG", "Fail to update password. Details : ${e.stackTraceToString()}")
         }
+
     }
 
-    @Throws
     suspend fun updateProfilePicture(data: ByteArray) = withContext(dispatcher){
         try{
             appDatabase.UserInfoDao().getUserInfo()?.let {
@@ -187,7 +196,7 @@ class UserRepository(private val context : Context, private val appDatabase: App
 
             val upload = getImageRef().putBytes(data).await()
 
-            if(upload.task.isSuccessful) saveUserInfo {}
+            if(upload.task.isSuccessful) saveUserInfo()
             else throw UserProfilePictureException(context.getString(R.string.something_went_wrong_on_updating_profile_picture))
         }catch (e : Exception){
             Log.e("DEBUG", "Problem on profile picture persistence $e")
@@ -223,23 +232,24 @@ class UserRepository(private val context : Context, private val appDatabase: App
         appDatabase.clearAllTables()
     }
 
-    @Throws
-    private suspend fun persistInfos(photoPath : String, saveDone : (Exception?) -> Unit) = withContext(dispatcher){
-        try {
-            val idRegistroExistente = appDatabase.UserInfoDao().getUserInfo()?.id
-
-            val user = UserInfo(
-                name =  auth.currentUser?.displayName ?: Constants.EMPTY_STRING,
-                email = auth.currentUser?.email ?: Constants.EMPTY_STRING,
-                profilePicture = photoPath.takeIf { photoPath.isNotBlank() && File(photoPath).exists() } ?: Constants.EMPTY_STRING
-            ).apply {
-                if(idRegistroExistente != null) id = idRegistroExistente
-            }
-
-            appDatabase.UserInfoDao().save(user)
-            saveDone.invoke(null)
-        }catch (e : Exception){
-            saveDone.invoke(UserInfoPersistenceException(e.message ?: context.getString(R.string.failed_to_save_user_but_exception_don_t_have_message)))
-        }
+    private fun runOnMainDispatcher(function: () -> Unit) {
+        CoroutineScope(Dispatchers.Main).launch { function() }
     }
+
+    private fun getImageRef(): StorageReference {
+        val currentUser = auth.currentUser ?: throw NoUserLogged(context.getString(R.string.no_user_logged))
+        val userRef = Firebase.storage.reference.child(Constants.FIRESTORE_STORAGE_NAME).child(currentUser.uid)
+
+        return userRef.child(Constants.FIRESTORE_PROFILE_PICTURE_NAME)
+    }
+
+    private suspend fun getProfilePictureUriFromFirestore() : Uri?{
+        return try{
+            getImageRef().downloadUrl.await()
+        }catch (e : Exception){
+            null
+        }
+
+    }
+
 }
