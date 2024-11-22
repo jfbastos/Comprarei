@@ -1,7 +1,7 @@
-package br.com.zamfir.comprarei.repositories
+package br.com.zamfir.comprarei.data.repositories
 
-import br.com.zamfir.comprarei.model.AppDatabase
-import br.com.zamfir.comprarei.model.entity.Category
+import br.com.zamfir.comprarei.data.model.AppDatabase
+import br.com.zamfir.comprarei.data.model.entity.Category
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 

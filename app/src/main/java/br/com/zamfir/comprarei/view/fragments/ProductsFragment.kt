@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentProductsBinding
-import br.com.zamfir.comprarei.model.entity.Product
+import br.com.zamfir.comprarei.data.model.entity.Product
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.FormatFrom
 import br.com.zamfir.comprarei.util.Share

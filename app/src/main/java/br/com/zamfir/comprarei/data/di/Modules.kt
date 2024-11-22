@@ -1,13 +1,13 @@
-package br.com.zamfir.comprarei.di
+package br.com.zamfir.comprarei.data.di
 
 import androidx.room.Room
-import br.com.zamfir.comprarei.model.AppDatabase
-import br.com.zamfir.comprarei.repositories.CartRepository
-import br.com.zamfir.comprarei.repositories.CategoryRepository
-import br.com.zamfir.comprarei.repositories.ConfigRepository
-import br.com.zamfir.comprarei.repositories.UserRepository
-import br.com.zamfir.comprarei.repositories.FirestoreRepository
-import br.com.zamfir.comprarei.repositories.ProductRepository
+import br.com.zamfir.comprarei.data.model.AppDatabase
+import br.com.zamfir.comprarei.data.repositories.CartRepository
+import br.com.zamfir.comprarei.data.repositories.CategoryRepository
+import br.com.zamfir.comprarei.data.repositories.ConfigRepository
+import br.com.zamfir.comprarei.data.repositories.UserRepository
+import br.com.zamfir.comprarei.data.repositories.FirestoreRepository
+import br.com.zamfir.comprarei.data.repositories.ProductRepository
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.viewmodel.CartViewModel
 import br.com.zamfir.comprarei.viewmodel.CategoryViewModel

@@ -1,7 +1,7 @@
-package br.com.zamfir.comprarei.model.dao
+package br.com.zamfir.comprarei.data.model.dao
 
 import androidx.room.*
-import br.com.zamfir.comprarei.model.entity.Cart
+import br.com.zamfir.comprarei.data.model.entity.Cart
 
 @Dao
 interface CartDao {

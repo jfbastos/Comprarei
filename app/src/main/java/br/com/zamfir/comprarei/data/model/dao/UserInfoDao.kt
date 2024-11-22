@@ -1,10 +1,10 @@
-package br.com.zamfir.comprarei.model.dao
+package br.com.zamfir.comprarei.data.model.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import br.com.zamfir.comprarei.model.entity.UserInfo
+import br.com.zamfir.comprarei.data.model.entity.UserInfo
 
 @Dao
 interface UserInfoDao {

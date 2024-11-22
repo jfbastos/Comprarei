@@ -69,7 +69,7 @@
                android:layout_height="wrap_content"
                android:layout_margin="16dp"
                android:visibility="visible"
-               android:text="New Cart"
+               android:text="@string/new_cart"
                android:textAllCaps="false"
                android:textColor="@color/white"
                app:iconTint="@color/white"

@@ -1,7 +1,7 @@
-package br.com.zamfir.comprarei.repositories
+package br.com.zamfir.comprarei.data.repositories
 
-import br.com.zamfir.comprarei.model.dao.ProductDao
-import br.com.zamfir.comprarei.model.entity.Product
+import br.com.zamfir.comprarei.data.model.dao.ProductDao
+import br.com.zamfir.comprarei.data.model.entity.Product
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 

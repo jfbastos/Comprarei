@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.zamfir.comprarei.repositories.UserRepository
+import br.com.zamfir.comprarei.data.repositories.UserRepository
 import br.com.zamfir.comprarei.viewmodel.states.ProfileState
 import kotlinx.coroutines.launch
 

@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import br.com.zamfir.comprarei.databinding.CategoryItemBinding
-import br.com.zamfir.comprarei.model.entity.Cart
-import br.com.zamfir.comprarei.model.entity.Category
+import br.com.zamfir.comprarei.data.model.entity.Cart
+import br.com.zamfir.comprarei.data.model.entity.Category
 
 class CategoryAdapter : ListAdapter<Category, CategoryAdapter.CategoryViewHolder>(differCallback) {
 

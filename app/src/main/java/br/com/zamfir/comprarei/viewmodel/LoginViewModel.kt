@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.zamfir.comprarei.repositories.ConfigRepository
-import br.com.zamfir.comprarei.repositories.FirestoreRepository
-import br.com.zamfir.comprarei.repositories.UserRepository
+import br.com.zamfir.comprarei.data.repositories.ConfigRepository
+import br.com.zamfir.comprarei.data.repositories.FirestoreRepository
+import br.com.zamfir.comprarei.data.repositories.UserRepository
 import br.com.zamfir.comprarei.util.exceptions.InvalidLogin
 import br.com.zamfir.comprarei.util.exceptions.InvalidPassword
 import br.com.zamfir.comprarei.util.exceptions.UserAlreadyExists
@@ -31,17 +31,18 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
     val isLoginWithGoogle : LiveData<Boolean> get() = _isLoginWithGoogle
 
 
-    fun loginWithEmail(email : String, password : String) = viewModelScope.launch {
+    fun login(email : String, password : String, isLoginWithGoogle : Boolean = false) = viewModelScope.launch {
         try{
             _loginState.value = LoginState(loading = true)
-            val user = userRepository.loginUser(email, password)
-            firestoreRepository.obterDadosDoUsuario{
+
+            val user = userRepository.loginUser(email, password, isLoginWithGoogle)
+            configRepository.loggedWithGoogle(isLoginWithGoogle)
+
+            firestoreRepository.getUserDataFromFirebase{
                 viewModelScope.launch {
-                    configRepository.loggedWithGoogle(false)
                     _loginState.value = LoginState(success = true, user = user)
                 }
             }
-
         }catch (e : Exception){
             when (e) {
                 is InvalidLogin -> _loginState.value = LoginState(success = false, error = e, msgError = e.msg)
@@ -66,12 +67,6 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
                 else -> _loginState.value = LoginState(success = false, error = e, msgError = null)
             }
         }
-    }
-
-    fun saveUserData(isFromGoogle : Boolean) = viewModelScope.launch {
-        configRepository.loggedWithGoogle(isFromGoogle)
-        userRepository.saveUserInfo()
-        _localSaveState.value = true
     }
 
     fun hasLoggedUser() = viewModelScope.launch {

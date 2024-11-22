@@ -1,8 +1,8 @@
-package br.com.zamfir.comprarei.model.mappers
+package br.com.zamfir.comprarei.data.model.mappers
 
-import br.com.zamfir.comprarei.model.entity.Cart
-import br.com.zamfir.comprarei.model.entity.Category
-import br.com.zamfir.comprarei.model.entity.Product
+import br.com.zamfir.comprarei.data.model.entity.Cart
+import br.com.zamfir.comprarei.data.model.entity.Category
+import br.com.zamfir.comprarei.data.model.entity.Product
 
 object FirebaseMapper {
 
@@ -35,7 +35,7 @@ object FirebaseMapper {
         }
     }
 
-    fun categoryDocumentToEntity(document : MutableMap<String, Any>?) : Category{
+    fun categoryDocumentToEntity(document : MutableMap<String, Any>?) : Category {
         return Category(
             description = document?.get("description") as? String ?: "",
             color = (document?.get("color") as? Long ?: 0).toInt(),

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.util.Log
 import androidx.activity.result.ActivityResult
 import br.com.zamfir.comprarei.R
+import br.com.zamfir.comprarei.view.listeners.LoginProgressListener
 import br.com.zamfir.comprarei.view.listeners.LoginWithGoogleListener
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity

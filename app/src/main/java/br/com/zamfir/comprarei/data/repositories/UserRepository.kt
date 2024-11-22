@@ -1,12 +1,12 @@
-package br.com.zamfir.comprarei.repositories
+package br.com.zamfir.comprarei.data.repositories
 
 import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.core.net.toUri
 import br.com.zamfir.comprarei.R
-import br.com.zamfir.comprarei.model.AppDatabase
-import br.com.zamfir.comprarei.model.entity.UserInfo
+import br.com.zamfir.comprarei.data.model.AppDatabase
+import br.com.zamfir.comprarei.data.model.entity.UserInfo
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.exceptions.InvalidLogin
 import br.com.zamfir.comprarei.util.exceptions.InvalidPassword
@@ -43,10 +43,13 @@ class UserRepository(private val context : Context, private val appDatabase: App
 
     suspend fun requestPasswordReset(email : String) = withContext(dispatcher){ auth.sendPasswordResetEmail(email) }
 
-    suspend fun loginUser(email : String, password : String) = withContext(dispatcher){
+    suspend fun loginUser(email : String, password : String, isLoginWithGoogle : Boolean = false) = withContext(dispatcher){
         try{
-            val currentUser = auth.signInWithEmailAndPassword(email, password).await().user
+            val currentUser = if(isLoginWithGoogle) auth.currentUser
+            else auth.signInWithEmailAndPassword(email, password).await().user
+
             saveUserInfo()
+
             return@withContext currentUser
         }catch (e : Exception){
             when(e){
@@ -110,7 +113,7 @@ class UserRepository(private val context : Context, private val appDatabase: App
         }
     }
 
-    suspend fun saveUserInfo() = withContext(dispatcher){
+    private suspend fun saveUserInfo(){
         try{
             val currenUserInfo = getUserFromDb()
 
@@ -230,10 +233,6 @@ class UserRepository(private val context : Context, private val appDatabase: App
         }
 
         appDatabase.clearAllTables()
-    }
-
-    private fun runOnMainDispatcher(function: () -> Unit) {
-        CoroutineScope(Dispatchers.Main).launch { function() }
     }
 
     private fun getImageRef(): StorageReference {

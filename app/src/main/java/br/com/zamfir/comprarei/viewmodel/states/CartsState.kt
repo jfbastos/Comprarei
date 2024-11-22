@@ -1,8 +1,8 @@
 package br.com.zamfir.comprarei.viewmodel.states
 
-import br.com.zamfir.comprarei.model.entity.Cart
-import br.com.zamfir.comprarei.model.entity.Category
-import br.com.zamfir.comprarei.model.entity.UserInfo
+import br.com.zamfir.comprarei.data.model.entity.Cart
+import br.com.zamfir.comprarei.data.model.entity.Category
+import br.com.zamfir.comprarei.data.model.entity.UserInfo
 import com.google.firebase.firestore.auth.User
 import java.lang.Exception
 

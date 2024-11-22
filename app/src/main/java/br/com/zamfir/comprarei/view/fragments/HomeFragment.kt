@@ -27,10 +27,10 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentHomeBinding
-import br.com.zamfir.comprarei.model.entity.Cart
-import br.com.zamfir.comprarei.model.entity.Category
-import br.com.zamfir.comprarei.model.entity.Filter
-import br.com.zamfir.comprarei.model.entity.UserInfo
+import br.com.zamfir.comprarei.data.model.entity.Cart
+import br.com.zamfir.comprarei.data.model.entity.Category
+import br.com.zamfir.comprarei.data.model.entity.Filter
+import br.com.zamfir.comprarei.data.model.entity.UserInfo
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.isVisible
 import br.com.zamfir.comprarei.view.activity.LoginActivity
@@ -112,7 +112,8 @@ class HomeFragment : Fragment(), BaseFragment {
 
             userNameView.text = loggedUser?.name ?: "Olá"
             userEmailView.text = loggedUser?.email ?: "Bem-Vindo"
-            Glide.with(requireContext())
+            if(loggedUser?.profilePicture.isNullOrBlank()) userProfileView.isVisible(false)
+            else Glide.with(requireContext())
                 .load(loggedUser?.profilePicture)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .centerCrop()

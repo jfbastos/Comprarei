@@ -1,4 +1,4 @@
-package br.com.zamfir.comprarei.model.entity
+package br.com.zamfir.comprarei.data.model.entity
 
 import java.time.LocalDate
 

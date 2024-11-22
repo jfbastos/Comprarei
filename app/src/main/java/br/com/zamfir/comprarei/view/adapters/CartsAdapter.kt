@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import br.com.zamfir.comprarei.databinding.CartItemBinding
-import br.com.zamfir.comprarei.model.entity.Cart
+import br.com.zamfir.comprarei.data.model.entity.Cart
 import br.com.zamfir.comprarei.util.isVisible
 
 class CartsAdapter : ListAdapter<Cart, CartsAdapter.CartsViewHolder>(differCallback) {

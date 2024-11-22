@@ -1,14 +1,16 @@
 package br.com.zamfir.comprarei.view.fragments
 
+import android.animation.Animator
+import android.animation.ObjectAnimator
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.IntentSender
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.IntentSenderRequest
+import androidx.core.animation.doOnRepeat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -20,15 +22,20 @@ import br.com.zamfir.comprarei.util.isConectadoInternet
 import br.com.zamfir.comprarei.util.isVisible
 import br.com.zamfir.comprarei.view.activity.LoginActivity
 import br.com.zamfir.comprarei.view.activity.MainActivity
+import br.com.zamfir.comprarei.view.listeners.LoginProgressListener
 import br.com.zamfir.comprarei.view.listeners.LoginWithGoogleListener
 import br.com.zamfir.comprarei.viewmodel.LoginViewModel
 import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+
 class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding: FragmentLoginBinding get() = _binding!!
+    private val imageResources = listOf(R.drawable.baseline_shopping_cart_24, R.drawable.products, R.drawable.category_icon_24)
+    private var currentImageIndex = 0
+    private var animator: Animator? = null
 
     private val loginViewModel: LoginViewModel by viewModel()
 
@@ -41,7 +48,8 @@ class LoginFragment : Fragment() {
 
         LoginWithGoogleListener.setOnListener(object : LoginWithGoogleListener {
             override fun userLoggedIn() {
-                loginViewModel.saveUserData(true)
+                loginViewModel.login(Constants.EMPTY_STRING, Constants.EMPTY_STRING, true)
+                LoginProgressListener.loginProgressListener.onProgress("Logging you in...")
             }
 
             override fun userCancelled() {
@@ -52,10 +60,45 @@ class LoginFragment : Fragment() {
             override fun loginError(exception: Exception?) {
                 exception?.printStackTrace()
             }
+        })
 
+        LoginProgressListener.setOnListener(object : LoginProgressListener{
+            override fun onProgress(progressInfo: String) {
+                binding.loadingScreen.progressInfo.text = progressInfo
+            }
+
+            override fun onFinish() {
+                stopAnimation()
+                requireActivity().startActivity(Intent(requireActivity(), MainActivity::class.java))
+                requireActivity().finish()
+            }
         })
 
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun stopAnimation(){
+        animator?.end()
+        animator?.cancel()
+        animator?.removeAllListeners()
+        animator = null
+    }
+
+    private fun startAnimation(){
+        animator = ObjectAnimator.ofFloat(binding.loadingScreen.loadingImage, "alpha", 1f, 0f, 1f).apply {
+            repeatCount = 10
+            duration = 2000 // Adjust duration as needed
+            doOnRepeat {
+                if(_binding != null) binding.loadingScreen.loadingImage.setImageResource(imageResources[currentImageIndex])
+                currentImageIndex = (currentImageIndex + 1) % imageResources.size
+                (animator as? ObjectAnimator)?.setObjectValues(imageResources[currentImageIndex]) }
+            start()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -74,7 +117,8 @@ class LoginFragment : Fragment() {
             }
 
             if(validateFields()){
-                loginViewModel.loginWithEmail(
+                LoginProgressListener.loginProgressListener.onProgress("Logging you in...")
+                loginViewModel.login(
                     binding.user.text.toString(),
                     binding.password.text.toString()
                 )
@@ -96,16 +140,16 @@ class LoginFragment : Fragment() {
         }
 
         loginViewModel.loginState.observe(viewLifecycleOwner) { loginState ->
-            showLoading(loginState.loading)
+            showLoading(true)
             if (loginState.loading) return@observe
 
             if (loginState.success && loginState.user != null) {
-                requireActivity().startActivity(Intent(requireActivity(), MainActivity::class.java))
-                requireActivity().finish()
+                LoginProgressListener.loginProgressListener.onFinish()
                 return@observe
             }
 
             if (!loginState.success && loginState.error != null) {
+                showLoading(false)
                 when(loginState.error){
                     is InvalidLogin -> {
                         showWarningInfo(isOnlyWarning = false, loginState.msgError ?: getString(R.string.wrong_user_or_password))
@@ -192,12 +236,8 @@ class LoginFragment : Fragment() {
     }
 
     private fun showLoading(loading: Boolean) {
-        binding.loadingBtn.isVisible(loading)
-        if(loading){
-            binding.btnLogin.visibility = View.INVISIBLE
-        }else{
-            binding.btnLogin.visibility = View.VISIBLE
-        }
+        startAnimation()
+        binding.loadingPlaceholder.isVisible(loading)
     }
 
     private fun validateFields() : Boolean{

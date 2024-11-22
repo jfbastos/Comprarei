@@ -11,16 +11,14 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.ActivityMainBinding
-import br.com.zamfir.comprarei.util.CrashHandler
 import br.com.zamfir.comprarei.view.listeners.PhotoSelectedListener
 import br.com.zamfir.comprarei.view.listeners.PhotopickerListener
 import br.com.zamfir.comprarei.viewmodel.LoginViewModel
-import br.com.zamfir.comprarei.worker.BackupWorker
+import br.com.zamfir.comprarei.data.workers.BackupWorker
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.concurrent.TimeUnit
 

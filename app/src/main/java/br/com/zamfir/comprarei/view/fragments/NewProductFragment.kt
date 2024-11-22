@@ -10,7 +10,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.BottomSheetNewProductBinding
-import br.com.zamfir.comprarei.model.entity.Product
+import br.com.zamfir.comprarei.data.model.entity.Product
 import br.com.zamfir.comprarei.util.FormatFrom
 import br.com.zamfir.comprarei.util.MoneyTextWatcher
 import br.com.zamfir.comprarei.util.convertMonetaryToDouble

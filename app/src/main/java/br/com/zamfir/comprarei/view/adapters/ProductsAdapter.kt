@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import br.com.zamfir.comprarei.databinding.ProductItemBinding
-import br.com.zamfir.comprarei.model.entity.Product
+import br.com.zamfir.comprarei.data.model.entity.Product
 import br.com.zamfir.comprarei.util.FormatFrom
 
 class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>(differCallback) {

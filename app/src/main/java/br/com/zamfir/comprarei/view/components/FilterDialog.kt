@@ -10,11 +10,11 @@ import androidx.core.util.Pair
 import androidx.core.view.isVisible
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FilterDialogBinding
-import br.com.zamfir.comprarei.model.entity.ByCategory
-import br.com.zamfir.comprarei.model.entity.ByDate
-import br.com.zamfir.comprarei.model.entity.ByValue
-import br.com.zamfir.comprarei.model.entity.Category
-import br.com.zamfir.comprarei.model.entity.Filter
+import br.com.zamfir.comprarei.data.model.entity.ByCategory
+import br.com.zamfir.comprarei.data.model.entity.ByDate
+import br.com.zamfir.comprarei.data.model.entity.ByValue
+import br.com.zamfir.comprarei.data.model.entity.Category
+import br.com.zamfir.comprarei.data.model.entity.Filter
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.convertMonetaryToDouble
 import br.com.zamfir.comprarei.util.setMonetary

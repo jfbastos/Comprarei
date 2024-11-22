@@ -1,9 +1,9 @@
 package br.com.zamfir.comprarei.viewmodel
 
 import androidx.lifecycle.*
-import br.com.zamfir.comprarei.model.entity.Product
-import br.com.zamfir.comprarei.repositories.ConfigRepository
-import br.com.zamfir.comprarei.repositories.ProductRepository
+import br.com.zamfir.comprarei.data.model.entity.Product
+import br.com.zamfir.comprarei.data.repositories.ConfigRepository
+import br.com.zamfir.comprarei.data.repositories.ProductRepository
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.viewmodel.states.ProductState
 import br.com.zamfir.comprarei.viewmodel.states.SaveState

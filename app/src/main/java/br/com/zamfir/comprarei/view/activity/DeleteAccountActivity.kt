@@ -134,7 +134,7 @@ class DeleteAccountActivity : AppCompatActivity() {
             if(validateFields()) {
                 binding.btnLogin.visibility = View.INVISIBLE
                 binding.loadingBtn.isVisible(true)
-                loginViewModel.loginWithEmail(binding.email.text.toString(), binding.password.text.toString())
+                loginViewModel.login(binding.email.text.toString(), binding.password.text.toString())
             }
         }
     }

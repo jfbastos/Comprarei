@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.zamfir.comprarei.model.entity.Category
-import br.com.zamfir.comprarei.repositories.CategoryRepository
+import br.com.zamfir.comprarei.data.model.entity.Category
+import br.com.zamfir.comprarei.data.repositories.CategoryRepository
 import br.com.zamfir.comprarei.viewmodel.states.DeleteState
 import kotlinx.coroutines.launch
 

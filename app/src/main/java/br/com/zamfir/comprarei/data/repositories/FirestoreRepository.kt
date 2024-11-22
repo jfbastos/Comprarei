@@ -1,4 +1,4 @@
-package br.com.zamfir.comprarei.repositories
+package br.com.zamfir.comprarei.data.repositories
 
 import android.content.Context
 import android.util.Log
@@ -8,15 +8,16 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import br.com.zamfir.comprarei.R
-import br.com.zamfir.comprarei.model.AppDatabase
-import br.com.zamfir.comprarei.model.entity.Cart
-import br.com.zamfir.comprarei.model.entity.Category
-import br.com.zamfir.comprarei.model.entity.Product
-import br.com.zamfir.comprarei.model.mappers.FirebaseMapper
+import br.com.zamfir.comprarei.data.model.AppDatabase
+import br.com.zamfir.comprarei.data.model.entity.Cart
+import br.com.zamfir.comprarei.data.model.entity.Category
+import br.com.zamfir.comprarei.data.model.entity.Product
+import br.com.zamfir.comprarei.data.model.mappers.FirebaseMapper
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.exceptions.FirestoreDocumentCreationException
 import br.com.zamfir.comprarei.util.exceptions.FirestoreLoadRegistersException
-import br.com.zamfir.comprarei.worker.BackupWorker
+import br.com.zamfir.comprarei.data.workers.BackupWorker
+import br.com.zamfir.comprarei.view.listeners.LoginProgressListener
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
@@ -29,7 +30,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.time.LocalTime
 
 class FirestoreRepository(private val context : Context, private val appDatabase: AppDatabase, private val dispatcher : CoroutineDispatcher) {
 
@@ -180,36 +180,44 @@ class FirestoreRepository(private val context : Context, private val appDatabase
         }
     }
 
-    suspend fun obterDadosDoUsuario(callback : () -> Unit) = withContext(dispatcher){
+    suspend fun getUserDataFromFirebase(callback : () -> Unit) = withContext(dispatcher){
         try {
-            if(auth.currentUser == null) return@withContext
+            if (auth.currentUser == null) return@withContext
             val docRef = firestore.collection(auth.uid!!).document(Constants.FIRESTORE_DOCUMENT_PATH)
 
-            val handler = CoroutineExceptionHandler{ _, throwable ->
-                throw throwable
+            val handler = CoroutineExceptionHandler { _, throwable ->
+                Log.e("DEBUG", "Erro no método obterDadosDoUsuario ${throwable.stackTraceToString()}")
             }
 
-            createUserDataIfNotExists(docRef){ docRefException ->
+            runOnMainDispatcher { LoginProgressListener.loginProgressListener.onProgress("Download info from cloud...") }
+            createUserDataIfNotExists(docRef) { docRefException ->
                 CoroutineScope(Dispatchers.IO).launch(handler) {
-                    if(docRefException != null) throw docRefException
+                    if (docRefException != null) throw docRefException
+
+                    runOnMainDispatcher { LoginProgressListener.loginProgressListener.onProgress("Fetching carts...") }
                     docRef.collection(Constants.FIRESTORE_CARTS_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.cartDocumentToEntity(it.data) }.also {
                         appDatabase.CartDao().insertAll(it)
                     }
 
+                    runOnMainDispatcher { LoginProgressListener.loginProgressListener.onProgress("Fetching products...") }
                     docRef.collection(Constants.FIRESTORE_PRODUCTS_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.productDocumentToEntity(it.data) }.also {
                         appDatabase.ProductDao().insertAll(it)
                     }
 
+                    runOnMainDispatcher { LoginProgressListener.loginProgressListener.onProgress("Fetching categories...") }
                     docRef.collection(Constants.FIRESTORE_CATEGORIES_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.categoryDocumentToEntity(it.data) }.also {
                         appDatabase.CategoryDao().insertAll(it)
                     }
-                    callback.invoke()
+
+                    runOnMainDispatcher { callback.invoke() }
                 }
             }
         } catch (e: Exception) {
             Log.e("DEBUG", "Erro no método obterDadosDoUsuario ${e.stackTraceToString()}")
         }
     }
+
+    private fun runOnMainDispatcher(function: () -> Unit) {    CoroutineScope(Dispatchers.Main).launch { function() }}
 
     private suspend fun getCartsFirestore(collection : CollectionReference,callBack : (List<Cart>, Exception?) -> Unit) = withContext(dispatcher){
         try {

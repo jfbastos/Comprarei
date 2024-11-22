@@ -8,7 +8,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.DialogNewCategoryBinding
-import br.com.zamfir.comprarei.model.entity.Category
+import br.com.zamfir.comprarei.data.model.entity.Category
 import br.com.zamfir.comprarei.util.isVisible
 import com.flask.colorpicker.ColorPickerView
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder
@@ -22,13 +22,13 @@ class NewCategoryDialog() : DialogFragment() {
     private lateinit var callback : (Category, Boolean) -> Unit
     private var existingCategories = listOf<Category>()
 
-    constructor(categories : List<Category>,category: Category, callback : (Category, Boolean) -> Unit) : this(){
+    constructor(categories : List<Category>, category: Category, callback : (Category, Boolean) -> Unit) : this(){
         this.existingCategories = categories
         this.category = category
         this.callback = callback
     }
 
-    constructor(categories : List<Category>,callback: (Category, Boolean) -> Unit) : this(){
+    constructor(categories : List<Category>, callback: (Category, Boolean) -> Unit) : this(){
         this.existingCategories = categories
         this.callback = callback
     }

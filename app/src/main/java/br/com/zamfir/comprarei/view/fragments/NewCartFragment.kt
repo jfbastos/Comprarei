@@ -9,8 +9,8 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.DialogFragment
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentNewCartBinding
-import br.com.zamfir.comprarei.model.entity.Cart
-import br.com.zamfir.comprarei.model.entity.Category
+import br.com.zamfir.comprarei.data.model.entity.Cart
+import br.com.zamfir.comprarei.data.model.entity.Category
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.DateInputMask
 import br.com.zamfir.comprarei.util.DateUtil

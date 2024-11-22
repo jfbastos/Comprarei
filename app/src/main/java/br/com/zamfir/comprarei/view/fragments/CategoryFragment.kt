@@ -14,7 +14,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentCategoryBinding
-import br.com.zamfir.comprarei.model.entity.Category
+import br.com.zamfir.comprarei.data.model.entity.Category
 import br.com.zamfir.comprarei.util.isVisible
 import br.com.zamfir.comprarei.util.show
 import br.com.zamfir.comprarei.view.adapters.CategoryAdapter

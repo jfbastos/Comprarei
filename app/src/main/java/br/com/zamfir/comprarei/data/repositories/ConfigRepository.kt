@@ -1,20 +1,9 @@
-package br.com.zamfir.comprarei.repositories
+package br.com.zamfir.comprarei.data.repositories
 
 import android.content.Context
-import android.net.Uri
-import android.util.Log
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.DateUtil
-import br.com.zamfir.comprarei.worker.BackupWorker
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 

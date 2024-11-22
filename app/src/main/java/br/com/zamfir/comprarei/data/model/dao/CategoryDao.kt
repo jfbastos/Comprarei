@@ -1,4 +1,4 @@
-package br.com.zamfir.comprarei.model.dao
+package br.com.zamfir.comprarei.data.model.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import br.com.zamfir.comprarei.model.entity.Category
+import br.com.zamfir.comprarei.data.model.entity.Category
 
 @Dao
 interface CategoryDao {

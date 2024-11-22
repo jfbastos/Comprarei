@@ -1,15 +1,14 @@
-package br.com.zamfir.comprarei.worker
+package br.com.zamfir.comprarei.data.workers
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.edit
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import br.com.zamfir.comprarei.R
-import br.com.zamfir.comprarei.repositories.FirestoreRepository
+import br.com.zamfir.comprarei.data.repositories.FirestoreRepository
 import org.koin.java.KoinJavaComponent.inject
 import java.time.LocalDateTime
 
