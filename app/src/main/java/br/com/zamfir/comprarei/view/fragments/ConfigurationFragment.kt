@@ -59,6 +59,10 @@ class ConfigurationFragment : Fragment() {
             configViewModel.toggleShowCartTotal(isChecked)
         }
 
+        binding.toggleAutoBackup.setOnCheckedChangeListener { _, isChecked ->
+            configViewModel.toggleAutoBackup(isChecked)
+        }
+
         binding.btnDoBackup.setOnClickListener {
             configViewModel.doBackup()
         }
@@ -85,6 +89,7 @@ class ConfigurationFragment : Fragment() {
             binding.txvHourLastBackup.text = configData.dateLastBackup.ifBlank { "Sem backup realizado" }
             binding.toggleCartTotal.isChecked = configData.isToShowCartTotal
             binding.toggleProductsDone.isChecked = configData.isToMoveItensToBottom
+            binding.toggleAutoBackup.isChecked = configData.isAutoBackupOn
             binding.profileName.text = configData.userName
             configData?.userProfilePicture?.let {
                 userPictureUri = it

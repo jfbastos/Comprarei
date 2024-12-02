@@ -25,6 +25,13 @@ class ConfigRepository(private val context : Context, private val dispatcher: Co
         }
     }
 
+    fun toggleAutoBackup(isEnable: Boolean) {
+        with(sharedPref.edit()){
+            putBoolean(context.getString(R.string.auto_backup_key), isEnable)
+            apply()
+        }
+    }
+
     suspend fun loggedWithGoogle(isFromGoogle : Boolean) = withContext(dispatcher){
         with(sharedPref.edit()){
             putBoolean(Constants.SHARED_LOGIN_GOOGLE_KEY, isFromGoogle)
@@ -47,4 +54,9 @@ class ConfigRepository(private val context : Context, private val dispatcher: Co
     suspend fun getIsUserLoggedFromGoogle() = withContext(dispatcher){
         return@withContext sharedPref.getBoolean(Constants.SHARED_LOGIN_GOOGLE_KEY, true)
     }
+
+    suspend fun getIsAutoBackupEnabled() = withContext(dispatcher){
+        return@withContext sharedPref.getBoolean(context.getString(R.string.auto_backup_key), true)
+    }
+
 }

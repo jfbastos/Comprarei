@@ -15,13 +15,13 @@ import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentProfileBinding
 import br.com.zamfir.comprarei.util.isVisible
 import br.com.zamfir.comprarei.view.activity.DeleteAccountActivity
+import br.com.zamfir.comprarei.view.dialog.CustomErrorDialog
 import br.com.zamfir.comprarei.view.listeners.PhotoSelectedListener
 import br.com.zamfir.comprarei.view.listeners.PhotopickerListener
 import br.com.zamfir.comprarei.viewmodel.ProfileViewModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.ByteArrayOutputStream
 
@@ -74,11 +74,10 @@ class ProfileFragment : Fragment() {
         }
 
         binding.btnSalvar.setOnClickListener {
+            showLoading(isLoading = true)
             var photoByte : ByteArray? = null
 
             if(editedProfilePicture){
-                binding.profilePicture.isDrawingCacheEnabled = true
-                binding.profilePicture.buildDrawingCache()
                 val bitmap = ( binding.profilePicture.drawable as BitmapDrawable).bitmap
                 val baos = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
@@ -91,19 +90,16 @@ class ProfileFragment : Fragment() {
                 currentPassword = binding.currentPassword.text.takeIf { it != null }?.toString() ?: "",
                 newPassword = binding.newPassword.text.takeIf { it != null }?.toString() ?: ""
             )
-            showLoading(isLoading = true)
+
         }
 
-        profileViewModel.successfullySave.observe(viewLifecycleOwner){success ->
-            showLoading(isLoading = false)
-            if(success){
-                Snackbar.make(requireView(), "Dados salvos com sucesso", Snackbar.LENGTH_LONG).setAction("Ok"){
-                    voltar()
-                }.show()
+        profileViewModel.successfullySave.observe(viewLifecycleOwner){ editProfileState ->
+            if(editProfileState.success){
+                Snackbar.make(requireView(), getString(R.string.profile_successfully_edited), Snackbar.LENGTH_LONG).show()
+                voltar()
             }else{
-                Snackbar.make(requireView(), "Houve um erro ao salvar os dados, tente novamente mais tarde", Snackbar.LENGTH_LONG).setAction("Ok"){
-                    voltar()
-                }.show()
+                showLoading(isLoading = false)
+                CustomErrorDialog(editProfileState.error?.stackTraceToString() ?: "").show(parentFragmentManager, "")
             }
         }
 

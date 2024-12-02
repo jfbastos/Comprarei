@@ -1,12 +1,20 @@
 package br.com.zamfir.comprarei.view.activity
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -14,11 +22,11 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import br.com.zamfir.comprarei.R
+import br.com.zamfir.comprarei.data.workers.BackupWorker
 import br.com.zamfir.comprarei.databinding.ActivityMainBinding
 import br.com.zamfir.comprarei.view.listeners.PhotoSelectedListener
 import br.com.zamfir.comprarei.view.listeners.PhotopickerListener
 import br.com.zamfir.comprarei.viewmodel.LoginViewModel
-import br.com.zamfir.comprarei.data.workers.BackupWorker
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.concurrent.TimeUnit
 
@@ -44,6 +52,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            requestNotificationPermission()
+        }
+
+
         loginViewModel.userLoggedState.observe(this) { isUserLogged ->
             if (!isUserLogged) {
                 this.startActivity(Intent(this, LoginActivity::class.java))
@@ -67,6 +80,47 @@ class MainActivity : AppCompatActivity() {
                pickedMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             }
         })
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun requestNotificationPermission() {
+        val requestPermissionLauncher =
+            registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { isGranted: Boolean ->
+                if (!isGranted) {
+                    AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.permissao_notificaco_negada))
+                        .setMessage(getString(R.string.msg_permissao_notificacao_negada))
+                        .setPositiveButton(getString(R.string.ok)){ dialog, _ ->
+                            dialog.dismiss()
+                        }
+                        .show()
+                }
+            }
+
+
+        when {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED -> {}
+
+            ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.POST_NOTIFICATIONS) -> {
+                AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.permissao_notificacao))
+                    .setMessage(getString(R.string.msg_permissao_notificacao))
+                    .setPositiveButton(getString(R.string.conceder)){ dialog, _ ->
+                        requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton(getString(R.string.nao_conceder)){ dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+
+            else -> {
+                Toast.makeText(this, "Permissão de notificação não concedida.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun startBackupWorker() {

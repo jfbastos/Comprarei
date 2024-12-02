@@ -314,7 +314,7 @@ class ProductsFragment : Fragment(), BaseFragment {
     private fun changeItemDone(product: Product, position: Int) {
         product.done = !product.done
         viewModelProduct.updateDone(product.done, product.id)
-        if(product.done){
+        if(isMoveToBottom && product.done){
             originalList.remove(product)
             originalList.add(product)
             viewModelProduct.updateOrder(originalList)

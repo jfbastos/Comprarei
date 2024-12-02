@@ -64,14 +64,16 @@
 
     <TextView
         android:id="@+id/profile_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         tools:text="João Felipe Bastos do Nascimento"
         android:layout_marginTop="12dp"
+        android:layout_marginHorizontal="18dp"
         android:textSize="21sp"
+        android:textAlignment="center"
         app:layout_constraintTop_toBottomOf="@id/profile_picture"
-        app:layout_constraintStart_toStartOf="@id/profile_picture"
-        app:layout_constraintEnd_toEndOf="@id/profile_picture"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <com.google.android.material.divider.MaterialDivider
         android:id="@+id/divider_0"
@@ -133,13 +135,15 @@
 
     <TextView
         android:id="@+id/txv_config_done_products"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/move_to_end_of_list"
         android:layout_marginStart="12dp"
         android:layout_marginTop="12dp"
+        android:maxLines="2"
         app:layout_constraintTop_toBottomOf="@id/txv_config_general"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/toggle_products_done"/>
 
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/toggle_products_done"
@@ -157,23 +161,41 @@
         android:layout_height="wrap_content"
         android:text="@string/mostrar_total_do_carrinho"
         android:layout_marginStart="12dp"
-        app:layout_constraintTop_toBottomOf="@id/toggle_products_done"
+        app:layout_constraintTop_toTopOf="@id/toggle_cart_total"
+        app:layout_constraintBottom_toBottomOf="@id/toggle_cart_total"
         app:layout_constraintStart_toStartOf="parent"/>
 
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/toggle_cart_total"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="12dp"
-        app:layout_constraintTop_toTopOf="@id/txv_config_total_cart"
-        app:layout_constraintBottom_toBottomOf="@id/txv_config_total_cart"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toggle_products_done" />
+
+    <TextView
+        android:id="@+id/txv_auto_backup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Automatically do backup"
+        android:layout_marginStart="12dp"
+        app:layout_constraintTop_toTopOf="@id/toggle_auto_backup"
+        app:layout_constraintBottom_toBottomOf="@id/toggle_auto_backup"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/toggle_auto_backup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toggle_cart_total" />
 
     <com.google.android.material.divider.MaterialDivider
         android:id="@+id/divider_2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/txv_config_total_cart"
+        app:layout_constraintTop_toBottomOf="@id/txv_auto_backup"
         android:layout_marginTop="12dp"/>
 
     <TextView
@@ -191,9 +213,9 @@
 
     <TextView
         android:id="@+id/txv_last_backup"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/ultimo_backup"
+        android:text="@string/last_backup"
         android:layout_marginStart="12dp"
         android:layout_marginTop="12dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -203,29 +225,29 @@
         android:id="@+id/txv_hour_last_backup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/txv_last_backup"
-        app:layout_constraintStart_toStartOf="@id/txv_last_backup"
-        tools:text="22:22:22 10/09/1993" />
+        android:layout_marginStart="4dp"
+        tools:text="22:22:22 10/09/1993"
+        app:layout_constraintStart_toEndOf="@id/txv_last_backup"
+        app:layout_constraintBottom_toBottomOf="@id/txv_last_backup"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_do_backup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="124dp"
+        android:layout_marginEnd="12dp"
         android:text="@string/realizar_backup"
         android:textAllCaps="false"
         app:cornerRadius="12dp"
-        android:layout_marginEnd="12dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/txv_hour_last_backup"/>
+        app:icon="@drawable/baseline_cloud_upload_24"
+        app:layout_constraintTop_toBottomOf="@id/txv_hour_last_backup"/>
 
     <com.google.android.material.divider.MaterialDivider
         android:id="@+id/divider_3"
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        app:layout_constraintTop_toBottomOf="@id/txv_hour_last_backup"
+        app:layout_constraintTop_toBottomOf="@id/btn_do_backup"
         android:layout_marginTop="12dp"/>
 
     <Button

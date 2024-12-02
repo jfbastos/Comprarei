@@ -7,6 +7,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
+import androidx.work.workDataOf
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.data.model.AppDatabase
 import br.com.zamfir.comprarei.data.model.entity.Cart
@@ -32,15 +33,6 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class FirestoreRepository(private val context : Context, private val appDatabase: AppDatabase, private val dispatcher : CoroutineDispatcher) {
-
-    /*
-    * Obter os registros do firestore
-    *
-    * Se, o registro estiver no firestore mas não estiver no banco, deleta o registro
-    * Se, o registro não estiver no firestore mas tiver no banco, insere o registro
-    * Se, o registro estiver no banco e no firestore, salva o registro (firestore verifica se teve edição ou não
-    *
-    * */
 
     private val auth = Firebase.auth
     private val firestore = Firebase.firestore
@@ -313,6 +305,7 @@ class FirestoreRepository(private val context : Context, private val appDatabase
         val uploadWorkRequest: WorkRequest =
             OneTimeWorkRequestBuilder<BackupWorker>()
                 .setConstraints(Constraints(requiredNetworkType = NetworkType.UNMETERED))
+                .setInputData(workDataOf(Constants.MANUAL_BACKUP_KEY to true))
                 .build()
 
         WorkManager.getInstance(context).enqueue(uploadWorkRequest)

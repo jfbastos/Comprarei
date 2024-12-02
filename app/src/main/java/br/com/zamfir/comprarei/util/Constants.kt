@@ -16,6 +16,7 @@ class Constants {
         const val USER_KEY = "USER_KEY"
         const val PASSWORD_KEY = "PASSWORD_KEY"
         const val EMPTY_STRING = ""
+        const val MANUAL_BACKUP_KEY = "MANUAL_BACKUP"
 
         const val FILTER_NAME = "Name"
         const val FILTER_DATE = "Date"

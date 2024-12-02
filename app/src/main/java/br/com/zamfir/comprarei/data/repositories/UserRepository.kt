@@ -12,7 +12,6 @@ import br.com.zamfir.comprarei.util.exceptions.InvalidLogin
 import br.com.zamfir.comprarei.util.exceptions.InvalidPassword
 import br.com.zamfir.comprarei.util.exceptions.NoUserLogged
 import br.com.zamfir.comprarei.util.exceptions.UserAlreadyExists
-import br.com.zamfir.comprarei.util.exceptions.UserInfoPersistenceException
 import br.com.zamfir.comprarei.util.exceptions.UserProfilePictureException
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -25,9 +24,6 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -113,7 +109,7 @@ class UserRepository(private val context : Context, private val appDatabase: App
         }
     }
 
-    private suspend fun saveUserInfo(){
+    private suspend fun saveUserInfo(absolutePath: String = "") {
         try{
             val currenUserInfo = getUserFromDb()
 
@@ -122,8 +118,10 @@ class UserRepository(private val context : Context, private val appDatabase: App
                     name = getUserName(),
                     lastUpdate = LocalDateTime.now().toString(),
                     email = currenUserInfo.email,
-                    profilePicture = currenUserInfo.profilePicture
-                )
+                    profilePicture = absolutePath.takeIf { it.isNotBlank() } ?: currenUserInfo.profilePicture
+                ).apply {
+                    id = currenUserInfo.id
+                }
 
                 appDatabase.UserInfoDao().save(updatedUser)
             }else{
@@ -141,18 +139,7 @@ class UserRepository(private val context : Context, private val appDatabase: App
         }
     }
 
-    private suspend fun getProfilePicturePath() = withContext(dispatcher){
-        if(getProfilePictureUriFromFirestore() != null){
-            val localFile = File.createTempFile(Constants.PROFILE_PICTURE_DEFAULT_NAME, Constants.PROFILE_PICTURE_DEFAULT_EXTENSION)
 
-            getImageRef().getFile(localFile).await()
-
-            if(localFile.exists()) return@withContext localFile.absolutePath
-            else Constants.EMPTY_STRING
-        } else {
-            return@withContext Constants.EMPTY_STRING
-        }
-    }
 
     suspend fun updateUser(userName: String, currentPassword: String, newPassword: String, photo: ByteArray?) = withContext(dispatcher){
         updateUserName(userName)
@@ -189,7 +176,7 @@ class UserRepository(private val context : Context, private val appDatabase: App
 
     }
 
-    suspend fun updateProfilePicture(data: ByteArray) = withContext(dispatcher){
+    private suspend fun updateProfilePicture(data: ByteArray) = withContext(dispatcher){
         try{
             appDatabase.UserInfoDao().getUserInfo()?.let {
                 if (it.profilePicture.isNotBlank()) {
@@ -197,13 +184,30 @@ class UserRepository(private val context : Context, private val appDatabase: App
                 }
             }
 
+            val localFile = File.createTempFile(Constants.PROFILE_PICTURE_DEFAULT_NAME, Constants.PROFILE_PICTURE_DEFAULT_EXTENSION)
+
             val upload = getImageRef().putBytes(data).await()
 
-            if(upload.task.isSuccessful) saveUserInfo()
+            val downloadNewProfilePicture = getImageRef().getFile(localFile).await()
+
+            if(upload.task.isSuccessful && downloadNewProfilePicture.task.isSuccessful) saveUserInfo(localFile.absolutePath)
             else throw UserProfilePictureException(context.getString(R.string.something_went_wrong_on_updating_profile_picture))
         }catch (e : Exception){
             Log.e("DEBUG", "Problem on profile picture persistence $e")
             UserProfilePictureException(context.getString(R.string.something_went_wrong_on_updating_profile_picture))
+        }
+    }
+
+    private suspend fun getProfilePicturePath() = withContext(dispatcher){
+        if(getProfilePictureUriFromFirestore() != null){
+            val localFile = File.createTempFile(Constants.PROFILE_PICTURE_DEFAULT_NAME, Constants.PROFILE_PICTURE_DEFAULT_EXTENSION)
+
+            getImageRef().getFile(localFile).await()
+
+            if(localFile.exists()) return@withContext localFile.absolutePath
+            else Constants.EMPTY_STRING
+        } else {
+            return@withContext Constants.EMPTY_STRING
         }
     }
 
@@ -248,7 +252,5 @@ class UserRepository(private val context : Context, private val appDatabase: App
         }catch (e : Exception){
             null
         }
-
     }
-
 }

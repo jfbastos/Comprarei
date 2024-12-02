@@ -33,15 +33,21 @@ class ConfigViewModel(
         val lastTimeBackup = configRepository.getLastBackupTime()
         val isToMoveItensToBottom = configRepository.getIsToMoveToBottomDoneItens()
         val isToShowCartTotal = configRepository.getIsToShowTotalCart()
+        val isAutoBackupOn = configRepository.getIsAutoBackupEnabled()
         val userName = userRepository.getUserName()
 
         _configData.value = ConfigState(
             dateLastBackup = lastTimeBackup,
             isToMoveItensToBottom = isToMoveItensToBottom,
             isToShowCartTotal = isToShowCartTotal,
+            isAutoBackupOn = isAutoBackupOn,
             userName = userName,
             userProfilePicture = userRepository.getUserProfilePicture()
         )
+    }
+
+    fun toggleAutoBackup(isEnabled: Boolean) {
+        configRepository.toggleAutoBackup(isEnabled)
     }
 
 

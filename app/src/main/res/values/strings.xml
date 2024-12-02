@@ -103,7 +103,7 @@
     <string name="apply">Apply</string>
     <string name="min" translatable="false">Min</string>
     <string name="select_dates">Select dates</string>
-    <string name="range">Range</string>
+    <string name="range" translatable="false">Range</string>
     <string name="edit_category">Edit category</string>
     <string name="shared_file_name" translatable="false">SHARED_COMPRAREI</string>
     <string name="donetobottom_key" translatable="false">DONE_BOTTOM_KEY</string>
@@ -115,7 +115,7 @@
     <string name="move_to_end_of_list">Move done products to bottom</string>
     <string name="mostrar_total_do_carrinho">Show cart total</string>
     <string name="backup">Backup</string>
-    <string name="ultimo_backup">Last backup done at :</string>
+    <string name="last_backup">Last backup done at:</string>
     <string name="realizar_backup">Do backup</string>
     <string name="logoff">Log off</string>
     <string name="senha_atual">Current password</string>
@@ -162,5 +162,14 @@
     <string name="exception_screen_message">We had an unexpected error. The details were sent to our team, and we will fix it quickly. Sorry for the inconvenience.</string>
     <string name="restart_comprarei">Restart Comprarei</string>
     <string name="details">Details</string>
+    <string name="profile_successfully_edited">Profile successfully edited.</string>
+    <string name="edit_profile_error">Sorry, we can not update your profile right now. Please, try again in a few minutes.</string>
+    <string name="auto_backup_key" translatable="false">AUTO_BACKUP</string>
+    <string name="conceder">Conceder</string>
+    <string name="nao_conceder">Não conceder</string>
+    <string name="permissao_notificaco_negada">Notification permission denied</string>
+    <string name="msg_permissao_notificacao_negada">Seems that you did not granted notification permission. None notification will show.</string>
+    <string name="permissao_notificacao">Notification permission</string>
+    <string name="msg_permissao_notificacao">For a better experience, grant the Post Notification permission.</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

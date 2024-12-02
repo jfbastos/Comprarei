@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.zamfir.comprarei.data.repositories.UserRepository
+import br.com.zamfir.comprarei.viewmodel.states.ProfileEditState
 import br.com.zamfir.comprarei.viewmodel.states.ProfileState
 import kotlinx.coroutines.launch
 
@@ -14,8 +15,8 @@ class ProfileViewModel(private val userRespository: UserRepository) : ViewModel(
     private var _profileState : MutableLiveData<ProfileState> = MutableLiveData()
     val profileState : LiveData<ProfileState> get() = _profileState
 
-    private var _successfullySave : MutableLiveData<Boolean> = MutableLiveData()
-    val successfullySave : LiveData<Boolean> get() = _successfullySave
+    private var _successfullySave : MutableLiveData<ProfileEditState> = MutableLiveData()
+    val successfullySave : LiveData<ProfileEditState> get() = _successfullySave
 
     private var _deleteUserException : MutableLiveData<Exception?> = MutableLiveData()
     val deleteUserException : LiveData<Exception?> get() = _deleteUserException
@@ -31,14 +32,11 @@ class ProfileViewModel(private val userRespository: UserRepository) : ViewModel(
         newPassword: String
     ) = viewModelScope.launch {
         try{
-
-            if(profileName.isNotBlank()) userRespository.updateUser(profileName, currentPassword, newPassword, photo)
-            if((currentPassword.isNotBlank() && newPassword.isNotBlank()) && currentPassword != newPassword) userRespository.updatePassword(currentPassword, newPassword)
-            if(photo != null)  userRespository.updateProfilePicture(photo)
-            _successfullySave.value = true
+            userRespository.updateUser(profileName, currentPassword, newPassword, photo)
+            _successfullySave.value = ProfileEditState(success = true)
         }catch (e : Exception){
             e.printStackTrace()
-            _successfullySave.value = false
+            _successfullySave.value = ProfileEditState(success = false, error = e)
         }
     }
 

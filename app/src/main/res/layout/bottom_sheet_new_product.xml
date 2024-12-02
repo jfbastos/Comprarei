@@ -82,15 +82,17 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/product_price_layout"
         style="@style/MyInputTextStyle"
-        android:layout_width="230dp"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center"
         app:layout_constraintHorizontal_weight="2"
-        android:layout_marginHorizontal="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="6dp"
         android:hint="@string/price"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/product_quantity_placeholder"
-        app:layout_constraintBottom_toBottomOf="@id/product_quantity_placeholder">
+        app:layout_constraintBottom_toBottomOf="@id/product_quantity_placeholder"
+        app:layout_constraintEnd_toStartOf="@id/product_quantity_placeholder">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/productPrice"
@@ -109,7 +111,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:orientation="horizontal"
         android:layout_marginTop="24dp"
-        android:layout_marginHorizontal="12dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="12dp"
         app:layout_constraintStart_toEndOf="@id/product_price_layout"
         app:layout_constraintTop_toBottomOf="@id/product_brand_layout">
 

@@ -102,7 +102,7 @@
     <string name="move_to_end_of_list">Mover produtos marcados para o fim da lista</string>
     <string name="mostrar_total_do_carrinho">Mostrar total do carrinho</string>
     <string name="backup">Backup</string>
-    <string name="ultimo_backup">"Último backup realizado às : "</string>
+    <string name="last_backup">"Último backup realizado às: "</string>
     <string name="realizar_backup">Realizar backup</string>
     <string name="logoff">Sair</string>
     <string name="senha_atual">Senha atual</string>
@@ -145,5 +145,13 @@
     <string name="exception_screen_message">Tivemos um erro inexperado. Os detalhes foram enviados para nosso time e iremos arruma-lo o mais rápido possível. Pedimos desculpas pelo inconveniente.</string>
     <string name="restart_comprarei">Reiniciar o Comprarei</string>
     <string name="details">Detalhes</string>
+    <string name="profile_successfully_edited">Perfil alterado com sucesso.</string>
+    <string name="edit_profile_error">Desculpe, não foi possível realizar a atualização do perfil agora. Por favor, tente novamente em alguns instantes.</string>
+    <string name="conceder">Grant</string>
+    <string name="nao_conceder">Do not grant</string>
+    <string name="permissao_notificaco_negada">Permissão notificação negada</string>
+    <string name="msg_permissao_notificacao_negada">Parece que você não concedeu a permissão de notificação, assim o app não conseguirá mostrar nenhuma notificação.</string>
+    <string name="permissao_notificacao">Permissão de notificação</string>
+    <string name="msg_permissao_notificacao">Para uma melhor usabilidade do app, conceda a permissão de notificação.</string>
 
 </resources>
