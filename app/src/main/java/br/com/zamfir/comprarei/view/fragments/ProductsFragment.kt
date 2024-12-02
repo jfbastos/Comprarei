@@ -360,6 +360,9 @@ class ProductsFragment : Fragment(), BaseFragment {
     }
 
     override fun doSearch(): Boolean {
+        if(binding.sortOptions.isVisible) binding.sortOptions.isVisible(false)
+        if(!binding.searchSortPlaceholder.isVisible) binding.searchSortPlaceholder.isVisible(true)
+
         if (binding.searchView.isVisible) {
             binding.searchView.isVisible(false)
         } else {
@@ -395,7 +398,15 @@ class ProductsFragment : Fragment(), BaseFragment {
     }
 
     override fun sortList(): Boolean {
-        binding.searchSortPlaceholder.isVisible(!binding.searchSortPlaceholder.isVisible)
+        if(binding.searchView.isVisible) binding.searchView.isVisible(false)
+        if(!binding.searchSortPlaceholder.isVisible) binding.searchSortPlaceholder.isVisible(true)
+
+        if(binding.sortOptions.isVisible){
+            binding.searchSortPlaceholder.isVisible(false)
+            binding.sortOptions.isVisible(false)
+        }else{
+            binding.sortOptions.isVisible(binding.searchSortPlaceholder.isVisible)
+        }
 
         if(!binding.searchSortPlaceholder.isVisible) {
             productsAdapter.differ.submitList(originalList)
