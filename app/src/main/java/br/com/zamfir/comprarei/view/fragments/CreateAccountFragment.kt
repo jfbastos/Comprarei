@@ -15,6 +15,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentSiginBinding
+import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.resetErrorAnimation
 import br.com.zamfir.comprarei.util.isVisible
 import br.com.zamfir.comprarei.view.activity.MainActivity
@@ -103,13 +104,11 @@ class CreateAccountFragment : Fragment() {
         binding.btnLogin.setOnClickListener {
             var photoByte : ByteArray? = null
             arguments = Bundle().apply {
-                putString("USER_KEY", binding.user.text.toString())
-                putString("PASSWORD_KEY", binding.passwordFirst.text.toString())
+                putString(Constants.USER_KEY, binding.user.text.toString())
+                putString(Constants.PASSWORD_KEY, binding.passwordFirst.text.toString())
             }
 
             if(editedProfilePicture){
-                binding.profilePicture.isDrawingCacheEnabled = true
-                binding.profilePicture.buildDrawingCache()
                 val bitmap = ( binding.profilePicture.drawable as BitmapDrawable).bitmap
                 val baos = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)

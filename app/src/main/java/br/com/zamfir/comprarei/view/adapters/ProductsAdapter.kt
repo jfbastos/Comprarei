@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.ProductItemBinding
 import br.com.zamfir.comprarei.data.model.entity.Product
 import br.com.zamfir.comprarei.util.FormatFrom
@@ -27,9 +28,9 @@ class ProductsAdapter : ListAdapter<Product, ProductsAdapter.ProductsViewHolder>
             binding.productQuantity.text =
                 if (product.quantity < 10) "0${product.quantity}" else product.quantity.toString()
 
-            binding.productValue.text = FormatFrom.doubleToMonetary("R$", product.price)
+            binding.productValue.text = FormatFrom.doubleToMonetary(binding.productValue.context.getString(R.string.moeda_real), product.price)
             binding.productTotal.text =
-                FormatFrom.doubleToMonetary("R$", product.price * product.quantity)
+                FormatFrom.doubleToMonetary(binding.productTotal.context.getString(R.string.moeda_real), product.price * product.quantity)
 
             if(product.done){
                 binding.productName.paintFlags = binding.productName.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG

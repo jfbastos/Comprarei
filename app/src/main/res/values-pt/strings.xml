@@ -153,5 +153,12 @@
     <string name="msg_permissao_notificacao_negada">Parece que você não concedeu a permissão de notificação, assim o app não conseguirá mostrar nenhuma notificação.</string>
     <string name="permissao_notificacao">Permissão de notificação</string>
     <string name="msg_permissao_notificacao">Para uma melhor usabilidade do app, conceda a permissão de notificação.</string>
+    <string name="moeda_real">R$</string>
+    <string name="sem_backup_realizado">Sem backup realizado</string>
+    <string name="ola">Olá</string>
+    <string name="welcome">Bem-Vindo</string>
+    <string name="logging_you_in">Realizando login...</string>
+    <string name="trying_to_login_with_google_account">Entrando com conta google...</string>
+    <string name="can_t_be_blank">Não pode ser vazio!</string>
 
 </resources>

@@ -10,12 +10,8 @@ import java.util.*
 
 
 class MoneyTextWatcher(editText: EditText?) : TextWatcher {
-    private val editTextWeakReference: WeakReference<EditText>
+    private val editTextWeakReference: WeakReference<EditText> = WeakReference<EditText>(editText)
     private val locale = Locale("Pt", "BR")
-
-    init {
-        editTextWeakReference = WeakReference<EditText>(editText)
-    }
 
     override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
     override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
@@ -34,13 +30,11 @@ class MoneyTextWatcher(editText: EditText?) : TextWatcher {
             "[%s,.\\s]",
             NumberFormat.getCurrencyInstance(locale).currency?.symbol ?: BigDecimal(0)
         )
-        val cleanString = value.replace(replaceable.toRegex(), "")
+        val cleanString = value.replace(replaceable.toRegex(), Constants.EMPTY_STRING)
         return BigDecimal(cleanString).setScale(
             2, BigDecimal.ROUND_FLOOR
         ).divide(
             BigDecimal(100), BigDecimal.ROUND_FLOOR
         )
     }
-
-
 }

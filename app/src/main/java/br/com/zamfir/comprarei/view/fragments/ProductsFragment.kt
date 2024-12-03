@@ -55,7 +55,7 @@ class ProductsFragment : Fragment(), BaseFragment {
     private var selectionMode = false
     private var lastAction = -1
     private var cartId = -1
-    private var cartName = ""
+    private var cartName = Constants.EMPTY_STRING
     private var isMoveToBottom : Boolean = false
 
     private val viewModelProduct: ProductViewModel by viewModel()
@@ -72,7 +72,7 @@ class ProductsFragment : Fragment(), BaseFragment {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        cartName = arguments?.getString(Constants.CART_NAME_KEY) ?: ""
+        cartName = arguments?.getString(Constants.CART_NAME_KEY) ?: Constants.EMPTY_STRING
         cartId = arguments?.getLong(Constants.CART_ID_KEY)?.toInt() ?: -1
         binding.toolbar.title = cartName
 
@@ -184,7 +184,7 @@ class ProductsFragment : Fragment(), BaseFragment {
     private fun confirmDeletion(productsToDelete : List<Product>) {
         if(productsToDelete.size == 1){
             AlertDialog.Builder(context).setTitle(getString(R.string.title_confirmation))
-                .setMessage(getString(R.string.message_delete_confirmation) + productsToDelete.first().name + " ?")
+                .setMessage(getString(R.string.message_delete_confirmation) + productsToDelete.first().name + getString(R.string.space_interrogation))
                 .setIcon(R.drawable.ic_info_24).setPositiveButton(getString(R.string.positive_confirmation)) { dialog, _ ->
                     deleteProducts(productsToDelete)
                     if(selectionMode) changeSelectState()
@@ -194,7 +194,7 @@ class ProductsFragment : Fragment(), BaseFragment {
                 }.show()
         }else{
             AlertDialog.Builder(context).setTitle(getString(R.string.title_confirmation)).setMessage(
-                getString(R.string.message_delete_confirmation) + productsToDelete.size + getString(R.string.multiple_items_confirmation) + " ?")
+                getString(R.string.message_delete_confirmation) + productsToDelete.size + getString(R.string.multiple_items_confirmation) + getString(R.string.space_interrogation))
                 .setIcon(R.drawable.ic_info_24)
                 .setPositiveButton(getString(R.string.positive_confirmation)) { dialog, _ ->
                     deleteProducts(productsToDelete)
@@ -244,7 +244,8 @@ class ProductsFragment : Fragment(), BaseFragment {
     }
 
     private fun configItemTouchHelper() {
-        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+        ItemTouchHelper(object :
+            ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
 
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -266,10 +267,11 @@ class ProductsFragment : Fragment(), BaseFragment {
                 val product = productsAdapter.differ.currentList[position]
                 when (direction) {
                     ItemTouchHelper.RIGHT -> {
-                        changeItemDone(product, position)
+                        changeItemDone(product)
                     }
                     ItemTouchHelper.LEFT -> deleteOneItem(product)
                 }
+                productsAdapter.notifyItemChanged(position)
             }
 
             override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
@@ -291,12 +293,12 @@ class ProductsFragment : Fragment(), BaseFragment {
                 actionState: Int,
                 isCurrentlyActive: Boolean,
             ) {
-                // This is where to start decorating
+                super.onChildDraw(c, recyclerView, viewHolder, dX / 4, dY, actionState, isCurrentlyActive)
                 ItemDecorator.Builder(c, recyclerView, viewHolder, dX, actionState).set(
                     backgroundColorFromStartToEnd = ContextCompat.getColor(requireContext(), R.color.primary_green),
                     backgroundColorFromEndToStart = ContextCompat.getColor(requireContext(), R.color.delete_red),
-                    textFromStartToEnd = "",
-                    textFromEndToStart = "",
+                    textFromStartToEnd = Constants.EMPTY_STRING,
+                    textFromEndToStart = Constants.EMPTY_STRING,
                     textColorFromStartToEnd = ContextCompat.getColor(requireContext(), R.color.white),
                     textColorFromEndToStart = ContextCompat.getColor(requireContext(), R.color.white),
                     iconTintColorFromStartToEnd = ContextCompat.getColor(requireContext(), R.color.white),
@@ -304,14 +306,12 @@ class ProductsFragment : Fragment(), BaseFragment {
                     iconResIdFromStartToEnd = if (productsAdapter.differ.currentList[viewHolder.adapterPosition].done) R.drawable.ic_baseline_close_24 else R.drawable.ic_baseline_done_24,
                     iconResIdFromEndToStart = R.drawable.ic_delete_24,typeFaceFromStartToEnd = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
                 )
-                super.onChildDraw(c, recyclerView, viewHolder, dX / 6, dY, actionState, isCurrentlyActive)
+
             }
-        }).apply {
-            attachToRecyclerView(binding.productsRv)
-        }
+        }).apply {attachToRecyclerView(binding.productsRv)}
     }
 
-    private fun changeItemDone(product: Product, position: Int) {
+    private fun changeItemDone(product: Product) {
         product.done = !product.done
         viewModelProduct.updateDone(product.done, product.id)
         if(isMoveToBottom && product.done){
@@ -330,32 +330,30 @@ class ProductsFragment : Fragment(), BaseFragment {
         text.append("$cartName \n\n")
         originalList.forEach { product ->
             total += product.price * product.quantity
-            if(product.price != 0.0){
-                text.append(
-                    "* ${product.name} ${if (product.brand != "") "- ${product.brand} - " else "- "}" + FormatFrom.doubleToMonetary("R$", product.price) + " x " + "${if (product.quantity < 10) "0${product.quantity}" else product.quantity.toString()}\n"
-                )
-            }else{
-                text.append(
-                    "* ${if (product.quantity < 10) "0${product.quantity}" else product.quantity.toString()} x ${product.name} ${if(product.brand != "") "- ${product.brand} - " else ""}\n")
-            }
+
+            text.append(" * ${product.name}")
+            if(product.brand.isNotBlank()) text.append(" - ${product.brand}")
+            if(product.price != 0.0) text.append(" -> ${FormatFrom.doubleToMonetary(getString(R.string.moeda_real), product.price)}")
+            if(product.quantity != 0) text.append(" x ${if (product.quantity < 10) "0${product.quantity}" else product.quantity.toString()}")
+            text.append("\n")
         }
-        text.append("\nTotal : ${FormatFrom.doubleToMonetary("R$", total)}")
+        text.append("\nTotal : ${FormatFrom.doubleToMonetary(getString(R.string.moeda_real), total)}")
         Share().send(text.toString(), requireContext())
     }
 
     private fun updateSummary() {
         if(originalList.isEmpty()){
-            binding.totalQuantity.text = "0"
-            binding.totalCart.text = FormatFrom.doubleToMonetary("R$", 0.0)
-            viewModelCart.updateTotal(FormatFrom.doubleToMonetary("R$", 0.0), cartId)
+            binding.totalQuantity.text = Constants.DEFAULT_OR_MIN_VALUE_PRODUCT
+            binding.totalCart.text = FormatFrom.doubleToMonetary(getString(R.string.moeda_real), 0.0)
+            viewModelCart.updateTotal(FormatFrom.doubleToMonetary(getString(R.string.moeda_real), 0.0), cartId)
         }else{
             var totalCart = 0.0
             binding.totalQuantity.text = originalList.size.toString()
             originalList.forEach { product ->
                 totalCart += (product.price * product.quantity)
             }
-            binding.totalCart.text = FormatFrom.doubleToMonetary("R$", totalCart)
-            viewModelCart.updateTotal(FormatFrom.doubleToMonetary("R$", totalCart), cartId)
+            binding.totalCart.text = FormatFrom.doubleToMonetary(getString(R.string.moeda_real), totalCart)
+            viewModelCart.updateTotal(FormatFrom.doubleToMonetary(getString(R.string.moeda_real), totalCart), cartId)
         }
     }
 

@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentProfileBinding
+import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.isVisible
 import br.com.zamfir.comprarei.view.activity.DeleteAccountActivity
 import br.com.zamfir.comprarei.view.dialog.CustomErrorDialog
@@ -86,9 +87,9 @@ class ProfileFragment : Fragment() {
 
             profileViewModel.saveInfos(
                 photo = photoByte,
-                profileName = binding.user.text.takeIf { it != null }?.toString() ?: "",
-                currentPassword = binding.currentPassword.text.takeIf { it != null }?.toString() ?: "",
-                newPassword = binding.newPassword.text.takeIf { it != null }?.toString() ?: ""
+                profileName = binding.user.text.takeIf { it != null }?.toString() ?: Constants.EMPTY_STRING,
+                currentPassword = binding.currentPassword.text.takeIf { it != null }?.toString() ?: Constants.EMPTY_STRING,
+                newPassword = binding.newPassword.text.takeIf { it != null }?.toString() ?: Constants.EMPTY_STRING
             )
 
         }
@@ -99,7 +100,7 @@ class ProfileFragment : Fragment() {
                 voltar()
             }else{
                 showLoading(isLoading = false)
-                CustomErrorDialog(editProfileState.error?.stackTraceToString() ?: "").show(parentFragmentManager, "")
+                CustomErrorDialog(editProfileState.error?.stackTraceToString() ?: Constants.EMPTY_STRING).show(parentFragmentManager, Constants.EMPTY_STRING)
             }
         }
 

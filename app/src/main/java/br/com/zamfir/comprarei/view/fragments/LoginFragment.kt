@@ -49,7 +49,7 @@ class LoginFragment : Fragment() {
         LoginWithGoogleListener.setOnListener(object : LoginWithGoogleListener {
             override fun userLoggedIn() {
                 loginViewModel.login(Constants.EMPTY_STRING, Constants.EMPTY_STRING, true)
-                LoginProgressListener.loginProgressListener.onProgress("Logging you in...")
+                LoginProgressListener.loginProgressListener.onProgress(getString(R.string.logging_you_in))
             }
 
             override fun userCancelled() {
@@ -90,7 +90,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun startAnimation(){
-        animator = ObjectAnimator.ofFloat(binding.loadingScreen.loadingImage, "alpha", 1f, 0f, 1f).apply {
+        animator = ObjectAnimator.ofFloat(binding.loadingScreen.loadingImage, Constants.ANIMATOR_ALPHA_PROPERTY, 1f, 0f, 1f).apply {
             repeatCount = 10
             duration = 2000 // Adjust duration as needed
             doOnRepeat {
@@ -117,7 +117,7 @@ class LoginFragment : Fragment() {
             }
 
             if(validateFields()){
-                LoginProgressListener.loginProgressListener.onProgress("Logging you in...")
+                LoginProgressListener.loginProgressListener.onProgress(getString(R.string.logging_you_in))
                 loginViewModel.login(
                     binding.user.text.toString(),
                     binding.password.text.toString()
@@ -131,7 +131,7 @@ class LoginFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            ForgotPasswordDialog().show(parentFragmentManager, "")
+            ForgotPasswordDialog().show(parentFragmentManager, Constants.EMPTY_STRING)
         }
 
         loginViewModel.localSaveState.observe(viewLifecycleOwner) {
@@ -167,7 +167,7 @@ class LoginFragment : Fragment() {
             binding.animationView.isVisible(true)
             binding.btnLoginGoogle.root.isVisible(false)
 
-            val snack = Snackbar.make(requireView(), "Trying to login with Google account...", Snackbar.LENGTH_INDEFINITE)
+            val snack = Snackbar.make(requireView(), getString(R.string.trying_to_login_with_google_account), Snackbar.LENGTH_INDEFINITE)
 
             val activity = (requireActivity() as LoginActivity)
             activity.googleSigninUtil.oneTapClient.beginSignIn( activity.googleSigninUtil.signUpRequest)

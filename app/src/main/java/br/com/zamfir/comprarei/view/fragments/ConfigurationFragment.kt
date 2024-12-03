@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentConfigurationBinding
+import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.isVisible
 import br.com.zamfir.comprarei.view.activity.LoginActivity
 import br.com.zamfir.comprarei.viewmodel.ConfigViewModel
@@ -44,7 +45,7 @@ class ConfigurationFragment : Fragment() {
         configViewModel.getConfigData()
 
         binding.toolbar.setNavigationOnClickListener {
-            voltarTela()
+            navigateBack()
         }
 
         binding.btnSair.setOnClickListener {
@@ -81,12 +82,12 @@ class ConfigurationFragment : Fragment() {
                 requireActivity().startActivity(intent)
                 requireActivity().finish()
             }else{
-                Snackbar.make(requireView(), "", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(requireView(), Constants.EMPTY_STRING, Snackbar.LENGTH_SHORT).show()
             }
         }
 
         configViewModel.configData.observe(viewLifecycleOwner){ configData ->
-            binding.txvHourLastBackup.text = configData.dateLastBackup.ifBlank { "Sem backup realizado" }
+            binding.txvHourLastBackup.text = configData.dateLastBackup.ifBlank { getString(R.string.sem_backup_realizado) }
             binding.toggleCartTotal.isChecked = configData.isToShowCartTotal
             binding.toggleProductsDone.isChecked = configData.isToMoveItensToBottom
             binding.toggleAutoBackup.isChecked = configData.isAutoBackupOn
@@ -104,7 +105,7 @@ class ConfigurationFragment : Fragment() {
         }
     }
 
-    private fun voltarTela(){
+    private fun navigateBack(){
         findNavController().popBackStack(R.id.homeFragment, false)
     }
 

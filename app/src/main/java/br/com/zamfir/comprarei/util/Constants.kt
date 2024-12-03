@@ -17,6 +17,8 @@ class Constants {
         const val PASSWORD_KEY = "PASSWORD_KEY"
         const val EMPTY_STRING = ""
         const val MANUAL_BACKUP_KEY = "MANUAL_BACKUP"
+        const val DEFAULT_OR_MIN_QNT_PRODUCT = "1"
+        const val DEFAULT_OR_MIN_VALUE_PRODUCT = "0"
 
         const val FILTER_NAME = "Name"
         const val FILTER_DATE = "Date"
@@ -42,6 +44,8 @@ class Constants {
         const val FIRESTORE_CARTS_DOCUMENT_PATH = "Carts"
         const val FIRESTORE_PRODUCTS_DOCUMENT_PATH = "Products"
         const val FIRESTORE_CATEGORIES_DOCUMENT_PATH = "Categories"
+
+        const val ANIMATOR_ALPHA_PROPERTY = "alpha"
 
     }
 }

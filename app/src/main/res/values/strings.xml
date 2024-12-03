@@ -171,5 +171,13 @@
     <string name="msg_permissao_notificacao_negada">Seems that you did not granted notification permission. None notification will show.</string>
     <string name="permissao_notificacao">Notification permission</string>
     <string name="msg_permissao_notificacao">For a better experience, grant the Post Notification permission.</string>
+    <string name="moeda_real">$</string>
+    <string name="space_interrogation" translatable="false">" ?"</string>
+    <string name="logging_you_in">Logging you in...</string>
+    <string name="trying_to_login_with_google_account">Trying to login with Google account...</string>
+    <string name="can_t_be_blank">Can\'t be blank!</string>
+    <string name="sem_backup_realizado">No backup done</string>
+    <string name="ola">Hi</string>
+    <string name="welcome">Welcome</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

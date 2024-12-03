@@ -110,8 +110,8 @@ class HomeFragment : Fragment(), BaseFragment {
             val userEmailView = findViewById<TextView>(R.id.user_email_navigation)
             val userProfileView = findViewById<ShapeableImageView>(R.id.profile_picture_navigation)
 
-            userNameView.text = loggedUser?.name ?: "Olá"
-            userEmailView.text = loggedUser?.email ?: "Bem-Vindo"
+            userNameView.text = loggedUser?.name ?: context.getString(R.string.ola)
+            userEmailView.text = loggedUser?.email ?: context.getString(R.string.welcome)
             if(loggedUser?.profilePicture.isNullOrBlank()) userProfileView.isVisible(false)
             else Glide.with(requireContext())
                 .load(loggedUser?.profilePicture)
@@ -190,10 +190,6 @@ class HomeFragment : Fragment(), BaseFragment {
                 requireActivity().startActivity(Intent(requireActivity(), LoginActivity::class.java))
                 requireActivity().finish()
             }
-        }
-
-        categoryViewModel.idCreatedCategory.observe(viewLifecycleOwner){
-            //viewModel.updateAllData()
         }
     }
 
@@ -383,7 +379,7 @@ class HomeFragment : Fragment(), BaseFragment {
     private fun confirmDeletion(cartsToDelete : List<Cart>) {
         if(cartsToDelete.size == 1){
             AlertDialog.Builder(context).setTitle(getString(R.string.title_confirmation))
-                .setMessage(getString(R.string.message_delete_confirmation) + cartsToDelete.first().name + " ?")
+                .setMessage(getString(R.string.message_delete_confirmation) + cartsToDelete.first().name + requireContext().getString(R.string.space_interrogation))
                 .setIcon(R.drawable.ic_info_24).setPositiveButton(getString(R.string.positive_confirmation)) { dialog, _ ->
                     deleteCarts(cartsToDelete)
                     if(selectionMode) changeSelectState()
@@ -393,7 +389,7 @@ class HomeFragment : Fragment(), BaseFragment {
                 }.show()
         }else{
             AlertDialog.Builder(context).setTitle(getString(R.string.title_confirmation)).setMessage(
-                getString(R.string.message_delete_confirmation) + cartsToDelete.size + getString(R.string.multiple_items_confirmation) + " ?")
+                getString(R.string.message_delete_confirmation) + cartsToDelete.size + getString(R.string.multiple_items_confirmation) + requireContext().getString(R.string.space_interrogation))
                 .setIcon(R.drawable.ic_info_24)
                 .setPositiveButton(getString(R.string.positive_confirmation)) { dialog, _ ->
                     deleteCarts(cartsToDelete)
@@ -489,10 +485,9 @@ class HomeFragment : Fragment(), BaseFragment {
                     cartsAdapter.notifyDataSetChanged()
                     sortMenu.icon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_filter_list_24)
                 }else{
-                    var tempList = mutableListOf<Cart>()
                     selectedFilter = filter
 
-                    tempList = viewModel.filter(filter, originalList).toMutableList()
+                    val tempList: MutableList<Cart> = viewModel.filter(filter, originalList).toMutableList()
 
                     cartsAdapter.differ.submitList(tempList)
                     cartsAdapter.notifyDataSetChanged()
@@ -500,7 +495,7 @@ class HomeFragment : Fragment(), BaseFragment {
                 }
             }
 
-        }.show(parentFragmentManager, "")
+        }.show(parentFragmentManager, Constants.EMPTY_STRING)
 
         return true
     }

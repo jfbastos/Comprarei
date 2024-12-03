@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.FragmentCategoryBinding
 import br.com.zamfir.comprarei.data.model.entity.Category
+import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.isVisible
 import br.com.zamfir.comprarei.util.show
 import br.com.zamfir.comprarei.view.adapters.CategoryAdapter
@@ -78,20 +79,20 @@ class CategoryFragment : Fragment() {
         binding.newCategoryBtn.setOnClickListener {
             NewCategoryDialog(categoriesList){ newCategory, _ ->
                 saveCategory(newCategory)
-            }.show(parentFragmentManager, "")
+            }.show(parentFragmentManager, Constants.EMPTY_STRING)
         }
 
         categoryAdapter.setOnItemClickListener {
             NewCategoryDialog(categoriesList,it){editedCategory, isDeletion ->
                 if(isDeletion) deleteCategory(editedCategory)
                 else updateCategory(editedCategory)
-            }.show(parentFragmentManager, "")
+            }.show(parentFragmentManager, Constants.EMPTY_STRING)
         }
 
         categoryAdapter.setOnDeleteClickListener {
             AlertDialog.Builder(requireContext())
                 .setTitle(R.string.title_confirmation)
-                .setMessage(getString(R.string.message_delete_confirmation) + it.description + " ?")
+                .setMessage(getString(R.string.message_delete_confirmation) + it.description + getString(R.string.space_interrogation))
                 .setPositiveButton(R.string.positive_confirmation){ dialog, _ ->
                     deleteCategory(it)
                     dialog.dismiss()
@@ -103,11 +104,11 @@ class CategoryFragment : Fragment() {
 
         binding.toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
         binding.toolbar.setNavigationOnClickListener {
-            voltarTela()
+            navigateBack()
         }
     }
 
-    private fun voltarTela() {
+    private fun navigateBack() {
         this.parentFragmentManager.popBackStack(
             null, FragmentManager.POP_BACK_STACK_INCLUSIVE
         )
@@ -209,7 +210,7 @@ class CategoryFragment : Fragment() {
                         binding.searchView.isVisible(false)
                     }
                     else -> {
-                       voltarTela()
+                       navigateBack()
                     }
                 }
                 true

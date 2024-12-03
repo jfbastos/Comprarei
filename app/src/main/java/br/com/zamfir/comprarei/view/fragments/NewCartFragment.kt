@@ -99,32 +99,15 @@ class NewCartFragment() : DialogFragment() {
                 }
 
                 DateUtil.validateDate(binding.cartDate.text.toString()) -> {
-                    val selectedCategory = categories.firstOrNull { it.description == binding.categoriesMenu.text.toString() }
                     if(isUpdate){
-                        cart?.apply {
-                            name = binding.cartName.text.toString()
-                            data = binding.cartDate.text.toString().takeIf { it.isNotBlank() } ?: DateUtil.getTodayDate()
-                            categoryId = selectedCategory?.id ?: 0
-                            category = selectedCategory
-                            store = binding.cartStore.text.toString()
-                            onUpdate.invoke(this)
-                        }
+                        updateCart(categories.firstOrNull { it.description == binding.categoriesMenu.text.toString() })
                     }else{
-                        onSave.invoke(Cart(
-                            name = binding.cartName.text.toString(),
-                            data = binding.cartDate.text.toString().takeIf { it.isNotBlank() } ?: DateUtil.getTodayDate(),
-                            total = Constants.EMPTY_CART_VALUE,
-                            position = lastKnowPosition,
-                            categoryId = selectedCategory?.id ?: 0,
-                            store = binding.cartStore.text.toString()).apply {
-                            category = selectedCategory
-                        })
+                        createCart(categories.firstOrNull { it.description == binding.categoriesMenu.text.toString() })
                     }
-
                     this.dismiss()
                 }
                 else -> {
-                    binding.cartDate.errorAnimation("")
+                    binding.cartDate.errorAnimation(Constants.EMPTY_STRING)
                 }
             }
         }
@@ -134,6 +117,29 @@ class NewCartFragment() : DialogFragment() {
         }
 
         return builder.create()
+    }
+
+    private fun createCart(selectedCategory: Category?) {
+        onSave.invoke(Cart(
+            name = binding.cartName.text.toString(),
+            data = binding.cartDate.text.toString().takeIf { it.isNotBlank() } ?: DateUtil.getTodayDate(),
+            total = Constants.EMPTY_CART_VALUE,
+            position = lastKnowPosition,
+            categoryId = selectedCategory?.id ?: 0,
+            store = binding.cartStore.text.toString()).apply {
+            category = selectedCategory
+        })
+    }
+
+    private fun updateCart(selectedCategory: Category?) {
+        cart?.apply {
+            name = binding.cartName.text.toString()
+            data = binding.cartDate.text.toString().takeIf { it.isNotBlank() } ?: DateUtil.getTodayDate()
+            categoryId = selectedCategory?.id ?: 0
+            category = selectedCategory
+            store = binding.cartStore.text.toString()
+            onUpdate.invoke(this)
+        }
     }
 
     private fun dateHandler() {

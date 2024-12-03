@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.BottomSheetNewProductBinding
 import br.com.zamfir.comprarei.data.model.entity.Product
+import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.FormatFrom
 import br.com.zamfir.comprarei.util.MoneyTextWatcher
 import br.com.zamfir.comprarei.util.convertMonetaryToDouble
@@ -35,12 +36,12 @@ class NewProductFragment : BottomSheetDialogFragment() {
         _binding = BottomSheetNewProductBinding.inflate(inflater, container, false)
 
         binding.addQuantityButton.setOnClickListener {
-            val value = Integer.valueOf(binding.productQuantity.text.toString().takeIf { it.isNotBlank() && it != "null"} ?: "0")
+            val value = Integer.valueOf(binding.productQuantity.text.toString().takeIf { it.isNotBlank()} ?: Constants.DEFAULT_OR_MIN_VALUE_PRODUCT)
             binding.productQuantity.setText(value.plus(1).toString())
         }
 
         binding.minutsQuantityButton.setOnClickListener {
-            val value = Integer.valueOf(binding.productQuantity.text.toString().takeIf { it.isNotBlank() && it != "null"} ?: "0")
+            val value = Integer.valueOf(binding.productQuantity.text.toString().takeIf { it.isNotBlank()} ?: Constants.DEFAULT_OR_MIN_VALUE_PRODUCT)
             binding.productQuantity.setText(if(value > 0) value.minus(1).toString() else value.toString())
         }
 
@@ -105,25 +106,25 @@ class NewProductFragment : BottomSheetDialogFragment() {
     private fun setValuesOfProduct(it: Product) {
         binding.dialogTitle.text = it.name
         binding.productName.setText(it.name)
-        binding.productPrice.setText(FormatFrom.doubleToMonetary("R$", it.price))
+        binding.productPrice.setText(FormatFrom.doubleToMonetary(getString(R.string.moeda_real), it.price))
         binding.productBrand.setText(it.brand)
         binding.productQuantity.setText(it.quantity.toString())
     }
 
     private fun saveProduct() {
         if (binding.productName.text.isNullOrEmpty()) {
-            binding.productNameLayout.error = ""
-            binding.productName.error = "Nome não pode ser vazio!"
+            binding.productNameLayout.error = Constants.EMPTY_STRING
+            binding.productName.error = getString(R.string.can_t_be_blank)
             binding.productName.requestFocus()
         } else {
             onFormFinish?.let {
                 if(product != null){
                     if (validateValueQuantity()) {
-                        binding.productQuantity.setText("1")
+                        binding.productQuantity.setText(Constants.DEFAULT_OR_MIN_QNT_PRODUCT)
                         product!!.name = binding.productName.text.toString()
                         product!!.brand = binding.productBrand.text.toString()
                         product!!.price = binding.productPrice.text.convertMonetaryToDouble()
-                        product!!.quantity = FormatFrom.stringToInt(binding.productQuantity.text.toString().ifBlank { "1" })
+                        product!!.quantity = FormatFrom.stringToInt(binding.productQuantity.text.toString().ifBlank { Constants.DEFAULT_OR_MIN_QNT_PRODUCT })
                         it(product!!)
 
                         isCancelable = true
@@ -132,7 +133,7 @@ class NewProductFragment : BottomSheetDialogFragment() {
                         product!!.name = binding.productName.text.toString()
                         product!!.brand = binding.productBrand.text.toString()
                         product!!.price = binding.productPrice.text.convertMonetaryToDouble()
-                        product!!.quantity = FormatFrom.stringToInt(binding.productQuantity.text.toString().ifBlank { "1" })
+                        product!!.quantity = FormatFrom.stringToInt(binding.productQuantity.text.toString().ifBlank { Constants.DEFAULT_OR_MIN_QNT_PRODUCT })
                         it(product!!)
 
                         isCancelable = true
@@ -140,13 +141,13 @@ class NewProductFragment : BottomSheetDialogFragment() {
                     }
                 }else{
                     if (validateValueQuantity()) {
-                        binding.productQuantity.setText("1")
+                        binding.productQuantity.setText(Constants.DEFAULT_OR_MIN_QNT_PRODUCT)
                         it(
                             Product(
                                 binding.productName.text.toString(),
                                 binding.productBrand.text.toString(),
                                 binding.productPrice.text.convertMonetaryToDouble(),
-                                FormatFrom.stringToInt(binding.productQuantity.text.toString().ifBlank { "1" }),
+                                FormatFrom.stringToInt(binding.productQuantity.text.toString().ifBlank { Constants.DEFAULT_OR_MIN_QNT_PRODUCT }),
                                 cartId,
                                 position = lastKnowPosition
                             )
@@ -159,7 +160,7 @@ class NewProductFragment : BottomSheetDialogFragment() {
                                 binding.productName.text.toString(),
                                 binding.productBrand.text.toString(),
                                 binding.productPrice.text.convertMonetaryToDouble(),
-                                FormatFrom.stringToInt(binding.productQuantity.text.toString().ifBlank { "1" }),
+                                FormatFrom.stringToInt(binding.productQuantity.text.toString().ifBlank { Constants.DEFAULT_OR_MIN_QNT_PRODUCT }),
                                 cartId,
                                 position = lastKnowPosition
                             )
@@ -173,7 +174,7 @@ class NewProductFragment : BottomSheetDialogFragment() {
     }
 
     private fun validateValueQuantity() =
-        binding.productPrice.text.convertMonetaryToDouble() != 0.0 && binding.productQuantity.text.toString().ifBlank { "0" }.toInt() == 0
+        binding.productPrice.text.convertMonetaryToDouble() != 0.0 && binding.productQuantity.text.toString().ifBlank { Constants.DEFAULT_OR_MIN_VALUE_PRODUCT }.toInt() == 0
 
     companion object {
         private const val ON_FORM_FINISH_KEY = "OnFormFinish"
@@ -194,7 +195,7 @@ class NewProductFragment : BottomSheetDialogFragment() {
 
             val bottomSheetFragment = NewProductFragment()
             bottomSheetFragment.arguments = bundle
-            bottomSheetFragment.show(parentFragmentManager, "BOTTOMNEWPRODUCT")
+            bottomSheetFragment.show(parentFragmentManager, Constants.EMPTY_STRING)
         }
 
         fun Fragment.openEditProductBottomSheet(
@@ -208,7 +209,7 @@ class NewProductFragment : BottomSheetDialogFragment() {
 
             val bottomSheetFragment = NewProductFragment()
             bottomSheetFragment.arguments = bundle
-            bottomSheetFragment.show(parentFragmentManager, "BOTTOMNEWPRODUCT")
+            bottomSheetFragment.show(parentFragmentManager, Constants.EMPTY_STRING)
         }
     }
 
