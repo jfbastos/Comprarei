@@ -2,12 +2,10 @@ package br.com.zamfir.comprarei.view.activity
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.ActivityCrashBinding
+import br.com.zamfir.comprarei.util.log.LogUtil
+import br.com.zamfir.comprarei.util.log.TelegramLogLevel
 
 class CrashActivity : AppCompatActivity() {
 
@@ -30,6 +28,8 @@ class CrashActivity : AppCompatActivity() {
         sb.append(intent.getStringExtra("Date"))
 
         binding.errorBody.text = sb.toString()
+
+        LogUtil.sendLog(TelegramLogLevel.ERROR, sb.toString())
 
         binding.restartApp.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java).apply {

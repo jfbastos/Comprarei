@@ -8,3 +8,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Comprarei"
 include ':app'
+include ':app:telegram'

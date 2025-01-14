@@ -24,6 +24,9 @@ import androidx.work.WorkManager
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.data.workers.BackupWorker
 import br.com.zamfir.comprarei.databinding.ActivityMainBinding
+import br.com.zamfir.comprarei.mylibrary.telegram.TelegramLog
+import br.com.zamfir.comprarei.util.log.LogUtil
+import br.com.zamfir.comprarei.util.log.TelegramLogLevel
 import br.com.zamfir.comprarei.view.listeners.PhotoSelectedListener
 import br.com.zamfir.comprarei.view.listeners.PhotopickerListener
 import br.com.zamfir.comprarei.viewmodel.LoginViewModel
@@ -47,8 +50,6 @@ class MainActivity : AppCompatActivity() {
         val pickedMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) {uri ->
             if(uri != null){
                PhotoSelectedListener.photoSelectedListener.onPhotoSelected(uri)
-            }else{
-                Log.d("DEBUG", "No media selected")
             }
         }
 
@@ -117,9 +118,7 @@ class MainActivity : AppCompatActivity() {
                     .show()
             }
 
-            else -> {
-                Toast.makeText(this, "Permissão de notificação não concedida.", Toast.LENGTH_SHORT).show()
-            }
+            else -> {}
         }
     }
 
