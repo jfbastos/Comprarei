@@ -20,8 +20,9 @@ O app ainda está em fase de desenvolvimento e irá para a Playstore logo mais! 
 - :heavy_check_mark: Adicionar produtos informando nome, marca(opcional), preço e quantidade;
 - :heavy_check_mark: Calcular o total da compra e a quantidade de itens;
 - :heavy_check_mark: Compartilhar a compra como texto via share nativo;
-- :heavy_check_mark: Tema dark.
-- :construction: Login com conta google para armazenamento em nuvem das listas;
+- :heavy_check_mark: Login com conta google;
+- :heavy_check_mark: Personalização do perfil do usuário;
+- :heavy_check_mark: Backup dos dados de forma períodica;
 
 
 ### Tecnologias utilizadas
@@ -32,5 +33,6 @@ O app ainda está em fase de desenvolvimento e irá para a Playstore logo mais! 
 - Listas performáticas utilizando RecyclerViewer e DiffUtil
 - Interface utilizando material design
 - Injeção de dependência com Koin
+- Jobs periódicas utilizando Workmanager
 
 
