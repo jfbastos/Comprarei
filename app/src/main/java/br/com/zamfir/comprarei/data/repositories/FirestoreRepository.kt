@@ -183,22 +183,22 @@ class FirestoreRepository(private val context : Context, private val appDatabase
                 LogUtil.sendLog(TelegramLogLevel.ERROR, "Erro no método obterDadosDoUsuario ${throwable.stackTraceToString()}")
             }
 
-            runOnMainDispatcher { LoginProgressListener.loginProgressListener.onProgress("Download info from cloud...") }
+            runOnMainDispatcher { LoginProgressListener.loginProgressListener.onProgress("Obtendo informações da núvem...") }
             createUserDataIfNotExists(docRef) { docRefException ->
                 CoroutineScope(Dispatchers.IO).launch(handler) {
                     if (docRefException != null) throw docRefException
 
-                    runOnMainDispatcher { LoginProgressListener.loginProgressListener.onProgress("Fetching carts...") }
+                    runOnMainDispatcher { LoginProgressListener.loginProgressListener.onProgress("Obntendo carrinhos...") }
                     docRef.collection(Constants.FIRESTORE_CARTS_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.cartDocumentToEntity(it.data) }.also {
                         appDatabase.CartDao().insertAll(it)
                     }
 
-                    runOnMainDispatcher { LoginProgressListener.loginProgressListener.onProgress("Fetching products...") }
+                    runOnMainDispatcher { LoginProgressListener.loginProgressListener.onProgress("Obtendo produtos...") }
                     docRef.collection(Constants.FIRESTORE_PRODUCTS_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.productDocumentToEntity(it.data) }.also {
                         appDatabase.ProductDao().insertAll(it)
                     }
 
-                    runOnMainDispatcher { LoginProgressListener.loginProgressListener.onProgress("Fetching categories...") }
+                    runOnMainDispatcher { LoginProgressListener.loginProgressListener.onProgress("Obtendo categorias...") }
                     docRef.collection(Constants.FIRESTORE_CATEGORIES_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.categoryDocumentToEntity(it.data) }.also {
                         appDatabase.CategoryDao().insertAll(it)
                     }
