@@ -2,6 +2,8 @@ package br.com.zamfir.comprarei.view.fragments
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -175,25 +177,24 @@ class CategoryFragment : Fragment() {
     }
 
     private fun doSearch() : Boolean{
-        binding.searchView.show(requireContext())
         if (binding.searchView.isVisible) {
             binding.searchView.isVisible(false)
         } else {
+            binding.searchView.hint = "Search categories"
             binding.searchView.isVisible(true)
+            binding.searchView.requestFocus()
         }
 
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String): Boolean {
-                val searched = categoriesList.filter {it.description.uppercase().contains(query.uppercase()) }
+        binding.searchText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val searched = categoriesList.filter { it.description.uppercase().contains(s.toString().uppercase()) }
                 categoryAdapter.differ.submitList(searched)
-                return false
             }
 
-            override fun onQueryTextChange(nextText: String): Boolean {
-                val searched = categoriesList.filter {it.description.uppercase().contains(nextText.uppercase()) }
-                categoryAdapter.differ.submitList(searched)
-                return false
-            }
+            override fun afterTextChanged(s: Editable?) {}
+
         })
         return true
     }

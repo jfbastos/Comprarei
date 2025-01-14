@@ -59,115 +59,6 @@
             app:layout_constraintTop_toBottomOf="@id/msg_body"
             app:layout_constraintStart_toStartOf="parent"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/email_layout"
-            style="@style/MyLoginTextStyle"
-            android:layout_width="0dp"
-            android:layout_marginTop="18dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/warning_placeholder"
-            app:startIconDrawable="@drawable/email_black_24dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/user_hint"
-                android:maxLines="1"
-                android:textSize="14sp"
-                android:inputType="textEmailAddress" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/password_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/MyLoginTextStyle"
-            app:startIconDrawable="@drawable/lock_black_24dp"
-            app:endIconCheckable="true"
-            android:layout_marginTop="12dp"
-            app:boxCornerRadiusBottomEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            android:background="@drawable/login_inputtext_background"
-            app:passwordToggleEnabled="true"
-            app:layout_constraintTop_toBottomOf="@id/email_layout"
-            app:layout_constraintStart_toStartOf="@id/email_layout"
-            app:layout_constraintEnd_toEndOf="@id/email_layout">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPassword"
-                tools:text="123454"
-                android:maxLines="1"
-                android:hint="@string/password_hint" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_login"
-            android:layout_width="0dp"
-            android:layout_height="62dp"
-            app:cornerRadius="8dp"
-            android:textAllCaps="false"
-            app:layout_constraintEnd_toEndOf="@id/password_layout"
-            app:layout_constraintStart_toStartOf="@id/password_layout"
-            app:layout_constraintTop_toBottomOf="@id/password_layout"
-            android:layout_marginTop="24dp"
-            android:text="@string/re_autenticate"/>
-
-        <LinearLayout
-            android:id="@+id/loading_btn"
-            android:layout_width="0dp"
-            android:layout_height="51dp"
-            android:gravity="center"
-            android:visibility="gone"
-            tools:visibility="visible"
-            android:background="@drawable/btn_loading_background"
-            app:layout_constraintTop_toTopOf="@id/btn_login"
-            app:layout_constraintEnd_toEndOf="@id/btn_login"
-            app:layout_constraintStart_toStartOf="@id/btn_login"
-            app:layout_constraintBottom_toBottomOf="@id/btn_login"
-            android:orientation="horizontal">
-
-            <com.google.android.material.progressindicator.CircularProgressIndicator
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:indeterminate="true"
-                app:indicatorColor="@color/white"
-                app:indicatorSize="32dp"/>
-        </LinearLayout>
-
-        <include
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:id="@+id/btn_login_google"
-            layout="@layout/google_login_btn"
-            android:visibility="gone"
-            tools:visibility="visible"
-            android:layout_marginTop="12dp"
-            app:layout_constraintEnd_toEndOf="@id/btn_login"
-            app:layout_constraintStart_toStartOf="@id/btn_login"
-            app:layout_constraintTop_toBottomOf="@id/btn_login" />
-
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/animation_view"
-            android:layout_width="100dp"
-            android:layout_height="80dp"
-            app:lottie_rawRes="@raw/google_loading_4"
-            app:lottie_loop="true"
-            app:lottie_autoPlay="true"
-            android:visibility="gone"
-            tools:visibility="visible"
-            android:layout_marginTop="12dp"
-            app:layout_constraintEnd_toEndOf="@id/btn_login"
-            app:layout_constraintStart_toStartOf="@id/btn_login"
-            app:layout_constraintTop_toBottomOf="@id/btn_login" />
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/warning_placeholder"
             android:layout_width="0dp"
@@ -178,8 +69,8 @@
             android:visibility="gone"
             tools:visibility="visible"
             app:layout_constraintTop_toBottomOf="@id/msg_logged_with_google"
-            app:layout_constraintStart_toStartOf="@id/password_layout"
-            app:layout_constraintEnd_toEndOf="@id/password_layout">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <ImageView
                 android:id="@+id/warning_icon"
@@ -203,6 +94,114 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/warning_icon"
                 app:layout_constraintEnd_toEndOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/login_email_placeholder"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/warning_placeholder">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/email_layout"
+                style="@style/MyLoginTextStyle"
+                android:layout_width="match_parent"
+                android:layout_marginTop="18dp"
+                android:layout_height="wrap_content"
+                app:startIconDrawable="@drawable/email_black_24dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/user_hint"
+                    android:maxLines="1"
+                    android:textSize="14sp"
+                    android:inputType="textEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/password_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/MyLoginTextStyle"
+                app:startIconDrawable="@drawable/lock_black_24dp"
+                app:endIconCheckable="true"
+                android:layout_marginTop="12dp"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                android:background="@drawable/login_inputtext_background"
+                app:passwordToggleEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    tools:text="123454"
+                    android:maxLines="1"
+                    android:hint="@string/password_hint" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_login"
+                android:layout_width="match_parent"
+                android:layout_height="62dp"
+                app:cornerRadius="8dp"
+                android:textAllCaps="false"
+                android:layout_marginTop="24dp"
+                android:text="@string/re_autenticate"/>
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/loadingBtn"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:indeterminate="true"
+                android:layout_gravity="center"
+                app:indicatorColor="@color/white"
+                app:indicatorSize="32dp"/>
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/login_email_placeholder"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <include
+                android:id="@+id/btn_login_google"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                layout="@layout/google_login_btn"
+                android:visibility="gone"
+                tools:visibility="visible"
+                android:layout_marginTop="12dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/animation_view"
+                android:layout_width="100dp"
+                android:layout_height="80dp"
+                app:lottie_rawRes="@raw/google_loading_4"
+                app:lottie_loop="true"
+                app:lottie_autoPlay="true"
+                android:visibility="gone"
+                tools:visibility="visible"
+                android:layout_marginTop="12dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

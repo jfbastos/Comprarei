@@ -57,15 +57,6 @@
         app:layout_constraintStart_toEndOf="@id/category_place_holder"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <CheckBox
-        android:id="@+id/check_for_delete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        tools:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
-
     <TextView
         android:id="@+id/cartDate"
         android:layout_width="wrap_content"
@@ -82,7 +73,7 @@
         android:layout_below="@id/cart_name"
         android:layout_marginEnd="16dp"
         tools:text="R$ 100,00"
-        app:layout_constraintEnd_toEndOf="@id/check_for_delete"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/cartDate"/>
 
     <com.google.android.material.divider.MaterialDivider

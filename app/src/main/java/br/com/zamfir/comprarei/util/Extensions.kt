@@ -36,6 +36,16 @@ fun View.isVisible(visibility: Boolean) {
     if (visibility) this.visibility = View.VISIBLE else this.visibility = View.GONE
 }
 
+fun View.setEnabled(){
+    this.isEnabled = true
+    this.alpha = 1f
+}
+
+fun View.setDisabled(){
+    this.isEnabled = false
+    this.alpha = 0.5f
+}
+
 fun MenuItem.toggleVisibility() {
     this.isVisible = !this.isVisible
 }

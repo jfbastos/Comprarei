@@ -2,7 +2,7 @@ package br.com.zamfir.comprarei.data.model.entity
 
 import java.time.LocalDate
 
-class Filter() {
+class Filter {
     var sortOption : String? = null
     var byValue : ByValue? = null
     var byDate : ByDate? = null

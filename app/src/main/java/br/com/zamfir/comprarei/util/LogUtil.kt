@@ -1,7 +1,3 @@
 package br.com.zamfir.comprarei.util
 
-class LogUtil {
-
-
-
-}
+class LogUtil

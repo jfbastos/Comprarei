@@ -458,6 +458,7 @@ class ProductsFragment : Fragment(), BaseFragment {
             true
         }
 
+        shareMenu.setVisible(true)
         shareMenu.setOnMenuItemClickListener {
             sharedProduct(cartName)
             return@setOnMenuItemClickListener true

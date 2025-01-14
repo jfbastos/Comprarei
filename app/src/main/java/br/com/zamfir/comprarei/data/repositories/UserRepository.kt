@@ -161,7 +161,7 @@ class UserRepository(private val context : Context, private val appDatabase: App
         auth.currentUser?.updateProfile(profileChange)?.await()
     }
 
-    suspend fun updatePassword(oldPassword : String, newPassword : String) = withContext(dispatcher){
+    private suspend fun updatePassword(oldPassword : String, newPassword : String) = withContext(dispatcher){
         try{
             if((oldPassword.isBlank() || newPassword.isBlank()) || oldPassword == newPassword) return@withContext
             val userEmail = auth.currentUser?.email ?: getUserFromDb()?.email ?: ""

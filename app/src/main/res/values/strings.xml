@@ -138,7 +138,7 @@
     <string name="confirm">Confirm</string>
     <string name="no_connection_google_account">To login with google, you must have internet connection.</string>
     <string name="info_logged_with_google">Dear user, you have logged with google, so you must re-autenticate tapping in \'Sign in with Google\'.</string>
-    <string name="successfully_re_authenticated">✅ Successfully re-authenticated.</string>
+    <string name="successfully_re_authenticated">✅ Successfully re-authenticated. Now you can confirm account deletion.</string>
     <string name="user_already_re_autenticated">User already re-autenticated</string>
     <string name="wrong_user_or_password">Wrong user or password.</string>
     <string name="re_autenticate">Re-autenticate</string>
@@ -179,5 +179,6 @@
     <string name="sem_backup_realizado">No backup done</string>
     <string name="ola">Hi</string>
     <string name="welcome">Welcome</string>
+    <string name="msg_deletion_confirm">Do you confirm account deletion? All your info will be permanently deleted.</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

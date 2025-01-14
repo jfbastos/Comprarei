@@ -17,6 +17,7 @@ import br.com.zamfir.comprarei.util.GoogleSigninUtil
 import br.com.zamfir.comprarei.util.exceptions.InvalidLogin
 import br.com.zamfir.comprarei.util.isConectadoInternet
 import br.com.zamfir.comprarei.util.isVisible
+import br.com.zamfir.comprarei.util.setDisabled
 import br.com.zamfir.comprarei.view.listeners.LoginWithGoogleListener
 import br.com.zamfir.comprarei.viewmodel.LoginViewModel
 import br.com.zamfir.comprarei.viewmodel.ProfileViewModel
@@ -65,12 +66,9 @@ class DeleteAccountActivity : AppCompatActivity() {
         }
 
         loginViewModel.isLoginWithGoogle.observe(this){ isLoginWithGoogle ->
-            binding.msgLoggedWithGoogle.isVisible(false)
+            binding.msgLoggedWithGoogle.isVisible(isLoginWithGoogle)
+            binding.loginEmailPlaceholder.isVisible(!isLoginWithGoogle)
             if(isLoginWithGoogle) {
-                binding.passwordLayout.isEnabled = false
-                binding.passwordLayout.alpha = 0.5f
-                binding.emailLayout.isEnabled = false
-                binding.emailLayout.alpha = 0.5f
                 configLoginWithGoogle()
             }
         }
@@ -115,8 +113,8 @@ class DeleteAccountActivity : AppCompatActivity() {
 
         binding.confirmButton.setOnClickListener {
             AlertDialog.Builder(this)
-                .setTitle("Be careful")
-                .setMessage("Do you confirm account deletion? All your info will be permanently deleted.")
+                .setTitle(R.string.be_careful_title)
+                .setMessage(getString(R.string.msg_deletion_confirm))
                 .setIcon(R.drawable.round_warning_24_yellow)
                 .setPositiveButton(R.string.confirm){ dialog, _ ->
                     profileViewModel.deleteUser()

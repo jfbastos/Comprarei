@@ -122,7 +122,7 @@
     <string name="confirm">Confirmar</string>
     <string name="no_connection_google_account">Para logar com o google, você precisa ter conexão com a internet.</string>
     <string name="info_logged_with_google">Querido usuário, você logou usando sua conta google. Para reautentica-la você precisará apertar no botão \'Entrar com a conta Google\'</string>
-    <string name="successfully_re_authenticated">✅ Reautenticação realizada com sucesso.</string>
+    <string name="successfully_re_authenticated">✅ Reautenticação realizada com sucesso. Agora você pode confirmar a deleção da sua conta.</string>
     <string name="user_already_re_autenticated">Usuário já reautenticado</string>
     <string name="wrong_user_or_password">Usuário ou senha inválidos.</string>
     <string name="re_autenticate">Reautenticar</string>
@@ -160,5 +160,6 @@
     <string name="logging_you_in">Realizando login...</string>
     <string name="trying_to_login_with_google_account">Entrando com conta google...</string>
     <string name="can_t_be_blank">Não pode ser vazio!</string>
+    <string name="msg_deletion_confirm">Você confirma a deleção da conta? Todas as suas informações serão permanentemente deletadas.</string>
 
 </resources>

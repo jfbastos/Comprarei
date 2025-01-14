@@ -65,16 +65,9 @@ class HomeFragment : Fragment(), BaseFragment {
     private var originalList: MutableList<Cart> = mutableListOf()
     private var categoriesList : MutableList<Category> = mutableListOf()
     private var selectionMode = false
-    private var fabExapanded = false
     private var lastAction = -1
 
-    private val rotateOpenAnimation: Animation by lazy { AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_open_animation)}
-    private val rotateCloseAnimation: Animation by lazy {AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_close_animation)}
-    private val fromBottomAnimation: Animation by lazy {AnimationUtils.loadAnimation(requireContext(), R.anim.from_bottom_animation)}
-    private val toBottomAnimation: Animation by lazy {AnimationUtils.loadAnimation(requireContext(), R.anim.to_bottom_animation)}
-
     private val viewModel: CartViewModel by viewModel()
-    private val categoryViewModel : CategoryViewModel by viewModel()
     private val loginViewModel : LoginViewModel by viewModel()
 
     private var selectedFilter : Filter? = null
