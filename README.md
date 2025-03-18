@@ -12,8 +12,6 @@ Sem a necessidade de ter que instalar um app específico para cada um dos produt
 
 A ideia aqui é que menos é mais! Sem a necessidade de cadastros extensos de produtos e nem ter que tirar fotos. É colocar o que realmente importa e seguir.
 
-O app ainda está em fase de desenvolvimento e irá para a Playstore logo mais! 😄
-
 ### Funcionalidades
 
 - :heavy_check_mark: Criação de uma compra fornecendo nome e data;
