@@ -8,9 +8,6 @@
     <string name="multiple_items_confirmation">" items"</string>
     <string name="positive_confirmation">Yes</string>
     <string name="negative_confirmation">Cancel</string>
-    <string name="product_sort_name">Name</string>
-    <string name="product_sort_price">Price (by lowest)</string>
-    <string name="product_sort_total">Total (by lowest)</string>
     <string name="new_product">New product</string>
     <string name="name">Name</string>
     <string name="brand">Brand</string>
@@ -24,7 +21,6 @@
     <string name="date_dd_mm_yyyy">Date (dd/mm/yyyy)</string>
     <string name="product">Product</string>
     <string name="x" translatable="false">x</string>
-    <string name="sort_type">Sort by:</string>
     <string name="search">Search</string>
     <string name="delete">Delete many</string>
     <string name="sort">Sort</string>
@@ -35,7 +31,6 @@
     <string name="night_on_msg">Night mode on</string>
     <string name="swipe_delete_msg">Delete</string>
     <string name="swipe_to_edit">Edit</string>
-    <string name="total_value">Total value</string>
     <string name="be_careful_title">Be careful!</string>
     <string name="carts_with_category">Looks like you have some carts with this category!\n\nAre you sure?</string>
     <string name="select_items">Select items</string>
@@ -91,7 +86,6 @@
     <string name="more">More</string>
     <string name="more_info">More info</string>
     <string name="required">(Required)</string>
-    <string name="sort_and_filter">Sort and Filter</string>
     <string name="sort_by">Sort by</string>
     <string name="category">Category</string>
     <string name="filter_by">Filter by</string>

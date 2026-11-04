@@ -1,9 +1,9 @@
 package br.com.zamfir.comprarei.feature.auth.presentation
 
 import android.app.Activity
-import android.util.Log
 import androidx.activity.result.ActivityResult
 import br.com.zamfir.comprarei.R
+import br.com.zamfir.comprarei.core.util.log.AppLogger
 import br.com.zamfir.comprarei.feature.auth.presentation.listeners.LoginProgressListener
 import br.com.zamfir.comprarei.feature.auth.presentation.listeners.LoginWithGoogleListener
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
@@ -42,7 +42,7 @@ class GoogleSigninUtil(private val callingActivity : Activity) {
                 signInWithGoogle(token)
             }
         } catch (e: ApiException) {
-            Log.d("DEBUG", e.stackTraceToString())
+            AppLogger.error("Falha no login com Google (One Tap)", e)
         }
     }
 

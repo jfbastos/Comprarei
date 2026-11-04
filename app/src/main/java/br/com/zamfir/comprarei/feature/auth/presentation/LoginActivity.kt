@@ -1,23 +1,19 @@
 package br.com.zamfir.comprarei.feature.auth.presentation
 
-import android.app.Activity
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import br.com.zamfir.comprarei.databinding.LoginActivityBinding
-import br.com.zamfir.comprarei.core.presentation.isVisible
 import br.com.zamfir.comprarei.core.presentation.listeners.PhotoSelectedListener
 import br.com.zamfir.comprarei.core.presentation.listeners.PhotopickerListener
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
-import com.google.android.gms.auth.api.identity.SignInClient
+import br.com.zamfir.comprarei.core.util.log.AppLogger
+import br.com.zamfir.comprarei.databinding.LoginActivityBinding
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
-import com.google.firebase.Firebase
 
 class LoginActivity : AppCompatActivity() {
 
@@ -44,7 +40,7 @@ class LoginActivity : AppCompatActivity() {
             if(uri != null){
                 PhotoSelectedListener.photoSelectedListener.onPhotoSelected(uri)
             }else{
-                Log.d("DEBUG", "No media selected")
+                AppLogger.debug("Nenhuma foto selecionada")
             }
         }
 

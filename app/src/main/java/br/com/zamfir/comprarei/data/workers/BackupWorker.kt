@@ -4,7 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.media.RingtoneManager
-import android.util.Log
+import br.com.zamfir.comprarei.core.util.log.AppLogger
 import androidx.core.app.NotificationCompat
 import androidx.core.content.edit
 import androidx.work.CoroutineWorker
@@ -42,7 +42,7 @@ class BackupWorker(context : Context, parameters: WorkerParameters) : CoroutineW
             if(isManualBackup) sendNotification("Backup", "Compras salvas com sucesso.")
             Result.success()
         }catch (e : Exception){
-            Log.d("DEBUG", "Failed to backup. Detail: ${e.stackTraceToString()}")
+            AppLogger.error(if (isManualBackup) "Falha no backup manual" else "Falha no backup automático", e)
             Result.failure()
         }
     }

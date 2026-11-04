@@ -1,6 +1,7 @@
 package br.com.zamfir.comprarei.core.util
 
 import android.text.Editable
+import br.com.zamfir.comprarei.core.util.log.AppLogger
 
 fun Editable?.convertMonetaryToDouble(): Double {
     if (this.isNullOrEmpty()) return 0.0
@@ -13,7 +14,7 @@ fun Editable?.convertMonetaryToDouble(): Double {
         }
         text.trim().toDouble()
     } catch (e: Exception) {
-        e.printStackTrace()
+        AppLogger.warning("Falha ao converter valor monetário \"$this\": ${e.message}")
         0.0
     }
 }
@@ -29,7 +30,7 @@ fun String?.convertMonetaryToDouble(): Double {
         }
         text.trim().toDouble()
     } catch (e: Exception) {
-        e.printStackTrace()
+        AppLogger.warning("Falha ao converter valor monetário \"$this\": ${e.message}")
         0.0
     }
 }

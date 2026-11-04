@@ -8,9 +8,6 @@
     <string name="multiple_items_confirmation">" itens"</string>
     <string name="positive_confirmation">Sim</string>
     <string name="negative_confirmation">Cancelar</string>
-    <string name="product_sort_name">Nome</string>
-    <string name="product_sort_price">Preço (menor pro maior)</string>
-    <string name="product_sort_total">Total (menor pro maior)</string>
     <string name="new_product">Novo produto</string>
     <string name="name">Nome</string>
     <string name="brand">Marca</string>
@@ -23,7 +20,6 @@
     <string name="new_cart">Nova Compra</string>
     <string name="date_dd_mm_yyyy">Data (dd/mm/aaaa)</string>
     <string name="product">Produto</string>
-    <string name="sort_type">Ordenar por:</string>
     <string name="search">pesquisa</string>
     <string name="delete">Deletar vários</string>
     <string name="sort">Ordenar</string>
@@ -34,7 +30,6 @@
     <string name="night_on_msg">Modo noturno ligado</string>
     <string name="swipe_delete_msg">Deletar</string>
     <string name="swipe_to_edit">Editar</string>
-    <string name="total_value">Valor total</string>
     <string name="be_careful_title">Cuidado</string>
     <string name="carts_with_category">Existem carrinho(s) vinculdos a esta categoria, Deseja realmente deleta-la?</string>
     <string name="select_items">Selecione os itens...</string>
@@ -79,7 +74,6 @@
     <string name="create_account">Criar conta</string>
     <string name="search_products">Procurar produtos</string>
     <string name="required">(Obrigatório)</string>
-    <string name="sort_and_filter">Filtar e ordenar</string>
     <string name="sort_by">Ordenar por</string>
     <string name="category">Categoria</string>
     <string name="filter_by">Filtrar por</string>

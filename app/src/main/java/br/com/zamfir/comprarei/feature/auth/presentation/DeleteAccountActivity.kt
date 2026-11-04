@@ -15,6 +15,7 @@ import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.databinding.ActivityDeleteAccountBinding
 import br.com.zamfir.comprarei.core.domain.exceptions.InvalidLogin
 import br.com.zamfir.comprarei.core.util.isConectadoInternet
+import br.com.zamfir.comprarei.core.util.log.AppLogger
 import br.com.zamfir.comprarei.core.presentation.isVisible
 import br.com.zamfir.comprarei.core.presentation.setDisabled
 import br.com.zamfir.comprarei.feature.auth.presentation.listeners.LoginWithGoogleListener
@@ -53,7 +54,7 @@ class DeleteAccountActivity : AppCompatActivity() {
             }
 
             override fun loginError(exception: Exception?) {
-                exception?.printStackTrace()
+                AppLogger.error("Falha no login com Google", exception)
             }
         })
 

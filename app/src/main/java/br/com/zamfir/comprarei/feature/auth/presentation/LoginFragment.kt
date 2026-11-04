@@ -15,6 +15,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.R
+import br.com.zamfir.comprarei.core.util.log.AppLogger
 import br.com.zamfir.comprarei.databinding.FragmentLoginBinding
 import br.com.zamfir.comprarei.core.util.Constants
 import br.com.zamfir.comprarei.core.domain.exceptions.InvalidLogin
@@ -56,7 +57,7 @@ class LoginFragment : Fragment() {
             }
 
             override fun loginError(exception: Exception?) {
-                exception?.printStackTrace()
+                AppLogger.error("Falha no login com Google", exception)
             }
         })
 

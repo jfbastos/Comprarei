@@ -1,6 +1,6 @@
 package br.com.zamfir.comprarei.feature.profile.presentation
 
-import android.util.Log
+import br.com.zamfir.comprarei.core.util.log.AppLogger
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -33,7 +33,7 @@ class ProfileViewModel(private val userRespository: UserRepository) : ViewModel(
             userRespository.updateUser(profileName, currentPassword, newPassword, photo)
             _successfullySave.value = ProfileEditState(success = true)
         }catch (e : Exception){
-            e.printStackTrace()
+            AppLogger.warning("Falha ao salvar o perfil: ${e.message}")
             _successfullySave.value = ProfileEditState(success = false, error = e)
         }
     }
@@ -43,7 +43,7 @@ class ProfileViewModel(private val userRespository: UserRepository) : ViewModel(
             userRespository.deleteUser()
             _deleteUserException.value = null
         }catch (e : Exception){
-            Log.e("DEBUG", "Failed to delete user : ${e.stackTraceToString()}")
+            AppLogger.error("Falha ao excluir o usuário", e)
             _deleteUserException.value = e
         }
     }

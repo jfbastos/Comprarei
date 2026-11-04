@@ -2,7 +2,6 @@ package br.com.zamfir.comprarei.core.data.user
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.core.net.toUri
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.core.database.AppDatabase
@@ -219,7 +218,7 @@ class UserRepository(private val context : Context, private val appDatabase: App
             appDatabase.clearAllTables()
             true
         }catch (e : Exception){
-            e.printStackTrace()
+            AppLogger.error("Falha ao deslogar o usuário", e)
             false
         }
     }

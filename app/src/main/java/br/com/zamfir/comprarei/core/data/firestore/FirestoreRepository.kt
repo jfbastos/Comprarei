@@ -1,7 +1,6 @@
 package br.com.zamfir.comprarei.core.data.firestore
 
 import android.content.Context
-import android.util.Log
 import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder

@@ -1,6 +1,6 @@
 package br.com.zamfir.comprarei.core.util
 
-import android.util.Log
+import br.com.zamfir.comprarei.core.util.log.AppLogger
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -32,7 +32,7 @@ object  DateUtil {
         return try{
             SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR")).format(Date())
         }catch (e : Exception){
-            Log.e(this.javaClass.name, e.toString())
+            AppLogger.error("Falha ao obter a data de hoje", e)
             ""
         }
     }
@@ -42,7 +42,7 @@ object  DateUtil {
             val localdate = LocalDateTime.parse(date, DateTimeFormatter.ISO_DATE_TIME)
             localdate.format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy"))
         }catch (e : Exception){
-            Log.e(this.javaClass.name, e.toString())
+            AppLogger.error("Falha ao formatar a data \"$date\"", e)
             ""
         }
     }

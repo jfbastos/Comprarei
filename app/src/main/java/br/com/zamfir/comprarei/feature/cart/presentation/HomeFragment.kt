@@ -8,7 +8,7 @@ import android.graphics.Canvas
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
+import br.com.zamfir.comprarei.core.util.log.AppLogger
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -215,7 +215,7 @@ class HomeFragment : Fragment() {
             cartsAdapter.differ.submitList(originalList)
             cartsAdapter.notifyItemChanged(cartsAdapter.getCartPosition(cart))
         }catch (e : Exception){
-            Log.e("DEBUG", "Falha ao atualizar na fragment : ${e.stackTraceToString()}")
+            AppLogger.error("Falha ao atualizar o carrinho na HomeFragment", e)
         }
 
     }
