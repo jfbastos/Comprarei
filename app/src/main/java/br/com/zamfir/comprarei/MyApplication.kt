@@ -14,7 +14,7 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        Thread.setDefaultUncaughtExceptionHandler(CrashHandler(this))
+        CrashHandler.install(this)
 
         startKoin {
             androidContext(applicationContext)

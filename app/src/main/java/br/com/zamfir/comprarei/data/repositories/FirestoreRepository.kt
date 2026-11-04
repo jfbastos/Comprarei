@@ -18,8 +18,7 @@ import br.com.zamfir.comprarei.util.Constants
 import br.com.zamfir.comprarei.util.exceptions.FirestoreDocumentCreationException
 import br.com.zamfir.comprarei.util.exceptions.FirestoreLoadRegistersException
 import br.com.zamfir.comprarei.data.workers.BackupWorker
-import br.com.zamfir.comprarei.util.log.LogUtil
-import br.com.zamfir.comprarei.util.log.TelegramLogLevel
+import br.com.zamfir.comprarei.util.log.AppLogger
 import br.com.zamfir.comprarei.view.listeners.LoginProgressListener
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.CollectionReference
@@ -180,7 +179,7 @@ class FirestoreRepository(private val context : Context, private val appDatabase
             val docRef = firestore.collection(auth.uid!!).document(Constants.FIRESTORE_DOCUMENT_PATH)
 
             val handler = CoroutineExceptionHandler { _, throwable ->
-                LogUtil.sendLog(TelegramLogLevel.ERROR, "Erro no método obterDadosDoUsuario ${throwable.stackTraceToString()}")
+                AppLogger.error("Erro no método obterDadosDoUsuario", throwable)
             }
 
             runOnMainDispatcher { LoginProgressListener.loginProgressListener.onProgress("Obtendo informações da núvem...") }
@@ -207,7 +206,7 @@ class FirestoreRepository(private val context : Context, private val appDatabase
                 }
             }
         } catch (e: Exception) {
-            LogUtil.sendLog(TelegramLogLevel.ERROR, "Erro no método obterDadosDoUsuario ${e.stackTraceToString()}")
+            AppLogger.error("Erro no método obterDadosDoUsuario", e)
         }
     }
 
@@ -231,7 +230,7 @@ class FirestoreRepository(private val context : Context, private val appDatabase
                     }
             }
         } catch (e: Exception) {
-            LogUtil.sendLog(TelegramLogLevel.ERROR,  "Erro no método getCartsFirestore ${e.stackTraceToString()}")
+            AppLogger.error("Erro no método getCartsFirestore", e)
         }
     }
 
@@ -253,7 +252,7 @@ class FirestoreRepository(private val context : Context, private val appDatabase
                 }
             }
         } catch (e: Exception) {
-            LogUtil.sendLog(TelegramLogLevel.ERROR,  "Erro no método getProductsFirestore ${e.stackTraceToString()}")
+            AppLogger.error("Erro no método getProductsFirestore", e)
         }
     }
 
@@ -275,7 +274,7 @@ class FirestoreRepository(private val context : Context, private val appDatabase
                 }
             }
         } catch (e: Exception) {
-            LogUtil.sendLog(TelegramLogLevel.ERROR,  "Erro no método getCategoryFirestore ${e.stackTraceToString()}")
+            AppLogger.error("Erro no método getCategoryFirestore", e)
         }
     }
 
@@ -299,7 +298,7 @@ class FirestoreRepository(private val context : Context, private val appDatabase
                 }
             }
         } catch (e: Exception) {
-            LogUtil.sendLog(TelegramLogLevel.ERROR,  "Erro no método createUserDataIfNotExists ${e.stackTraceToString()}")
+            AppLogger.error("Erro no método createUserDataIfNotExists", e)
         }
     }
 

@@ -4,8 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import br.com.zamfir.comprarei.databinding.ActivityCrashBinding
-import br.com.zamfir.comprarei.util.log.LogUtil
-import br.com.zamfir.comprarei.util.log.TelegramLogLevel
 
 class CrashActivity : AppCompatActivity() {
 
@@ -28,8 +26,6 @@ class CrashActivity : AppCompatActivity() {
         sb.append(intent.getStringExtra("Date"))
 
         binding.errorBody.text = sb.toString()
-
-        LogUtil.sendLog(TelegramLogLevel.ERROR, sb.toString())
 
         binding.restartApp.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java).apply {

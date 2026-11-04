@@ -13,8 +13,7 @@ import br.com.zamfir.comprarei.util.exceptions.InvalidPassword
 import br.com.zamfir.comprarei.util.exceptions.NoUserLogged
 import br.com.zamfir.comprarei.util.exceptions.UserAlreadyExists
 import br.com.zamfir.comprarei.util.exceptions.UserProfilePictureException
-import br.com.zamfir.comprarei.util.log.LogUtil
-import br.com.zamfir.comprarei.util.log.TelegramLogLevel
+import br.com.zamfir.comprarei.util.log.AppLogger
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -137,7 +136,7 @@ class UserRepository(private val context : Context, private val appDatabase: App
                 appDatabase.UserInfoDao().save(newUser)
             }
         }catch (e : Exception){
-            LogUtil.sendLog(TelegramLogLevel.ERROR,  "Failed to persist user info image. Details : ${e.stackTraceToString()}")
+            AppLogger.error("Failed to persist user info image", e)
         }
     }
 
@@ -173,7 +172,7 @@ class UserRepository(private val context : Context, private val appDatabase: App
             auth.currentUser?.updatePassword(newPassword)?.await()
         }catch (e : Exception){
             if(e is FirebaseAuthInvalidCredentialsException) throw InvalidPassword(context.getString(R.string.your_current_password_is_incorrect))
-            LogUtil.sendLog(TelegramLogLevel.ERROR, "Fail to update password. Details : ${e.stackTraceToString()}")
+            AppLogger.error("Fail to update password", e)
         }
 
     }
@@ -195,7 +194,7 @@ class UserRepository(private val context : Context, private val appDatabase: App
             if(upload.task.isSuccessful && downloadNewProfilePicture.task.isSuccessful) saveUserInfo(localFile.absolutePath)
             else throw UserProfilePictureException(context.getString(R.string.something_went_wrong_on_updating_profile_picture))
         }catch (e : Exception){
-            LogUtil.sendLog(TelegramLogLevel.ERROR,  "Problem on profile picture persistence $e")
+            AppLogger.error("Problem on profile picture persistence", e)
             UserProfilePictureException(context.getString(R.string.something_went_wrong_on_updating_profile_picture))
         }
     }
