@@ -21,7 +21,7 @@ interface CategoryDao {
     val allCategories : List<Category>
 
     @Query("SELECT * FROM CATEGORIES WHERE id = :id")
-    fun getCategoryById(id : Int) : Category
+    fun getCategoryById(id : Int) : Category?
 
     @Update
     fun updateCategory(category: Category)

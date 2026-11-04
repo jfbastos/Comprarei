@@ -16,8 +16,8 @@ import br.com.zamfir.comprarei.core.presentation.listeners.PhotopickerListener
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.Firebase
 
 class LoginActivity : AppCompatActivity() {
 
