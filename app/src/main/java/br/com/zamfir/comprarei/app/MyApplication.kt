@@ -1,10 +1,7 @@
 package br.com.zamfir.comprarei.app
 
 import android.app.Application
-import br.com.zamfir.comprarei.app.di.dataBaseModule
-import br.com.zamfir.comprarei.app.di.dispatcherModule
-import br.com.zamfir.comprarei.app.di.repositoryModule
-import br.com.zamfir.comprarei.app.di.viewModelModule
+import br.com.zamfir.comprarei.app.di.appModules
 import br.com.zamfir.comprarei.feature.crash.CrashHandler
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -18,12 +15,7 @@ class MyApplication : Application() {
 
         startKoin {
             androidContext(applicationContext)
-            modules(
-                listOf(
-                    dispatcherModule, dataBaseModule, repositoryModule,
-                    viewModelModule
-                )
-            )
+            modules(appModules)
         }
     }
 }
