@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="br.com.zamfir.comprarei.view.fragments.NewCartFragment">
+    tools:context="br.com.zamfir.comprarei.feature.cart.presentation.NewCartFragment">
 
     <DatePicker
         android:id="@+id/date_picker"

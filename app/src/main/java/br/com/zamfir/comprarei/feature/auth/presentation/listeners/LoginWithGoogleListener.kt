@@ -1,0 +1,18 @@
+package br.com.zamfir.comprarei.feature.auth.presentation.listeners
+
+import java.lang.Exception
+
+interface LoginWithGoogleListener {
+    fun userLoggedIn()
+    fun userCancelled()
+    fun loginError(exception: Exception?)
+
+    companion object{
+        lateinit var loginListener: LoginWithGoogleListener
+        fun setOnListener(loginListener : LoginWithGoogleListener){
+            this.loginListener = loginListener
+        }
+    }
+
+
+}

@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="br.com.zamfir.comprarei.view.fragments.LoginFragment"
+        android:name="br.com.zamfir.comprarei.feature.auth.presentation.LoginFragment"
         android:label="LoginFragment"
         tools:layout="@layout/fragment_login">
         <action
@@ -30,7 +30,7 @@
     </fragment>
     <fragment
         android:id="@+id/signinFragment"
-        android:name="br.com.zamfir.comprarei.view.fragments.CreateAccountFragment"
+        android:name="br.com.zamfir.comprarei.feature.auth.presentation.CreateAccountFragment"
         android:label="SigninFragment"
         tools:layout="@layout/fragment_sigin">
         <action

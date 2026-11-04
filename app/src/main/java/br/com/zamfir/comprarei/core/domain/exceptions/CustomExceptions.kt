@@ -1,0 +1,9 @@
+package br.com.zamfir.comprarei.core.domain.exceptions
+
+class InvalidLogin(val msg : String) : Exception(msg)
+class InvalidPassword(val msg : String) : Exception(msg)
+class UserAlreadyExists(val msg : String) : Exception(msg)
+class UserProfilePictureException(msg : String) : Exception(msg)
+class NoUserLogged(msg : String) : Exception(msg)
+class FirestoreLoadRegistersException(msg : String) : Exception(msg)
+class FirestoreDocumentCreationException(msg : String) : Exception(msg)

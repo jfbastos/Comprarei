@@ -10,13 +10,17 @@ import androidx.core.content.edit
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import br.com.zamfir.comprarei.R
-import br.com.zamfir.comprarei.data.repositories.ConfigRepository
-import br.com.zamfir.comprarei.data.repositories.FirestoreRepository
-import br.com.zamfir.comprarei.util.Constants
+import br.com.zamfir.comprarei.core.data.preferences.ConfigRepository
+import br.com.zamfir.comprarei.core.data.firestore.FirestoreRepository
+import br.com.zamfir.comprarei.core.util.Constants
 import org.koin.java.KoinJavaComponent.inject
 import java.time.LocalDateTime
 
-
+/**
+ * Não mover este arquivo de pacote: o WorkManager persiste o nome completo da classe
+ * e o job periódico é agendado com ExistingPeriodicWorkPolicy.KEEP. Se a classe mudar
+ * de pacote, o job já agendado nos aparelhos dos usuários falharia com ClassNotFoundException.
+ */
 class BackupWorker(context : Context, parameters: WorkerParameters) : CoroutineWorker(context, parameters) {
 
     private val firestoreRepository : FirestoreRepository by inject(FirestoreRepository::class.java)
