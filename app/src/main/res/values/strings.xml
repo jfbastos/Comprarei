@@ -175,4 +175,7 @@
     <string name="welcome">Welcome</string>
     <string name="msg_deletion_confirm">Do you confirm account deletion? All your info will be permanently deleted.</string>
     <!-- TODO: Remove or change this placeholder text -->
+    <string name="cd_show_password">Show password</string>
+    <string name="cd_hide_password">Hide password</string>
+    <string name="cd_loading">Loading</string>
 </resources>

@@ -156,4 +156,7 @@
     <string name="can_t_be_blank">Não pode ser vazio!</string>
     <string name="msg_deletion_confirm">Você confirma a deleção da conta? Todas as suas informações serão permanentemente deletadas.</string>
 
+    <string name="cd_show_password">Mostrar senha</string>
+    <string name="cd_hide_password">Ocultar senha</string>
+    <string name="cd_loading">Carregando</string>
 </resources>
