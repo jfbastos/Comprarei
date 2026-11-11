@@ -14,7 +14,7 @@
         android:theme="@style/Theme.Starting">
         <activity
             android:name=".feature.crash.CrashActivity"
-            android:exported="true"
+            android:exported="false"
             android:theme="@style/Theme.Comprarei"/>
         <activity
             android:name=".feature.auth.presentation.LoginActivity"

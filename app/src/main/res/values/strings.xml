@@ -151,7 +151,6 @@
     <string name="can_t_get_products_registers">Can\'t get products registers.</string>
     <string name="can_t_get_categories_registers">Can\'t get categories registers.</string>
     <string name="something_went_wrong_on_document_creation">"Something went wrong on cloud document creation "</string>
-    <string name="lorem_ipsum" translatable="false">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc justo est, ullamcorper non erat at, rhoncus finibus magna. Sed hendrerit, mauris et imperdiet tempor, nunc diam ornare enim, pulvinar consectetur ante felis imperdiet eros. Etiam mollis velit a venenatis faucibus. Nam semper nulla sed ex elementum dictum et ut quam. Suspendisse semper semper tortor, sit amet varius odio tincidunt id. Nulla facilisis est et nunc ultrices consectetur. Vestibulum porta mi nunc. Nullam pellentesque augue leo, mollis venenatis erat rutrum vitae. Pellentesque sit amet congue metus. Aliquam tristique ipsum id varius scelerisque. Duis lobortis semper nisl, vel sagittis dui iaculis tincidunt.</string>
     <string name="ops_something_went_wrong">Ops... something went wrong!</string>
     <string name="exception_screen_message">We had an unexpected error. The details were sent to our team, and we will fix it quickly. Sorry for the inconvenience.</string>
     <string name="restart_comprarei">Restart Comprarei</string>
@@ -178,4 +177,7 @@
     <string name="cd_show_password">Show password</string>
     <string name="cd_hide_password">Hide password</string>
     <string name="cd_loading">Loading</string>
+    <string name="copy">Copy</string>
+    <string name="details_copied">Details copied</string>
+    <string name="profile_save_error_title">Could not save your profile</string>
 </resources>

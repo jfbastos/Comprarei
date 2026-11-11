@@ -1,45 +1,65 @@
 package br.com.zamfir.comprarei.feature.crash
 
-import br.com.zamfir.comprarei.app.MainActivity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import br.com.zamfir.comprarei.databinding.ActivityCrashBinding
+import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import br.com.zamfir.comprarei.R
+import br.com.zamfir.comprarei.app.MainActivity
+import br.com.zamfir.comprarei.core.designsystem.theme.ComprareiTheme
 
-class CrashActivity : AppCompatActivity() {
-
-    var _binding : ActivityCrashBinding? = null
-    val binding : ActivityCrashBinding get() = _binding!!
+class CrashActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Ícones escuros nas barras do sistema, porque o tema está forçado no claro até a etapa 3.16.
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
+        )
         super.onCreate(savedInstanceState)
 
-        _binding = ActivityCrashBinding.inflate(layoutInflater)
+        val details = listOf(EXTRA_SOFTWARE, EXTRA_ERROR, EXTRA_DATE)
+            .mapNotNull { intent.getStringExtra(it)?.trim()?.takeIf(String::isNotEmpty) }
+            .joinToString("\n\n")
 
-        setContentView(binding.root)
-
-        val sb = StringBuilder()
-
-        sb.append(intent.getStringExtra("Software"))
-        sb.append("\n")
-        sb.append(intent.getStringExtra("Error"))
-        sb.append("\n\n")
-        sb.append(intent.getStringExtra("Date"))
-
-        binding.errorBody.text = sb.toString()
-
-        binding.restartApp.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        setContent {
+            ComprareiTheme {
+                CrashRoot(
+                    details = details,
+                    onRestart = ::restartApp,
+                    onCopyDetails = { copyToClipboard(details) },
+                )
             }
-            startActivity(intent)
-            finish()
         }
-
     }
 
-    override fun onDestroy() {
-        _binding = null
-        super.onDestroy()
+    private fun restartApp() {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun copyToClipboard(details: String) {
+        val clipboard = getSystemService(ClipboardManager::class.java)
+        clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.details), details))
+        // A partir do Android 13 o próprio sistema mostra a confirmação de cópia.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            Toast.makeText(this, R.string.details_copied, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    companion object {
+        const val EXTRA_ERROR = "Error"
+        const val EXTRA_SOFTWARE = "Software"
+        const val EXTRA_DATE = "Date"
     }
 }

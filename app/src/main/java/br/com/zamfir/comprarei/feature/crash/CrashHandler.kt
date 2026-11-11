@@ -28,9 +28,9 @@ class CrashHandler(
 
             val intent = Intent(context, CrashActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                putExtra("Error", errorMessage)
-                putExtra("Software", softwareInfo)
-                putExtra("Date", dateInfo)
+                putExtra(CrashActivity.EXTRA_ERROR, errorMessage)
+                putExtra(CrashActivity.EXTRA_SOFTWARE, softwareInfo)
+                putExtra(CrashActivity.EXTRA_DATE, dateInfo)
             }
             context.startActivity(intent)
         } catch (e: Throwable) {

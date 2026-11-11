@@ -8,10 +8,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.stringResource
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.R
+import br.com.zamfir.comprarei.core.designsystem.components.ComprareiErrorDialog
+import br.com.zamfir.comprarei.core.designsystem.theme.ComprareiTheme
 import br.com.zamfir.comprarei.databinding.FragmentProfileBinding
 import br.com.zamfir.comprarei.core.util.Constants
 import br.com.zamfir.comprarei.core.presentation.isVisible
@@ -98,13 +104,30 @@ class ProfileFragment : Fragment() {
                 voltar()
             }else{
                 showLoading(isLoading = false)
-                CustomErrorDialog(editProfileState.error?.stackTraceToString() ?: Constants.EMPTY_STRING).show(parentFragmentManager, Constants.EMPTY_STRING)
             }
         }
+
+        setupDialogHost()
 
         profileViewModel.profileState.observe(viewLifecycleOwner){ profileState ->
             binding.user.setText(profileState.userName)
             loadProfilePicture(cachedUserPictureUri ?: profileState.profilePicture)
+        }
+    }
+
+    private fun setupDialogHost() {
+        binding.dialogHost.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        binding.dialogHost.setContent {
+            ComprareiTheme {
+                val saveError by profileViewModel.saveError.collectAsStateWithLifecycle()
+                saveError?.let { error ->
+                    ComprareiErrorDialog(
+                        title = stringResource(R.string.profile_save_error_title),
+                        message = error.asString(),
+                        onDismiss = profileViewModel::dismissSaveError,
+                    )
+                }
+            }
         }
     }
 
