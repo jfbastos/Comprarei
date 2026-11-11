@@ -1,5 +1,6 @@
 package br.com.zamfir.comprarei.core.designsystem.components
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -34,6 +35,9 @@ import br.com.zamfir.comprarei.core.designsystem.theme.ComprareiTheme
  * @param error mensagem de erro; quando não nula, o campo fica vermelho e mostra a mensagem abaixo.
  * @param supportingText texto de apoio exibido quando não há erro.
  * @param isPassword oculta o texto e mostra o botão de mostrar/ocultar senha.
+ * @param leadingContent conteúdo inicial customizado (ex.: bolinha de cor); tem prioridade sobre [leadingIcon].
+ * @param trailingContent conteúdo final customizado (ex.: seta de dropdown); ignorado quando [isPassword].
+ * @param readOnly campo que não abre o teclado, para seletores (data, dropdown); use [interactionSource] para o toque.
  */
 @Composable
 fun ComprareiTextField(
@@ -52,6 +56,10 @@ fun ComprareiTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    leadingContent: (@Composable () -> Unit)? = null,
+    trailingContent: (@Composable () -> Unit)? = null,
+    readOnly: Boolean = false,
+    interactionSource: MutableInteractionSource? = null,
 ) {
     // Estado puramente visual do componente, não pertence ao ViewModel.
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
@@ -63,15 +71,16 @@ fun ComprareiTextField(
         onValueChange = onValueChange,
         modifier = modifier,
         enabled = enabled,
+        readOnly = readOnly,
         singleLine = singleLine,
         label = { Text(label) },
         placeholder = placeholder?.let { { Text(it) } },
         prefix = prefix?.let { { Text(it) } },
-        leadingIcon = leadingIcon?.let { { Icon(painter = it, contentDescription = null) } },
+        leadingIcon = leadingContent ?: leadingIcon?.let { { Icon(painter = it, contentDescription = null) } },
         trailingIcon = if (isPassword) {
             { PasswordToggle(visible = passwordVisible, onToggle = { passwordVisible = !passwordVisible }) }
         } else {
-            null
+            trailingContent
         },
         isError = error != null,
         supportingText = bottomText?.let { { Text(it) } },
@@ -85,6 +94,7 @@ fun ComprareiTextField(
             keyboardOptions
         },
         keyboardActions = keyboardActions,
+        interactionSource = interactionSource,
         shape = MaterialTheme.shapes.small,
     )
 }

@@ -19,6 +19,8 @@ class CartRepository(private val appDatabase: AppDatabase, private val dispatche
 
     suspend fun deleteCarts(carts: List<Int>) = withContext(dispatcher) { appDatabase.CartDao().deleteCarts(carts) }
 
+    suspend fun getStores(): List<String> = withContext(dispatcher) { appDatabase.CartDao().getStores() }
+
     suspend fun getCategories() = withContext(dispatcher) { appDatabase.CategoryDao().allCategories }
 
     suspend fun getCategoryById(id: Int) = withContext(dispatcher) { appDatabase.CategoryDao().getCategoryById(id) }

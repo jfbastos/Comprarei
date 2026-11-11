@@ -41,13 +41,11 @@
     <fragment
         android:id="@+id/categoryFragment"
         android:name="br.com.zamfir.comprarei.feature.category.presentation.CategoryFragment"
-        android:label="CategoryFragment"
-        tools:layout="@layout/fragment_category" />
+        android:label="CategoryFragment" />
     <fragment
         android:id="@+id/configuracaoFragment"
         android:name="br.com.zamfir.comprarei.feature.settings.presentation.ConfigurationFragment"
-        android:label="ConfiguracaoFragment"
-        tools:layout="@layout/fragment_configuration">
+        android:label="ConfiguracaoFragment">
         <action
             android:id="@+id/action_configuracaoFragment_to_profileFragment"
             app:destination="@id/profileFragment"

@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name" translatable="false">Comprarei</string>
     <string name="cart_sort_name_option">Name</string>
-    <string name="cart_sort_date_option">Date</string>
     <string name="title_confirmation">Are you sure?</string>
     <string name="message_delete_confirmation">Do you really want to delete\u0020</string>
     <string name="single_item_confirmation">item</string>
@@ -18,7 +17,6 @@
     <string name="save">Save</string>
     <string name="empty_list_message">Ops, nothing here yet…</string>
     <string name="new_cart">New cart</string>
-    <string name="date_dd_mm_yyyy">Date (dd/mm/yyyy)</string>
     <string name="product">Product</string>
     <string name="x" translatable="false">x</string>
     <string name="search">Search</string>
@@ -32,30 +30,17 @@
     <string name="swipe_delete_msg">Delete</string>
     <string name="swipe_to_edit">Edit</string>
     <string name="be_careful_title">Be careful!</string>
-    <string name="carts_with_category">Looks like you have some carts with this category!\n\nAre you sure?</string>
     <string name="select_items">Select items</string>
     <string name="blank_name">Name can\'t be blank!</string>
     <string name="select_category_color">Please, select a category color!</string>
-    <string name="choose_color">Choose color</string>
     <string name="ok" translatable="false">Ok</string>
     <string name="empty_category">Looks like you don\'t have any categories.\n\nAdd a new one :)</string>
     <string name="new_category">New category</string>
-    <string name="select_category_color_btn">Select category color</string>
-    <string name="select_category_hint">Select category</string>
     <string name="store_hint">Store</string>
     <string name="categories">Categories</string>
     <string name="themes">Themes</string>
     <string name="no_categories">No categories</string>
     <string name="search_carts">Search Carts</string>
-    <string name="to">to</string>
-
-
-    <string-array name="operators">
-        <item>Equal</item>
-        <item>Less than</item>
-        <item>Greater than</item>
-        <item>Range</item>
-    </string-array>
     <string name="highest_value">Value by Highest</string>
     <string name="lowest_value">Value by Lowest</string>
     <string name="by_done">By Done</string>
@@ -85,19 +70,13 @@
     <string name="something_went_wrong">Something went wrong</string>
     <string name="more">More</string>
     <string name="more_info">More info</string>
-    <string name="required">(Required)</string>
     <string name="sort_by">Sort by</string>
     <string name="category">Category</string>
-    <string name="filter_by">Filter by</string>
-    <string name="select_date_range">Select date range</string>
     <string name="value">Value</string>
-    <string name="operator">Operator</string>
     <string name="max" translatable="false">Max</string>
     <string name="clear_all">Clear all</string>
-    <string name="apply">Apply</string>
     <string name="min" translatable="false">Min</string>
     <string name="select_dates">Select dates</string>
-    <string name="range" translatable="false">Range</string>
     <string name="edit_category">Edit category</string>
     <string name="shared_file_name" translatable="false">SHARED_COMPRAREI</string>
     <string name="donetobottom_key" translatable="false">DONE_BOTTOM_KEY</string>
@@ -109,7 +88,6 @@
     <string name="move_to_end_of_list">Move done products to bottom</string>
     <string name="mostrar_total_do_carrinho">Show cart total</string>
     <string name="backup">Backup</string>
-    <string name="last_backup">Last backup done at:</string>
     <string name="realizar_backup">Do backup</string>
     <string name="logoff">Log off</string>
     <string name="senha_atual">Current password</string>
@@ -122,8 +100,6 @@
     <string name="image_uri_key" translatable="false">IMAGE_URI_KEY</string>
     <string name="no_internet_connection">No internet connection.</string>
     <string name="msg_warning_invalid_password">Password must have at least 6 characters.</string>
-    <string name="select_date">Select date</string>
-    <string name="initial_product_quantity" translatable="false">1</string>
     <string name="category_name_already_exists">Category name already exists.</string>
     <string name="sorry_that_you_re_leaving">Sorry that you\'re leaving 😓</string>
     <string name="to_delete_account_we_must_re_autenticate_your_user">To delete account, we must re-autenticate your user.</string>
@@ -188,4 +164,74 @@
     <string name="forgot_password_done">Got it</string>
     <string name="forgot_password_too_many_requests">Too many attempts. Please wait a few minutes and try again.</string>
     <string name="forgot_password_error">We could not send the e-mail. Please try again.</string>
+    <string name="navigate_back">Back</string>
+    <string name="settings_auto_backup">Automatic backup</string>
+    <string name="settings_auto_backup_description">Periodically saves your data to the cloud</string>
+    <string name="settings_last_backup">Last backup: %1$s</string>
+    <string name="settings_backup_running">Backing up…</string>
+    <string name="settings_backup_waiting_wifi">Waiting for Wi-Fi…</string>
+    <string name="settings_backup_success">Backup completed</string>
+    <string name="settings_backup_failed">Could not complete the backup. Please try again.</string>
+    <string name="settings_logoff_failed">Could not log off. Please try again.</string>
+    <string name="settings_confirm_backup_title">Back up now?</string>
+    <string name="settings_confirm_backup_message">Your carts, products and categories will be sent to the cloud as soon as you are connected to Wi-Fi.</string>
+    <string name="settings_confirm_logoff_title">Log off?</string>
+    <string name="settings_confirm_logoff_message">The data saved on this device will be erased. Anything not included in a backup will be lost.</string>
+    <string name="settings_confirm_logoff_no_backup">You have not made any backup yet.</string>
+    <string name="edit_product">Edit product</string>
+    <string name="save_and_add_another">Save and add another</string>
+    <string name="subtotal">Subtotal</string>
+    <string name="product_added">“%1$s” added</string>
+    <string name="discard_changes_title">Discard changes?</string>
+    <string name="discard_changes_message">What you typed will be lost.</string>
+    <string name="discard">Discard</string>
+    <string name="increase_quantity">Increase quantity</string>
+    <string name="decrease_quantity">Decrease quantity</string>
+    <string name="quantity_short">Qty.</string>
+    <string name="edit_cart">Edit cart</string>
+    <string name="cart_date">Date</string>
+    <string name="today">Today</string>
+    <string name="filter_title">Filters</string>
+    <string name="sort_name">Name</string>
+    <string name="sort_newest">Newest</string>
+    <string name="sort_oldest">Oldest</string>
+    <string name="sort_highest_value">Highest value</string>
+    <string name="sort_lowest_value">Lowest value</string>
+    <string name="filter_period">Period</string>
+    <string name="period_this_month">This month</string>
+    <string name="period_last_month">Last month</string>
+    <string name="period_last_30_days">Last 30 days</string>
+    <string name="period_custom">Custom…</string>
+    <string name="operator_equal">Equal to</string>
+    <string name="operator_less_than">Less than</string>
+    <string name="operator_greater_than">Greater than</string>
+    <string name="operator_between">Between</string>
+    <string name="filter_categories">Categories</string>
+    <string name="filter_no_results">No results</string>
+    <string name="clear_period">Clear period</string>
+    <string name="close">Close</string>
+    <plurals name="filter_show_results">
+        <item quantity="one">Show %d cart</item>
+        <item quantity="other">Show %d carts</item>
+    </plurals>
+    <string name="period_start">Start</string>
+    <string name="period_end">End</string>
+    <string name="category_color">Color</string>
+    <string name="category_color_option">Color %1$d</string>
+    <string name="category_preview">Preview</string>
+    <string name="category_name_placeholder">Category name</string>
+    <string name="delete_category_title">Delete category?</string>
+    <string name="delete_category_title_short">Delete category</string>
+    <string name="delete_category_message">“%1$s” will be deleted.</string>
+    <string name="delete_category_used_warning">Carts using this category will be left without a category.</string>
+    <string name="delete_action">Delete</string>
+    <string name="search_categories">Search categories</string>
+    <string name="categories_search_empty">No categories found</string>
+    <string name="category_no_carts">No carts</string>
+    <string name="categories_load_failed">Could not load categories.</string>
+    <string name="categories_save_failed">Could not save the change. Please try again.</string>
+    <plurals name="category_cart_count">
+        <item quantity="one">%d cart</item>
+        <item quantity="other">%d carts</item>
+    </plurals>
 </resources>

@@ -57,8 +57,3 @@ fun showKeyboard(context: Context) {
     val inputMethodManager: InputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
 }
-
-fun TextInputEditText.setMonetary(initialValue : String){
-    this.addTextChangedListener(MoneyTextWatcher(this))
-    this.setText(initialValue)
-}

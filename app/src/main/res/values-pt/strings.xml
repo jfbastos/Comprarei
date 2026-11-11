@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="cart_sort_name_option">Nome</string>
-    <string name="cart_sort_date_option">Data</string>
     <string name="title_confirmation">Tem certeza?</string>
     <string name="message_delete_confirmation">Você realmente deseja deletar\u0020</string>
     <string name="single_item_confirmation">item</string>
@@ -18,7 +17,6 @@
     <string name="save">Salvar</string>
     <string name="empty_list_message">Ops, nada aqui ainda…</string>
     <string name="new_cart">Nova Compra</string>
-    <string name="date_dd_mm_yyyy">Data (dd/mm/aaaa)</string>
     <string name="product">Produto</string>
     <string name="search">pesquisa</string>
     <string name="delete">Deletar vários</string>
@@ -31,21 +29,16 @@
     <string name="swipe_delete_msg">Deletar</string>
     <string name="swipe_to_edit">Editar</string>
     <string name="be_careful_title">Cuidado</string>
-    <string name="carts_with_category">Existem carrinho(s) vinculdos a esta categoria, Deseja realmente deleta-la?</string>
     <string name="select_items">Selecione os itens...</string>
     <string name="blank_name">Nome não pode ser vazio!</string>
     <string name="select_category_color">Por favor, selecione uma cor para a categoria!</string>
-    <string name="choose_color">Escolha a cor</string>
     <string name="empty_category">Parece que você ainda não tem nenhuma categoria. Adicione uma nova :)</string>
     <string name="new_category">Nova categoria</string>
-    <string name="select_category_color_btn">Selecione a cor</string>
-    <string name="select_category_hint">Selecione uma categoria</string>
     <string name="store_hint">Loja</string>
     <string name="categories">Categorias</string>
     <string name="themes">Temas</string>
     <string name="no_categories">Sem categorias</string>
     <string name="search_carts">Pesquisar carrinhos</string>
-    <string name="to">a</string>
     <string name="highest_value">Valor - Crescente</string>
     <string name="lowest_value">"Valor - Decrescente "</string>
     <string name="by_done">Marcados</string>
@@ -73,22 +66,11 @@
     <string name="number_hint">Ao menos 1 numero</string>
     <string name="create_account">Criar conta</string>
     <string name="search_products">Procurar produtos</string>
-    <string name="required">(Obrigatório)</string>
     <string name="sort_by">Ordenar por</string>
     <string name="category">Categoria</string>
-    <string name="filter_by">Filtrar por</string>
-    <string name="select_date_range">Selecione o período</string>
     <string name="value">Valor</string>
-    <string name="operator">Operador</string>
     <string name="clear_all">Limpar todos</string>
-    <string name="apply">Aplicar</string>
     <string name="select_dates">Selecione as datas</string>
-    <string-array name="operators">
-        <item>Igual</item>
-        <item>Menor que</item>
-        <item>Maior que</item>
-        <item>Entre</item>
-    </string-array>
     <string name="edit_category">Editar categoria</string>
     <string name="configuration">Configurações</string>
     <string name="editar_perfil">Editar perfil</string>
@@ -96,7 +78,6 @@
     <string name="move_to_end_of_list">Mover produtos marcados para o fim da lista</string>
     <string name="mostrar_total_do_carrinho">Mostrar total do carrinho</string>
     <string name="backup">Backup</string>
-    <string name="last_backup">"Último backup realizado às: "</string>
     <string name="realizar_backup">Realizar backup</string>
     <string name="logoff">Sair</string>
     <string name="senha_atual">Senha atual</string>
@@ -107,7 +88,6 @@
     <string name="please_fill_in_the_fields_to_create_a_new_account">Preencha todos os campos para criar sua conta</string>
     <string name="no_internet_connection">Sem conexão com a internet</string>
     <string name="msg_warning_invalid_password">A senha deve conter pelo menos 6 dígitos</string>
-    <string name="select_date">Selecione a data</string>
     <string name="category_name_already_exists">Já existe uma categoria com esse nome.</string>
     <string name="sorry_that_you_re_leaving">Sentiremos sua falta 😓</string>
     <string name="to_delete_account_we_must_re_autenticate_your_user">Para deletar sua conta, precisaremos reautenticar seu usuário.</string>
@@ -170,4 +150,76 @@
     <string name="forgot_password_done">Entendi</string>
     <string name="forgot_password_too_many_requests">Muitas tentativas. Aguarde alguns minutos e tente novamente.</string>
     <string name="forgot_password_error">Não foi possível enviar o e-mail. Tente novamente.</string>
+    <string name="navigate_back">Voltar</string>
+    <string name="settings_auto_backup">Backup automático</string>
+    <string name="settings_auto_backup_description">Salva seus dados na nuvem periodicamente</string>
+    <string name="settings_last_backup">Último backup: %1$s</string>
+    <string name="settings_backup_running">Fazendo backup…</string>
+    <string name="settings_backup_waiting_wifi">Aguardando Wi-Fi…</string>
+    <string name="settings_backup_success">Backup concluído</string>
+    <string name="settings_backup_failed">Não foi possível concluir o backup. Tente novamente.</string>
+    <string name="settings_logoff_failed">Não foi possível sair. Tente novamente.</string>
+    <string name="settings_confirm_backup_title">Fazer backup agora?</string>
+    <string name="settings_confirm_backup_message">Seus carrinhos, produtos e categorias serão enviados para a nuvem assim que houver conexão Wi-Fi.</string>
+    <string name="settings_confirm_logoff_title">Sair da conta?</string>
+    <string name="settings_confirm_logoff_message">Os dados salvos neste aparelho serão apagados. O que não estiver no backup será perdido.</string>
+    <string name="settings_confirm_logoff_no_backup">Você ainda não fez nenhum backup.</string>
+    <string name="edit_product">Editar produto</string>
+    <string name="save_and_add_another">Salvar e adicionar outro</string>
+    <string name="subtotal">Subtotal</string>
+    <string name="product_added">“%1$s” adicionado</string>
+    <string name="discard_changes_title">Descartar alterações?</string>
+    <string name="discard_changes_message">O que você digitou será perdido.</string>
+    <string name="discard">Descartar</string>
+    <string name="increase_quantity">Aumentar quantidade</string>
+    <string name="decrease_quantity">Diminuir quantidade</string>
+    <string name="quantity_short">Qtd.</string>
+    <string name="edit_cart">Editar compra</string>
+    <string name="cart_date">Data</string>
+    <string name="today">Hoje</string>
+    <string name="filter_title">Filtros</string>
+    <string name="sort_name">Nome</string>
+    <string name="sort_newest">Mais recente</string>
+    <string name="sort_oldest">Mais antiga</string>
+    <string name="sort_highest_value">Maior valor</string>
+    <string name="sort_lowest_value">Menor valor</string>
+    <string name="filter_period">Período</string>
+    <string name="period_this_month">Este mês</string>
+    <string name="period_last_month">Mês passado</string>
+    <string name="period_last_30_days">Últimos 30 dias</string>
+    <string name="period_custom">Personalizado…</string>
+    <string name="operator_equal">Igual a</string>
+    <string name="operator_less_than">Menor que</string>
+    <string name="operator_greater_than">Maior que</string>
+    <string name="operator_between">Entre</string>
+    <string name="filter_categories">Categorias</string>
+    <string name="filter_no_results">Sem resultados</string>
+    <string name="clear_period">Limpar período</string>
+    <string name="close">Fechar</string>
+    <plurals name="filter_show_results">
+        <item quantity="one">Mostrar %d compra</item>
+        <item quantity="many">Mostrar %d compras</item>
+        <item quantity="other">Mostrar %d compras</item>
+    </plurals>
+    <string name="period_start">Início</string>
+    <string name="period_end">Fim</string>
+    <string name="category_color">Cor</string>
+    <string name="category_color_option">Cor %1$d</string>
+    <string name="category_preview">Prévia</string>
+    <string name="category_name_placeholder">Nome da categoria</string>
+    <string name="delete_category_title">Excluir categoria?</string>
+    <string name="delete_category_title_short">Excluir categoria</string>
+    <string name="delete_category_message">“%1$s” será excluída.</string>
+    <string name="delete_category_used_warning">As compras que usam esta categoria ficarão sem categoria.</string>
+    <string name="delete_action">Excluir</string>
+    <string name="search_categories">Pesquisar categorias</string>
+    <string name="categories_search_empty">Nenhuma categoria encontrada</string>
+    <string name="category_no_carts">Nenhuma compra</string>
+    <string name="categories_load_failed">Não foi possível carregar as categorias.</string>
+    <string name="categories_save_failed">Não foi possível salvar a alteração. Tente novamente.</string>
+    <plurals name="category_cart_count">
+        <item quantity="one">%d compra</item>
+        <item quantity="many">%d compras</item>
+        <item quantity="other">%d compras</item>
+    </plurals>
 </resources>

@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="BottomSheetDialogThemeNoFloating" parent="Theme.Design.Light.BottomSheetDialog">
-        <item name="android:windowIsFloating">false</item>
-        <item name="android:windowSoftInputMode">adjustResize|stateVisible</item>
-    </style>
 
     <style name="MyInputTextStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="colorAccent">@color/primary_green</item>

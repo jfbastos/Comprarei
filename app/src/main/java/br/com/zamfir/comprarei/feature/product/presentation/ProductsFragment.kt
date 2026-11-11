@@ -27,8 +27,11 @@ import br.com.zamfir.comprarei.core.util.Constants
 import br.com.zamfir.comprarei.core.util.FormatFrom
 import br.com.zamfir.comprarei.core.presentation.Share
 import br.com.zamfir.comprarei.core.presentation.isVisible
-import br.com.zamfir.comprarei.feature.product.presentation.NewProductFragment.Companion.openEditProductBottomSheet
-import br.com.zamfir.comprarei.feature.product.presentation.NewProductFragment.Companion.openNewProductBottomSheet
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import br.com.zamfir.comprarei.core.designsystem.theme.ComprareiTheme
+import br.com.zamfir.comprarei.feature.product.presentation.form.ProductFormAction
+import br.com.zamfir.comprarei.feature.product.presentation.form.ProductFormRoot
+import br.com.zamfir.comprarei.feature.product.presentation.form.ProductFormViewModel
 import br.com.zamfir.comprarei.feature.cart.presentation.CartViewModel
 import com.kevincodes.recyclerview.ItemDecorator
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
@@ -57,6 +60,7 @@ class ProductsFragment : Fragment() {
 
     private val viewModelProduct: ProductViewModel by viewModel()
     private val viewModelCart: CartViewModel by viewModel()
+    private val productFormViewModel: ProductFormViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -100,19 +104,15 @@ class ProductsFragment : Fragment() {
             if(selectionMode){
                 setItemSelected(product)
             }else{
-                openEditProductBottomSheet(product) { productEdited ->
-                    updateProduct(productEdited)
-                    updateSummary()
-                }
+                productFormViewModel.onAction(ProductFormAction.OnOpenEdit(product))
             }
         }
 
         binding.newProduct.setOnClickListener {
-            openNewProductBottomSheet(cartId, productsAdapter.itemCount) { newProduct ->
-                saveNewProduct(newProduct)
-                updateSummary()
-            }
+            productFormViewModel.onAction(ProductFormAction.OnOpenNew(cartId, productsAdapter.itemCount))
         }
+
+        setupDialogHost()
     }
 
     private fun showProductsList(productList: List<Product>) {
@@ -129,12 +129,34 @@ class ProductsFragment : Fragment() {
         productsAdapter.notifyDataSetChanged()
     }
 
+    private fun setupDialogHost() {
+        binding.dialogHost.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        binding.dialogHost.setContent {
+            ComprareiTheme {
+                ProductFormRoot(
+                    viewModel = productFormViewModel,
+                    onProductCreated = { newProduct ->
+                        saveNewProduct(newProduct)
+                        updateSummary()
+                    },
+                    onProductEdited = { productEdited ->
+                        updateProduct(productEdited)
+                        updateSummary()
+                    },
+                )
+            }
+        }
+    }
+
     //region CRUD
     private fun updateProduct(productEdited: Product) {
         viewModelProduct.updateProduct(productEdited)
-        originalList[originalList.indexOf(productEdited)] = productEdited
+        // O formulário devolve uma cópia; o firestoreUUID identifica o item mesmo antes de ter id local.
+        val index = originalList.indexOfFirst { it.firestoreUUID == productEdited.firestoreUUID }
+        if (index < 0) return
+        originalList[index] = productEdited
         productsAdapter.differ.submitList(originalList)
-        productsAdapter.notifyItemChanged(productsAdapter.differ.currentList.indexOf(productEdited))
+        productsAdapter.notifyItemChanged(productsAdapter.differ.currentList.indexOfFirst { it.firestoreUUID == productEdited.firestoreUUID })
     }
 
     private fun saveNewProduct(newProduct: Product) {

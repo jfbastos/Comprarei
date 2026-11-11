@@ -1,5 +1,15 @@
 package br.com.zamfir.comprarei.feature.cart.presentation
 
+import br.com.zamfir.comprarei.feature.cart.presentation.filter.CartFilter
+import br.com.zamfir.comprarei.feature.cart.presentation.filter.CartFilterAction
+import br.com.zamfir.comprarei.feature.cart.presentation.filter.CartFilterRoot
+import br.com.zamfir.comprarei.feature.cart.presentation.filter.CartFilterViewModel
+import br.com.zamfir.comprarei.feature.cart.presentation.filter.applyFilter
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import br.com.zamfir.comprarei.core.designsystem.theme.ComprareiTheme
+import br.com.zamfir.comprarei.feature.cart.presentation.form.CartFormAction
+import br.com.zamfir.comprarei.feature.cart.presentation.form.CartFormRoot
+import br.com.zamfir.comprarei.feature.cart.presentation.form.CartFormViewModel
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
@@ -33,9 +43,7 @@ import br.com.zamfir.comprarei.core.database.entity.UserInfo
 import br.com.zamfir.comprarei.core.util.Constants
 import br.com.zamfir.comprarei.core.presentation.isVisible
 import br.com.zamfir.comprarei.feature.auth.presentation.LoginActivity
-import br.com.zamfir.comprarei.feature.category.presentation.NewCategoryDialog
 import br.com.zamfir.comprarei.core.presentation.listeners.InfoUpdateListener
-import br.com.zamfir.comprarei.feature.category.presentation.CategoryViewModel
 import br.com.zamfir.comprarei.feature.auth.presentation.LoginViewModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -62,9 +70,12 @@ class HomeFragment : Fragment() {
     private var lastAction = -1
 
     private val viewModel: CartViewModel by viewModel()
+    private val cartFormViewModel: CartFormViewModel by viewModel()
+    private val cartFilterViewModel: CartFilterViewModel by viewModel()
     private val loginViewModel : LoginViewModel by viewModel()
 
-    private var selectedFilter : Filter? = null
+    // Filtro aplicado na lista; reaplicado sempre que a lista muda.
+    private var activeFilter = CartFilter()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?,): View {
         _binding = FragmentHomeBinding.inflate(inflater)
@@ -84,6 +95,7 @@ class HomeFragment : Fragment() {
         setupItemMoveHandler()
         setupObservables()
         setupListeners()
+        setupDialogHost()
 
         viewModel.updateAllData()
 
@@ -131,6 +143,23 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun setupDialogHost() {
+        binding.dialogHost.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        binding.dialogHost.setContent {
+            ComprareiTheme {
+                CartFormRoot(
+                    viewModel = cartFormViewModel,
+                    onCartCreated = ::saveNewCart,
+                    onCartEdited = ::updateCart,
+                )
+                CartFilterRoot(
+                    viewModel = cartFilterViewModel,
+                    onApply = ::applyFilter,
+                )
+            }
+        }
+    }
+
     private fun setupListeners() {
         cartsAdapter.setOnItemClickListener { cart ->
             if (selectionMode) {
@@ -142,9 +171,7 @@ class HomeFragment : Fragment() {
 
         binding.newCart.setOnClickListener {
             val lastKnownPosition = originalList.takeIf { it.isNotEmpty() }?.maxOf { it.position }?.plus(1) ?: 0
-            NewCartFragment(lastKnownPosition, categoriesList) { cart ->
-                saveNewCart(cart)
-            }.show(parentFragmentManager, Constants.NEW_CART_KEY)
+            cartFormViewModel.onAction(CartFormAction.OnOpenNew(lastKnownPosition))
         }
 
         binding.deleteSelection.setOnClickListener {
@@ -188,6 +215,10 @@ class HomeFragment : Fragment() {
             cartsAdapter.isShowTotal = showTotal
             originalList.clear()
             originalList.addAll(cartsList)
+            if (activeFilter.isActive) {
+                refreshVisibleCarts()
+                return
+            }
             cartsAdapter.differ.submitList(cartsList)
             cartsAdapter.getCartsPosition(cartsList).onEach {
                 cartsAdapter.notifyItemInserted(it)
@@ -199,6 +230,10 @@ class HomeFragment : Fragment() {
         viewModel.saveCart(newCart)
         originalList.add(newCart)
         showEmptyMessage(originalList.isEmpty())
+        if (activeFilter.isActive) {
+            refreshVisibleCarts()
+            return
+        }
         cartsAdapter.differ.submitList(originalList)
         cartsAdapter.notifyItemInserted(cartsAdapter.itemCount + 1)
 
@@ -207,13 +242,16 @@ class HomeFragment : Fragment() {
     private fun updateCart(cart : Cart){
         try {
             viewModel.updateCart(cart)
-            val index = originalList.indexOf( originalList.find { it.id == cart.id })
-            originalList[index].apply {
-                categoryId = cart.categoryId
-                category = cart.category
+            // O formulário devolve uma cópia; o firestoreUUID identifica o item mesmo antes de ter id local.
+            val index = originalList.indexOfFirst { it.firestoreUUID == cart.firestoreUUID }
+            if (index < 0) return
+            originalList[index] = cart
+            if (activeFilter.isActive) {
+                refreshVisibleCarts()
+                return
             }
             cartsAdapter.differ.submitList(originalList)
-            cartsAdapter.notifyItemChanged(cartsAdapter.getCartPosition(cart))
+            cartsAdapter.notifyItemChanged(cartsAdapter.differ.currentList.indexOfFirst { it.firestoreUUID == cart.firestoreUUID })
         }catch (e : Exception){
             AppLogger.error("Falha ao atualizar o carrinho na HomeFragment", e)
         }
@@ -224,6 +262,11 @@ class HomeFragment : Fragment() {
         val cartsPosition = cartsAdapter.getCartsPosition(carts)
         viewModel.deleteCarts(carts.map { it.id })
         originalList.removeAll(carts)
+        if (activeFilter.isActive) {
+            refreshVisibleCarts()
+            showEmptyMessage(originalList.isEmpty())
+            return
+        }
         cartsAdapter.differ.submitList(originalList)
 
         cartsPosition.forEach {
@@ -299,6 +342,10 @@ class HomeFragment : Fragment() {
     private fun setupItemMoveHandler() {
         ItemTouchHelper(object :
             ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+                // Com filtro ativo a lista exibida não é a completa: reordenar trocaria os itens errados.
+                override fun getDragDirs(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int =
+                    if (activeFilter.isActive) 0 else super.getDragDirs(recyclerView, viewHolder)
+
                 override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder ) : Boolean {
                     return target.adapterPosition != viewHolder.adapterPosition
                 }
@@ -316,9 +363,7 @@ class HomeFragment : Fragment() {
                     val cart = cartsAdapter.differ.currentList[position]
                     when(direction){
                         ItemTouchHelper.RIGHT -> {
-                            NewCartFragment(cart, categoriesList){ updatedCart ->
-                                updateCart(updatedCart)
-                            }.show(parentFragmentManager, Constants.NEW_CART_KEY)
+                            cartFormViewModel.onAction(CartFormAction.OnOpenEdit(cart))
                         }
                         ItemTouchHelper.LEFT -> {
                             deleteOneItem(cart)
@@ -428,7 +473,7 @@ class HomeFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val searched = originalList.filter {
+                val searched = originalList.applyFilter(activeFilter).filter {
                     it.name.uppercase().contains(s.toString().uppercase()) ||
                             it.data.contains(s.toString().uppercase())
                 }
@@ -459,32 +504,23 @@ class HomeFragment : Fragment() {
         }
     }
 
-    @androidx.annotation.OptIn(com.google.android.material.badge.ExperimentalBadgeUtils::class)
     private fun sortList() : Boolean{
-        FilterDialog(selectedFilter ?: Filter(), categoriesList){ filter, isClearFilter ->
-            if(isClearFilter){
-                cartsAdapter.differ.submitList(originalList)
-                cartsAdapter.notifyDataSetChanged()
-                sortMenu.icon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_filter_list_24)
-            }else{
-                if(filter.sortOption.isNullOrBlank() && filter.byCategory == null && filter.byDate == null && filter.byValue?.valueMin == 0.0 && filter.byValue?.valueMax == 0.0){
-                    cartsAdapter.differ.submitList(originalList)
-                    cartsAdapter.notifyDataSetChanged()
-                    sortMenu.icon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_filter_list_24)
-                }else{
-                    selectedFilter = filter
-
-                    val tempList: MutableList<Cart> = viewModel.filter(filter, originalList).toMutableList()
-
-                    cartsAdapter.differ.submitList(tempList)
-                    cartsAdapter.notifyDataSetChanged()
-                    sortMenu.icon = AppCompatResources.getDrawable(requireContext(), R.drawable.icon_filter_bedge)
-                }
-            }
-
-        }.show(parentFragmentManager, Constants.EMPTY_STRING)
-
+        cartFilterViewModel.onAction(CartFilterAction.OnOpen(activeFilter, originalList.toList()))
         return true
+    }
+
+    private fun applyFilter(filter: CartFilter) {
+        activeFilter = filter
+        refreshVisibleCarts()
+    }
+
+    // Mostra a lista completa já filtrada/ordenada pelo filtro ativo e atualiza o ícone com badge.
+    private fun refreshVisibleCarts() {
+        cartsAdapter.differ.submitList(originalList.applyFilter(activeFilter))
+        sortMenu.icon = AppCompatResources.getDrawable(
+            requireContext(),
+            if (activeFilter.isActive) R.drawable.icon_filter_bedge else R.drawable.ic_filter_list_24,
+        )
     }
 
     private fun cancelActionsOnBackPressed() {

@@ -2,10 +2,12 @@ package br.com.zamfir.comprarei.core.data.firestore
 
 import android.content.Context
 import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkInfo
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import androidx.work.workDataOf
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.core.database.AppDatabase
@@ -26,6 +28,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -300,12 +304,27 @@ class FirestoreRepository(private val context : Context, private val appDatabase
     }
 
     suspend fun doBackup() = withContext(dispatcher){
-        val uploadWorkRequest: WorkRequest =
+        val uploadWorkRequest: OneTimeWorkRequest =
             OneTimeWorkRequestBuilder<BackupWorker>()
                 .setConstraints(Constraints(requiredNetworkType = NetworkType.UNMETERED))
                 .setInputData(workDataOf(Constants.MANUAL_BACKUP_KEY to true))
                 .build()
 
-        WorkManager.getInstance(context).enqueue(uploadWorkRequest)
+        // Trabalho único: tocar de novo enquanto um backup está pendente não enfileira outro.
+        WorkManager.getInstance(context).enqueueUniqueWork(Constants.MANUAL_BACKUP_WORK_NAME, ExistingWorkPolicy.KEEP, uploadWorkRequest)
+    }
+
+    /** Situação do backup manual mais recente, para a tela acompanhar o envio. */
+    fun observeManualBackup(): Flow<BackupStatus> =
+        WorkManager.getInstance(context)
+            .getWorkInfosForUniqueWorkFlow(Constants.MANUAL_BACKUP_WORK_NAME)
+            .map { infos -> infos.lastOrNull()?.state.toBackupStatus() }
+
+    private fun WorkInfo.State?.toBackupStatus() = when (this) {
+        null -> BackupStatus.Idle
+        WorkInfo.State.ENQUEUED, WorkInfo.State.BLOCKED -> BackupStatus.WaitingForNetwork
+        WorkInfo.State.RUNNING -> BackupStatus.Running
+        WorkInfo.State.SUCCEEDED -> BackupStatus.Succeeded
+        WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> BackupStatus.Failed
     }
 }

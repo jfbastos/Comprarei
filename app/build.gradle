@@ -107,11 +107,12 @@ dependencies {
 
     // Third party
     implementation libs.glide
+    implementation libs.coil.compose
+    implementation libs.coil.network.okhttp
     implementation libs.lottie
     implementation libs.keyboardvisibilityevent
     implementation libs.itemdecorator
     implementation libs.material.dialogs.core
-    implementation files('libs/color_picker_0_0_15.aar')
 
     // Test
     testImplementation libs.junit
