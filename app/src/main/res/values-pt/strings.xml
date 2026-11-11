@@ -162,4 +162,12 @@
     <string name="copy">Copiar</string>
     <string name="details_copied">Detalhes copiados</string>
     <string name="profile_save_error_title">Não foi possível salvar o perfil</string>
+    <string name="forgot_password_title">Esqueceu sua senha?</string>
+    <string name="forgot_password_message">Informe seu e-mail e enviaremos um link para redefinir sua senha.</string>
+    <string name="forgot_password_send">Enviar link</string>
+    <string name="forgot_password_sent_title">Verifique seu e-mail</string>
+    <string name="forgot_password_sent_message">Se existir uma conta com %1$s, você receberá um link para redefinir sua senha. Confira também a caixa de spam.</string>
+    <string name="forgot_password_done">Entendi</string>
+    <string name="forgot_password_too_many_requests">Muitas tentativas. Aguarde alguns minutos e tente novamente.</string>
+    <string name="forgot_password_error">Não foi possível enviar o e-mail. Tente novamente.</string>
 </resources>

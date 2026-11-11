@@ -37,7 +37,7 @@ class UserRepository(private val context : Context, private val appDatabase: App
 
     suspend fun getUserFromDb() = withContext(dispatcher) { appDatabase.UserInfoDao().getUserInfo() }
 
-    suspend fun requestPasswordReset(email : String) = withContext(dispatcher){ auth.sendPasswordResetEmail(email) }
+    suspend fun requestPasswordReset(email : String) { withContext(dispatcher){ auth.sendPasswordResetEmail(email).await() } }
 
     suspend fun loginUser(email : String, password : String, isLoginWithGoogle : Boolean = false) = withContext(dispatcher){
         try{

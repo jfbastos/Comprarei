@@ -76,8 +76,4 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
     fun logOff() = viewModelScope.launch {
         _userLoggedOffState.value = userRepository.logOffUser()
     }
-
-    fun forgotPassword(email : String) = viewModelScope.launch {
-        userRepository.requestPasswordReset(email)
-    }
 }

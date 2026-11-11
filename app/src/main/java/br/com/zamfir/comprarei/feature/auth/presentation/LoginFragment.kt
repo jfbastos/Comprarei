@@ -1,5 +1,10 @@
 package br.com.zamfir.comprarei.feature.auth.presentation
 
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import br.com.zamfir.comprarei.core.designsystem.theme.ComprareiTheme
+import br.com.zamfir.comprarei.feature.auth.presentation.forgotpassword.ForgotPasswordAction
+import br.com.zamfir.comprarei.feature.auth.presentation.forgotpassword.ForgotPasswordRoot
+import br.com.zamfir.comprarei.feature.auth.presentation.forgotpassword.ForgotPasswordViewModel
 import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.app.AlertDialog
@@ -35,6 +40,8 @@ class LoginFragment : Fragment() {
     private val imageResources = listOf(R.drawable.baseline_shopping_cart_24, R.drawable.products, R.drawable.category_icon_24)
     private var currentImageIndex = 0
     private var animator: Animator? = null
+
+    private val forgotPasswordViewModel: ForgotPasswordViewModel by viewModel()
 
     private val loginViewModel: LoginViewModel by viewModel()
 
@@ -125,13 +132,10 @@ class LoginFragment : Fragment() {
         }
 
         binding.forgotPassword.setOnClickListener {
-            if(!requireContext().isConectadoInternet()){
-                Snackbar.make(requireView(), getString(R.string.no_internet_connection), Snackbar.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            ForgotPasswordDialog().show(parentFragmentManager, Constants.EMPTY_STRING)
+            forgotPasswordViewModel.onAction(ForgotPasswordAction.OnOpen)
         }
+
+        setupDialogHost()
 
         loginViewModel.localSaveState.observe(viewLifecycleOwner) {
             requireActivity().startActivity(Intent(requireActivity(), MainActivity::class.java))
@@ -261,4 +265,13 @@ class LoginFragment : Fragment() {
         super.onDestroy()
     }
 
+
+    private fun setupDialogHost() {
+        binding.dialogHost.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        binding.dialogHost.setContent {
+            ComprareiTheme {
+                ForgotPasswordRoot(viewModel = forgotPasswordViewModel)
+            }
+        }
+    }
 }

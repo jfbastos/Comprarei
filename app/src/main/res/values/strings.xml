@@ -180,4 +180,12 @@
     <string name="copy">Copy</string>
     <string name="details_copied">Details copied</string>
     <string name="profile_save_error_title">Could not save your profile</string>
+    <string name="forgot_password_title">Forgot your password?</string>
+    <string name="forgot_password_message">Enter your e-mail and we will send you a link to reset your password.</string>
+    <string name="forgot_password_send">Send link</string>
+    <string name="forgot_password_sent_title">Check your e-mail</string>
+    <string name="forgot_password_sent_message">If there is an account for %1$s, you will receive a link to reset your password. Check your spam folder too.</string>
+    <string name="forgot_password_done">Got it</string>
+    <string name="forgot_password_too_many_requests">Too many attempts. Please wait a few minutes and try again.</string>
+    <string name="forgot_password_error">We could not send the e-mail. Please try again.</string>
 </resources>
