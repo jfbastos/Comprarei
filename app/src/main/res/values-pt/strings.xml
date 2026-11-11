@@ -47,18 +47,13 @@
     <string name="forgot_password">Esqueceu a senha?</string>
     <string name="log_in">Entrar</string>
     <string name="or">ou</string>
-    <string name="msg_not_have_account">Ainda não tem conta?\nClique aqui</string>
     <string name="sign_in_with_google">Entrar com a conta Google</string>
     <string name="something_went_wrong">Opa, ocorreu um erro.</string>
-    <string name="more">Mais</string>
-    <string name="more_info">Mais informações</string>
-    <string name="create_account_error_detail">Ocorreu um erro ao criar o seu usuário. Detalhes do erro: \n\n %1$s</string>
     <string name="invalid_email">Este não é um e-mail válido.</string>
     <string name="invalid_name">Seu nome não pode ser vazio.</string>
     <string name="password_requisites">Senha não atende os requisitos mínimos.</string>
     <string name="not_same_password">As senhas não são iguais.</string>
     <string name="reenter_password">Digite novamente a senha</string>
-    <string name="login_error_detail">Ocorreu um erro ao realizar o login.\n\nDetalhes do erro:  %1$s</string>
     <string name="none_category">Sem categoria</string>
     <string name="name_your_cart">Dê um nome ao seu carrinho!</string>
     <string name="six_chars_hint">Ao menos 6 caracteres.</string>
@@ -84,15 +79,13 @@
     <string name="nova_senha">Nova senha</string>
     <string name="excluir_conta">Deletar conta</string>
     <string name="salvar">Salvar alterações</string>
-    <string name="sign_up">Crie sua conta</string>
-    <string name="please_fill_in_the_fields_to_create_a_new_account">Preencha todos os campos para criar sua conta</string>
     <string name="no_internet_connection">Sem conexão com a internet</string>
     <string name="msg_warning_invalid_password">A senha deve conter pelo menos 6 dígitos</string>
     <string name="category_name_already_exists">Já existe uma categoria com esse nome.</string>
     <string name="sorry_that_you_re_leaving">Sentiremos sua falta 😓</string>
     <string name="to_delete_account_we_must_re_autenticate_your_user">Para deletar sua conta, precisaremos reautenticar seu usuário.</string>
     <string name="account_deletion">Exclusão de conta</string>
-    <string name="something_went_wrong_google_account">Algo deu erro ao logar com o Google. Tente novamente depois.</string>
+    <string name="something_went_wrong_google_account">Algo deu errado ao entrar com o Google. Tente novamente mais tarde.</string>
     <string name="confirm">Confirmar</string>
     <string name="no_connection_google_account">Para logar com o google, você precisa ter conexão com a internet.</string>
     <string name="info_logged_with_google">Querido usuário, você logou usando sua conta google. Para reautentica-la você precisará apertar no botão \'Entrar com a conta Google\'</string>
@@ -131,8 +124,6 @@
     <string name="sem_backup_realizado">Sem backup realizado</string>
     <string name="ola">Olá</string>
     <string name="welcome">Bem-Vindo</string>
-    <string name="logging_you_in">Realizando login...</string>
-    <string name="trying_to_login_with_google_account">Entrando com conta google...</string>
     <string name="can_t_be_blank">Não pode ser vazio!</string>
     <string name="msg_deletion_confirm">Você confirma a deleção da conta? Todas as suas informações serão permanentemente deletadas.</string>
 
@@ -222,4 +213,22 @@
         <item quantity="many">%d compras</item>
         <item quantity="other">%d compras</item>
     </plurals>
+    <string name="change_password">Alterar senha</string>
+    <string name="profile_change_photo">Alterar foto</string>
+    <string name="already_have_account">Já tem conta?</string>
+    <string name="create_account_failed_title">Não foi possível criar a conta</string>
+    <string name="create_account_failed">Algo deu errado. Tente novamente em instantes.</string>
+    <string name="account_created_without_photo">Conta criada, mas a foto não pôde ser enviada. Você pode adicioná-la depois no perfil.</string>
+    <string name="dont_have_account">Ainda não tem conta?</string>
+    <string name="google_no_account">Nenhuma conta Google foi encontrada neste aparelho. Adicione uma nas configurações do sistema e tente novamente.</string>
+    <string name="login_too_many_requests">Muitas tentativas. Aguarde alguns minutos e tente novamente.</string>
+    <string name="login_failed_title">Não foi possível entrar</string>
+    <string name="login_failed">Algo deu errado. Tente novamente em instantes.</string>
+    <string name="restore_failed_title">Não foi possível baixar seus dados</string>
+    <string name="restore_failed_message">Verifique sua conexão e tente novamente. Se sair, você pode entrar de novo depois; nada é perdido na nuvem.</string>
+    <string name="try_again">Tentar novamente</string>
+    <string name="restore_preparing">Obtendo seus dados da nuvem…</string>
+    <string name="restore_carts">Obtendo compras…</string>
+    <string name="restore_products">Obtendo produtos…</string>
+    <string name="restore_categories">Obtendo categorias…</string>
 </resources>

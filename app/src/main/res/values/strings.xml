@@ -50,7 +50,6 @@
     <string name="forgot_password">Forgot password?</string>
     <string name="log_in">Log-in</string>
     <string name="or">or</string>
-    <string name="msg_not_have_account">Don\'t have account?\nClick here</string>
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="client_id" translatable="false">24013763873-mu1pqttcq64v4ua67vh3jminj916o65r.apps.googleusercontent.com</string>
     <string name="six_chars_hint">At least 6 char.</string>
@@ -58,18 +57,14 @@
     <string name="number_hint">At least 1 number.</string>
     <string name="create_account">Create account</string>
     <string name="search_products">Search products</string>
-    <string name="create_account_error_detail">An error has occourred on creation of your account . Error detail: \n\n %1$s</string>
     <string name="invalid_email">Not a valid e-mail.</string>
     <string name="invalid_name">Not a valid name.</string>
     <string name="password_requisites">Password not have minimum requirement.</string>
     <string name="not_same_password">Passwords do not match.</string>
     <string name="reenter_password">Repeat password</string>
-    <string name="login_error_detail">An error has occourred on login.\n\nError detail:  %1$s</string>
     <string name="none_category">Sem categoria</string>
     <string name="name_your_cart">Name your cart</string>
     <string name="something_went_wrong">Something went wrong</string>
-    <string name="more">More</string>
-    <string name="more_info">More info</string>
     <string name="sort_by">Sort by</string>
     <string name="category">Category</string>
     <string name="value">Value</string>
@@ -94,9 +89,6 @@
     <string name="nova_senha">New password</string>
     <string name="excluir_conta">Delete account</string>
     <string name="salvar">Save changes</string>
-    <string name="sign_up">Create account</string>
-    <string name="please_fill_in_the_fields_to_create_a_new_account">Please fill in the fields to create a new account.</string>
-    <string name="e_mail" translatable="false">E-mail</string>
     <string name="image_uri_key" translatable="false">IMAGE_URI_KEY</string>
     <string name="no_internet_connection">No internet connection.</string>
     <string name="msg_warning_invalid_password">Password must have at least 6 characters.</string>
@@ -142,8 +134,6 @@
     <string name="msg_permissao_notificacao">For a better experience, grant the Post Notification permission.</string>
     <string name="moeda_real">$</string>
     <string name="space_interrogation" translatable="false">" ?"</string>
-    <string name="logging_you_in">Logging you in...</string>
-    <string name="trying_to_login_with_google_account">Trying to login with Google account...</string>
     <string name="can_t_be_blank">Can\'t be blank!</string>
     <string name="sem_backup_realizado">No backup done</string>
     <string name="ola">Hi</string>
@@ -234,4 +224,22 @@
         <item quantity="one">%d cart</item>
         <item quantity="other">%d carts</item>
     </plurals>
+    <string name="change_password">Change password</string>
+    <string name="profile_change_photo">Change photo</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="create_account_failed_title">Could not create your account</string>
+    <string name="create_account_failed">Something went wrong. Please try again in a moment.</string>
+    <string name="account_created_without_photo">Account created, but the photo could not be uploaded. You can add it later in your profile.</string>
+    <string name="dont_have_account">Don\'t have an account?</string>
+    <string name="google_no_account">No Google account was found on this device. Add one in the system settings and try again.</string>
+    <string name="login_too_many_requests">Too many attempts. Please wait a few minutes and try again.</string>
+    <string name="login_failed_title">Could not sign in</string>
+    <string name="login_failed">Something went wrong. Please try again in a moment.</string>
+    <string name="restore_failed_title">Could not download your data</string>
+    <string name="restore_failed_message">Check your connection and try again. If you log off, you can sign in again later; nothing is lost from the cloud.</string>
+    <string name="try_again">Try again</string>
+    <string name="restore_preparing">Getting your cloud data…</string>
+    <string name="restore_carts">Getting carts…</string>
+    <string name="restore_products">Getting products…</string>
+    <string name="restore_categories">Getting categories…</string>
 </resources>

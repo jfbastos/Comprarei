@@ -10,8 +10,6 @@ class Constants {
         const val DATE_PATTERN = "dd/MM/yyyy"
         const val CART_ID_KEY = "cartId"
         const val CART_NAME_KEY = "cartName"
-        const val USER_KEY = "USER_KEY"
-        const val PASSWORD_KEY = "PASSWORD_KEY"
         const val EMPTY_STRING = ""
         const val MANUAL_BACKUP_KEY = "MANUAL_BACKUP"
         const val MANUAL_BACKUP_WORK_NAME = "manual_backup"
@@ -35,7 +33,6 @@ class Constants {
         const val FIRESTORE_PRODUCTS_DOCUMENT_PATH = "Products"
         const val FIRESTORE_CATEGORIES_DOCUMENT_PATH = "Categories"
 
-        const val ANIMATOR_ALPHA_PROPERTY = "alpha"
 
     }
 }

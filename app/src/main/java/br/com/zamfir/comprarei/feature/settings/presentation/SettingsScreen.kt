@@ -51,10 +51,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.core.data.firestore.BackupStatus
+import br.com.zamfir.comprarei.core.designsystem.components.ComprareiAvatar
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiConfirmDialog
 import br.com.zamfir.comprarei.core.designsystem.theme.ComprareiTheme
 import br.com.zamfir.comprarei.core.presentation.ObserveAsEvents
-import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 
 @Composable
@@ -186,7 +186,6 @@ private fun ProfileCard(
     profilePicture: Uri?,
     onClick: () -> Unit,
 ) {
-    val placeholder = painterResource(R.drawable.person_black_24dp)
     Card(
         onClick = onClick,
         modifier = Modifier
@@ -199,17 +198,7 @@ private fun ProfileCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            AsyncImage(
-                model = profilePicture,
-                contentDescription = null,
-                placeholder = placeholder,
-                error = placeholder,
-                fallback = placeholder,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape),
-            )
+            ComprareiAvatar(model = profilePicture, size = 56.dp)
             Column(modifier = Modifier.weight(1f)) {
                 if (userName.isNotBlank()) {
                     Text(

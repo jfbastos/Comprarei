@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import android.widget.Toast
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
@@ -24,8 +23,6 @@ import androidx.work.WorkManager
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.data.workers.BackupWorker
 import br.com.zamfir.comprarei.databinding.ActivityMainBinding
-import br.com.zamfir.comprarei.core.presentation.listeners.PhotoSelectedListener
-import br.com.zamfir.comprarei.core.presentation.listeners.PhotopickerListener
 import br.com.zamfir.comprarei.feature.auth.presentation.LoginViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.concurrent.TimeUnit
@@ -42,12 +39,6 @@ class MainActivity : AppCompatActivity() {
 
         installSplashScreen().apply {
             loginViewModel.hasLoggedUser()
-        }
-
-        val pickedMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) {uri ->
-            if(uri != null){
-               PhotoSelectedListener.photoSelectedListener.onPhotoSelected(uri)
-            }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
@@ -72,12 +63,6 @@ class MainActivity : AppCompatActivity() {
                 startBackupWorker()
             }
         }
-
-        PhotopickerListener.setOnListener(object : PhotopickerListener{
-            override fun onPhotoClicked() {
-               pickedMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-            }
-        })
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)

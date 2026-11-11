@@ -174,6 +174,37 @@ class FirestoreRepository(private val context : Context, private val appDatabase
         }
     }
 
+    /**
+     * Baixa compras, produtos e categorias da nuvem para o banco local, avisando cada etapa.
+     * Lança exceção em qualquer falha: a tela não deve seguir para o app com dados incompletos,
+     * senão o próximo backup apagaria da nuvem o que não foi restaurado.
+     */
+    suspend fun restoreUserData(onStep: (RestoreStep) -> Unit) = withContext(dispatcher) {
+        val uid = auth.uid ?: throw IllegalStateException("Nenhum usuário logado para restaurar")
+        val docRef = firestore.collection(uid).document(Constants.FIRESTORE_DOCUMENT_PATH)
+
+        onStep(RestoreStep.Preparing)
+        if (!docRef.get().await().exists()) {
+            docRef.set(hashMapOf("userId" to uid)).await()
+        }
+
+        onStep(RestoreStep.Carts)
+        docRef.collection(Constants.FIRESTORE_CARTS_DOCUMENT_PATH).get().await().documents
+            .map { FirebaseMapper.cartDocumentToEntity(it.data) }
+            .also { appDatabase.CartDao().insertAll(it) }
+
+        onStep(RestoreStep.Products)
+        docRef.collection(Constants.FIRESTORE_PRODUCTS_DOCUMENT_PATH).get().await().documents
+            .map { FirebaseMapper.productDocumentToEntity(it.data) }
+            .also { appDatabase.ProductDao().insertAll(it) }
+
+        onStep(RestoreStep.Categories)
+        docRef.collection(Constants.FIRESTORE_CATEGORIES_DOCUMENT_PATH).get().await().documents
+            .map { FirebaseMapper.categoryDocumentToEntity(it.data) }
+            .also { appDatabase.CategoryDao().insertAll(it) }
+    }
+
+    /** Usado só pela reautenticação da exclusão de conta até a 3.13; prefira [restoreUserData]. */
     suspend fun getUserDataFromFirebase(onProgress : (String) -> Unit, callback : () -> Unit) = withContext(dispatcher){
         try {
             if (auth.currentUser == null) return@withContext

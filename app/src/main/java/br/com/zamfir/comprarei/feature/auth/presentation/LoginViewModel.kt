@@ -8,9 +8,6 @@ import br.com.zamfir.comprarei.core.data.preferences.ConfigRepository
 import br.com.zamfir.comprarei.core.data.firestore.FirestoreRepository
 import br.com.zamfir.comprarei.core.data.user.UserRepository
 import br.com.zamfir.comprarei.core.domain.exceptions.InvalidLogin
-import br.com.zamfir.comprarei.core.domain.exceptions.InvalidPassword
-import br.com.zamfir.comprarei.core.domain.exceptions.UserAlreadyExists
-import br.com.zamfir.comprarei.feature.auth.presentation.listeners.LoginProgressListener
 import kotlinx.coroutines.launch
 
 class LoginViewModel(private val userRepository : UserRepository, private val firestoreRepository: FirestoreRepository, private val configRepository: ConfigRepository) : ViewModel() {
@@ -38,7 +35,7 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
             val user = userRepository.loginUser(email, password, isLoginWithGoogle)
             configRepository.loggedWithGoogle(isLoginWithGoogle)
 
-            firestoreRepository.getUserDataFromFirebase(onProgress = { LoginProgressListener.loginProgressListener.onProgress(it) }){
+            firestoreRepository.getUserDataFromFirebase(onProgress = {}){
                 viewModelScope.launch {
                     _loginState.value = LoginState(success = true, user = user)
                 }
@@ -53,20 +50,6 @@ class LoginViewModel(private val userRepository : UserRepository, private val fi
 
     fun getUserInfo() = viewModelScope.launch {
         _isLoginWithGoogle.value = configRepository.getIsUserLoggedFromGoogle()
-    }
-
-    fun createUser(email: String, userName: String, password: String, photoByte: ByteArray?) = viewModelScope.launch{
-        try{
-            _loginState.value = LoginState(loading = true)
-            val user = userRepository.createNewUserInFirebase(email,userName, password, photoByte)
-            _loginState.value = LoginState(success = true, user = user)
-        }catch (e : Exception){
-            when (e) {
-                is UserAlreadyExists -> _loginState.value = LoginState(success = false, error = e, msgError = e.msg)
-                is InvalidPassword -> _loginState.value = LoginState(success = false, error = e, msgError = e.msg)
-                else -> _loginState.value = LoginState(success = false, error = e, msgError = null)
-            }
-        }
     }
 
     fun hasLoggedUser() = viewModelScope.launch {

@@ -5,4 +5,5 @@ import org.koin.dsl.module
 
 val profilePresentationModule = module {
     viewModelOf(::ProfileViewModel)
+    viewModelOf(::EditProfileViewModel)
 }

@@ -55,6 +55,5 @@
     <fragment
         android:id="@+id/profileFragment"
         android:name="br.com.zamfir.comprarei.feature.profile.presentation.ProfileFragment"
-        android:label="ProfileFragment"
-        tools:layout="@layout/fragment_profile"/>
+        android:label="ProfileFragment"/>
 </navigation>
