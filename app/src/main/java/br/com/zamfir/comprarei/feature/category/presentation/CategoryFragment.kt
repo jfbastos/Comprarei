@@ -9,7 +9,6 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.core.designsystem.theme.ComprareiTheme
-import br.com.zamfir.comprarei.core.presentation.listeners.InfoUpdateListener
 import br.com.zamfir.comprarei.feature.category.presentation.form.CategoryFormViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -28,8 +27,6 @@ class CategoryFragment : Fragment() {
                         viewModel = categoriesViewModel,
                         formViewModel = categoryFormViewModel,
                         onNavigateBack = { findNavController().navigateUp() },
-                        // A Home escuta este listener para recarregar as compras (some na 3.15).
-                        onCategoriesChanged = { InfoUpdateListener.infoUpdateListener.infoUpdated() },
                     )
                 }
             }

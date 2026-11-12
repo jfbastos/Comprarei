@@ -55,8 +55,6 @@ sealed interface CategoriesAction {
 sealed interface CategoriesEvent {
     data object NavigateBack : CategoriesEvent
 
-    /** Categorias mudaram: a Home precisa recarregar as compras. */
-    data object CategoriesChanged : CategoriesEvent
     data class ShowMessage(val message: UiText) : CategoriesEvent
 }
 
@@ -121,7 +119,6 @@ class CategoriesViewModel(private val categoryRepository: CategoryRepository) : 
     private fun persist(operation: suspend () -> Any?) = viewModelScope.launch {
         try {
             operation()
-            sendEvent(CategoriesEvent.CategoriesChanged)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

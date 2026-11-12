@@ -21,8 +21,8 @@
             android:exported="true"
             android:theme="@style/Theme.Comprarei"/>
         <activity
-            android:name=".feature.auth.presentation.DeleteAccountActivity"
-            android:exported="true"
+            android:name=".feature.profile.presentation.deleteaccount.DeleteAccountActivity"
+            android:exported="false"
             android:theme="@style/Theme.Comprarei"/>
         <activity
             android:name=".app.MainActivity"

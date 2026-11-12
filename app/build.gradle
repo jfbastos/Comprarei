@@ -103,18 +103,14 @@ dependencies {
     implementation libs.firebase.storage
     implementation libs.firebase.crashlytics
     implementation libs.firebase.analytics
-    implementation libs.play.services.auth
     implementation libs.androidx.credentials
     implementation libs.androidx.credentials.play.services.auth
     implementation libs.googleid
 
     // Third party
-    implementation libs.glide
     implementation libs.coil.compose
+    implementation libs.reorderable
     implementation libs.coil.network.okhttp
-    implementation libs.lottie
-    implementation libs.keyboardvisibilityevent
-    implementation libs.itemdecorator
 
     // Test
     testImplementation libs.junit

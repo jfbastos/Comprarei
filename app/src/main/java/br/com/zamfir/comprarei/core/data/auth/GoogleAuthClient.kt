@@ -1,4 +1,4 @@
-package br.com.zamfir.comprarei.feature.auth.data
+package br.com.zamfir.comprarei.core.data.auth
 
 import android.content.Context
 import androidx.credentials.CredentialManager

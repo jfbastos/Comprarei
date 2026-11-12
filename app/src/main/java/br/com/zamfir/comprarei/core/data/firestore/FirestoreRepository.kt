@@ -22,17 +22,19 @@ import br.com.zamfir.comprarei.core.util.log.AppLogger
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.firestore
 import com.google.firebase.Firebase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
+import java.util.concurrent.TimeoutException
 
 class FirestoreRepository(private val context : Context, private val appDatabase: AppDatabase, private val dispatcher : CoroutineDispatcher) {
 
@@ -204,45 +206,45 @@ class FirestoreRepository(private val context : Context, private val appDatabase
             .also { appDatabase.CategoryDao().insertAll(it) }
     }
 
-    /** Usado só pela reautenticação da exclusão de conta até a 3.13; prefira [restoreUserData]. */
-    suspend fun getUserDataFromFirebase(onProgress : (String) -> Unit, callback : () -> Unit) = withContext(dispatcher){
-        try {
-            if (auth.currentUser == null) return@withContext
-            val docRef = firestore.collection(auth.uid!!).document(Constants.FIRESTORE_DOCUMENT_PATH)
+    /**
+     * Apaga da nuvem compras, produtos e categorias do usuário e o documento que os agrupa.
+     * Usa o servidor (não o cache) e lança exceção em qualquer falha ou demora, para a tela não
+     * seguir com a exclusão da conta deixando dados órfãos no Firestore.
+     */
+    suspend fun deleteUserData() = withContext(dispatcher) {
+        val uid = auth.uid ?: throw IllegalStateException("Nenhum usuário logado para apagar os dados")
+        val docRef = firestore.collection(uid).document(Constants.FIRESTORE_DOCUMENT_PATH)
 
-            val handler = CoroutineExceptionHandler { _, throwable ->
-                AppLogger.error("Erro no método obterDadosDoUsuario", throwable)
-            }
-
-            runOnMainDispatcher { onProgress("Obtendo informações da núvem...") }
-            createUserDataIfNotExists(docRef) { docRefException ->
-                CoroutineScope(Dispatchers.IO).launch(handler) {
-                    if (docRefException != null) throw docRefException
-
-                    runOnMainDispatcher { onProgress("Obntendo carrinhos...") }
-                    docRef.collection(Constants.FIRESTORE_CARTS_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.cartDocumentToEntity(it.data) }.also {
-                        appDatabase.CartDao().insertAll(it)
-                    }
-
-                    runOnMainDispatcher { onProgress("Obtendo produtos...") }
-                    docRef.collection(Constants.FIRESTORE_PRODUCTS_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.productDocumentToEntity(it.data) }.also {
-                        appDatabase.ProductDao().insertAll(it)
-                    }
-
-                    runOnMainDispatcher { onProgress("Obtendo categorias...") }
-                    docRef.collection(Constants.FIRESTORE_CATEGORIES_DOCUMENT_PATH).get().await().documents.map { FirebaseMapper.categoryDocumentToEntity(it.data) }.also {
-                        appDatabase.CategoryDao().insertAll(it)
-                    }
-
-                    runOnMainDispatcher { callback.invoke() }
+        // Timeout como exceção comum (não CancellationException), para a tela tratar como falha de rede.
+        withTimeoutOrNull(DELETE_TIMEOUT_MS) {
+            listOf(
+                Constants.FIRESTORE_CARTS_DOCUMENT_PATH,
+                Constants.FIRESTORE_PRODUCTS_DOCUMENT_PATH,
+                Constants.FIRESTORE_CATEGORIES_DOCUMENT_PATH,
+            ).forEach { path ->
+                val documents = docRef.collection(path).get(Source.SERVER).await().documents
+                // Um lote do Firestore aceita no máximo 500 operações.
+                documents.chunked(MAX_BATCH_SIZE).forEach { chunk ->
+                    firestore.batch().apply { chunk.forEach { delete(it.reference) } }.commit().await()
                 }
             }
-        } catch (e: Exception) {
-            AppLogger.error("Erro no método obterDadosDoUsuario", e)
-        }
+            docRef.delete().await()
+            // await() de Task<Void> devolve null; sem isto o ?: abaixo trataria o sucesso como timeout.
+            Unit
+        } ?: throw TimeoutException("Tempo esgotado ao apagar os dados do Firestore")
     }
 
-    private fun runOnMainDispatcher(function: () -> Unit) {    CoroutineScope(Dispatchers.Main).launch { function() }}
+    /**
+     * Cancela os backups periódico e manual. Usado antes de excluir a conta, para um backup em
+     * andamento não reenviar os dados que estão sendo apagados. O periódico volta a ser agendado
+     * pela MainActivity no próximo login.
+     */
+    fun cancelBackups() {
+        WorkManager.getInstance(context).apply {
+            cancelUniqueWork(Constants.PERIODIC_BACKUP_WORK_NAME)
+            cancelUniqueWork(Constants.MANUAL_BACKUP_WORK_NAME)
+        }
+    }
 
     private suspend fun getCartsFirestore(collection : CollectionReference,callBack : (List<Cart>, Exception?) -> Unit) = withContext(dispatcher){
         try {
@@ -357,5 +359,10 @@ class FirestoreRepository(private val context : Context, private val appDatabase
         WorkInfo.State.RUNNING -> BackupStatus.Running
         WorkInfo.State.SUCCEEDED -> BackupStatus.Succeeded
         WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> BackupStatus.Failed
+    }
+
+    private companion object {
+        const val MAX_BATCH_SIZE = 500
+        const val DELETE_TIMEOUT_MS = 60_000L
     }
 }

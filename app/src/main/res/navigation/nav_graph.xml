@@ -7,8 +7,7 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="br.com.zamfir.comprarei.feature.cart.presentation.HomeFragment"
-        android:label="fragment_home"
-        tools:layout="@layout/fragment_home">
+        android:label="fragment_home">
         <action
             android:id="@+id/action_homeFragment_to_productsFragment"
             app:destination="@id/productsFragment"
@@ -29,8 +28,7 @@
     <fragment
         android:id="@+id/productsFragment"
         android:name="br.com.zamfir.comprarei.feature.product.presentation.ProductsFragment"
-        android:label="fragment_products"
-        tools:layout="@layout/fragment_products">
+        android:label="fragment_products">
         <argument
             android:name="cartName"
             app:argType="string" />

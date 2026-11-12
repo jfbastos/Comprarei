@@ -23,6 +23,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.Firebase
+import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.storage
 import kotlinx.coroutines.CoroutineDispatcher
@@ -44,10 +45,9 @@ class UserRepository(private val context : Context, private val appDatabase: App
 
     suspend fun requestPasswordReset(email : String) { withContext(dispatcher){ auth.sendPasswordResetEmail(email).await() } }
 
-    suspend fun loginUser(email : String, password : String, isLoginWithGoogle : Boolean = false) = withContext(dispatcher){
+    suspend fun loginUser(email : String, password : String) = withContext(dispatcher){
         try{
-            val currentUser = if(isLoginWithGoogle) auth.currentUser
-            else auth.signInWithEmailAndPassword(email, password).await().user
+            val currentUser = auth.signInWithEmailAndPassword(email, password).await().user
 
             saveUserInfo()
 
@@ -256,11 +256,46 @@ class UserRepository(private val context : Context, private val appDatabase: App
         }
     }
 
-    suspend fun deleteUser() = withContext(dispatcher){
-        val currentUser = auth.currentUser ?: throw RuntimeException(context.getString(R.string.no_user_logged))
+    /** Se a conta entra com Google (pode ter senha também). */
+    suspend fun hasGoogleLogin(): Boolean = withContext(dispatcher) {
+        auth.currentUser?.providerData?.any { it.providerId == GoogleAuthProvider.PROVIDER_ID } ?: false
+    }
 
-        getImageRef().delete()
-        currentUser.delete()
+    /**
+     * Confirma a identidade com a senha atual, exigida pelo Firebase antes de operações sensíveis.
+     * Senha errada vira [InvalidLogin].
+     */
+    suspend fun reauthenticateWithPassword(password: String) = withContext(dispatcher) {
+        val user = auth.currentUser ?: throw NoUserLogged(context.getString(R.string.no_user_logged))
+        try {
+            user.reauthenticate(EmailAuthProvider.getCredential(user.email.orEmpty(), password)).await()
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            throw InvalidLogin(context.getString(R.string.msg_exp_user_password_invalid))
+        }
+    }
+
+    /** Confirma a identidade com a conta Google. Outra conta Google lança FirebaseAuthInvalidUserException. */
+    suspend fun reauthenticateWithGoogle(idToken: String) = withContext(dispatcher) {
+        val user = auth.currentUser ?: throw NoUserLogged(context.getString(R.string.no_user_logged))
+        user.reauthenticate(GoogleAuthProvider.getCredential(idToken, null)).await()
+    }
+
+    /**
+     * Apaga a foto e a conta no Firebase e, só depois que tudo deu certo, os dados locais.
+     * Lança exceção em qualquer falha (inclusive FirebaseAuthRecentLoginRequiredException se a
+     * reautenticação expirou), deixando os dados do aparelho intactos.
+     */
+    suspend fun deleteUser() = withContext(dispatcher) {
+        val currentUser = auth.currentUser ?: throw NoUserLogged(context.getString(R.string.no_user_logged))
+
+        try {
+            getImageRef().delete().await()
+        } catch (e: StorageException) {
+            // Conta sem foto de perfil: nada a apagar.
+            if (e.errorCode != StorageException.ERROR_OBJECT_NOT_FOUND) throw e
+        }
+
+        currentUser.delete().await()
         auth.signOut()
 
         appDatabase.UserInfoDao().getUserInfo()?.let {

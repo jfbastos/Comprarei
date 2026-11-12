@@ -2,7 +2,6 @@ package br.com.zamfir.comprarei.app.di
 
 import br.com.zamfir.comprarei.core.data.di.coreDataModule
 import br.com.zamfir.comprarei.core.database.di.coreDatabaseModule
-import br.com.zamfir.comprarei.feature.auth.data.authDataModule
 import br.com.zamfir.comprarei.feature.auth.presentation.authPresentationModule
 import br.com.zamfir.comprarei.feature.cart.data.cartDataModule
 import br.com.zamfir.comprarei.feature.cart.presentation.cartPresentationModule
@@ -22,7 +21,6 @@ val appModules = listOf(
     productPresentationModule,
     categoryDataModule,
     categoryPresentationModule,
-    authDataModule,
     authPresentationModule,
     profilePresentationModule,
     settingsPresentationModule,

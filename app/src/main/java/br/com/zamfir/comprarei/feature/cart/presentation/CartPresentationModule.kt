@@ -6,7 +6,7 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val cartPresentationModule = module {
-    viewModelOf(::CartViewModel)
+    viewModelOf(::CartsViewModel)
     viewModelOf(::CartFormViewModel)
     viewModelOf(::CartFilterViewModel)
 }

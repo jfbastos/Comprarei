@@ -1,12 +1,5 @@
 <resources>
     <string name="app_name" translatable="false">Comprarei</string>
-    <string name="cart_sort_name_option">Name</string>
-    <string name="title_confirmation">Are you sure?</string>
-    <string name="message_delete_confirmation">Do you really want to delete\u0020</string>
-    <string name="single_item_confirmation">item</string>
-    <string name="multiple_items_confirmation">" items"</string>
-    <string name="positive_confirmation">Yes</string>
-    <string name="negative_confirmation">Cancel</string>
     <string name="new_product">New product</string>
     <string name="name">Name</string>
     <string name="brand">Brand</string>
@@ -17,20 +10,12 @@
     <string name="save">Save</string>
     <string name="empty_list_message">Ops, nothing here yet…</string>
     <string name="new_cart">New cart</string>
-    <string name="product">Product</string>
-    <string name="x" translatable="false">x</string>
-    <string name="search">Search</string>
     <string name="delete">Delete many</string>
     <string name="sort">Sort</string>
     <string name="share">Share</string>
-    <string name="quantity_label">"Quantity: "</string>
     <string name="night_mode">Night mode</string>
     <string name="night_off_msg">Night mode off</string>
     <string name="night_on_msg">Night mode on</string>
-    <string name="swipe_delete_msg">Delete</string>
-    <string name="swipe_to_edit">Edit</string>
-    <string name="be_careful_title">Be careful!</string>
-    <string name="select_items">Select items</string>
     <string name="blank_name">Name can\'t be blank!</string>
     <string name="select_category_color">Please, select a category color!</string>
     <string name="ok" translatable="false">Ok</string>
@@ -41,10 +26,6 @@
     <string name="themes">Themes</string>
     <string name="no_categories">No categories</string>
     <string name="search_carts">Search Carts</string>
-    <string name="highest_value">Value by Highest</string>
-    <string name="lowest_value">Value by Lowest</string>
-    <string name="by_done">By Done</string>
-    <string name="by_undone">By Undone</string>
     <string name="user_hint" translatable="false">E-mail</string>
     <string name="password_hint">Password</string>
     <string name="forgot_password">Forgot password?</string>
@@ -64,7 +45,6 @@
     <string name="reenter_password">Repeat password</string>
     <string name="none_category">Sem categoria</string>
     <string name="name_your_cart">Name your cart</string>
-    <string name="something_went_wrong">Something went wrong</string>
     <string name="sort_by">Sort by</string>
     <string name="category">Category</string>
     <string name="value">Value</string>
@@ -94,17 +74,10 @@
     <string name="msg_warning_invalid_password">Password must have at least 6 characters.</string>
     <string name="category_name_already_exists">Category name already exists.</string>
     <string name="sorry_that_you_re_leaving">Sorry that you\'re leaving 😓</string>
-    <string name="to_delete_account_we_must_re_autenticate_your_user">To delete account, we must re-autenticate your user.</string>
     <string name="account_deletion">Account deletion</string>
     <string name="something_went_wrong_google_account">Something went wrong on login with google, please try again later.</string>
     <string name="confirm">Confirm</string>
-    <string name="no_connection_google_account">To login with google, you must have internet connection.</string>
-    <string name="info_logged_with_google">Dear user, you have logged with google, so you must re-autenticate tapping in \'Sign in with Google\'.</string>
-    <string name="successfully_re_authenticated">✅ Successfully re-authenticated. Now you can confirm account deletion.</string>
-    <string name="user_already_re_autenticated">User already re-autenticated</string>
     <string name="wrong_user_or_password">Wrong user or password.</string>
-    <string name="re_autenticate">Re-autenticate</string>
-    <string name="re_autentication_offline">To re-autenticate user, you must have internet connection.</string>
     <string name="msg_exp_user_password_invalid">Invalid user or password.</string>
     <string name="msg_exp_upload_profile_picture_failed">We have some problem uploading profile picture.</string>
     <string name="user_already_exists">User already exists.</string>
@@ -133,12 +106,10 @@
     <string name="permissao_notificacao">Notification permission</string>
     <string name="msg_permissao_notificacao">For a better experience, grant the Post Notification permission.</string>
     <string name="moeda_real">$</string>
-    <string name="space_interrogation" translatable="false">" ?"</string>
     <string name="can_t_be_blank">Can\'t be blank!</string>
     <string name="sem_backup_realizado">No backup done</string>
     <string name="ola">Hi</string>
     <string name="welcome">Welcome</string>
-    <string name="msg_deletion_confirm">Do you confirm account deletion? All your info will be permanently deleted.</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="cd_show_password">Show password</string>
     <string name="cd_hide_password">Hide password</string>
@@ -242,4 +213,78 @@
     <string name="restore_carts">Getting carts…</string>
     <string name="restore_products">Getting products…</string>
     <string name="restore_categories">Getting categories…</string>
+
+    <!-- Exclusão de conta -->
+    <string name="delete_account_warning_title">This permanently deletes:</string>
+    <string name="delete_account_item_account">Your account and profile photo</string>
+    <string name="delete_account_item_data">Your purchases, products and categories</string>
+    <string name="delete_account_item_backup">Your cloud backup</string>
+    <string name="delete_account_irreversible">This action can\'t be undone.</string>
+    <string name="delete_account_identity_title">Confirm your identity</string>
+    <string name="delete_account_identity_password">For security, enter your password.</string>
+    <string name="delete_account_identity_google">For security, choose the Google account you use in the app.</string>
+    <string name="delete_account_confirm_identity">Confirm identity</string>
+    <string name="delete_account_continue_with_google">Continue with Google</string>
+    <string name="delete_account_identity_confirmed">Identity confirmed</string>
+    <string name="delete_account_wrong_password">Incorrect password.</string>
+    <string name="delete_account_google_mismatch">This Google account isn\'t the one signed in to the app. Choose the same account.</string>
+    <string name="delete_account_reauth_failed">We couldn\'t confirm your identity. Try again later.</string>
+    <string name="delete_account_reauth_expired">For security, confirm your identity again.</string>
+    <string name="delete_account_reauth_error_title">Couldn\'t confirm identity</string>
+    <string name="delete_account_confirm_title">Delete account?</string>
+    <string name="delete_account_confirm_message">Your account and all your data will be permanently deleted. This can\'t be undone.</string>
+    <string name="delete_account_confirm_button">Delete</string>
+    <string name="delete_account_deleting">Deleting your account…</string>
+    <string name="delete_account_error_title">Couldn\'t delete account</string>
+    <string name="delete_account_failed">Something went wrong. Your data on this device was kept. Try again later.</string>
+    <string name="delete_account_network_error">Couldn\'t reach the server. Check your connection and try again. Your data on this device was kept.</string>
+    <string name="account_deleted">Account deleted.</string>
+
+    <!-- Produtos -->
+    <string name="products_empty_message">Add the first product to this list.</string>
+    <string name="products_search_empty">No products found</string>
+    <string name="products_sort_manual">Manual</string>
+    <string name="products_sort_name">Name</string>
+    <string name="products_sort_highest">Highest total</string>
+    <string name="products_sort_lowest">Lowest total</string>
+    <string name="products_sort_pending">Pending first</string>
+    <string name="products_sorted_by">Sorted by: %1$s</string>
+    <string name="products_clear_sort">Back to manual order</string>
+    <string name="products_all_bought">Everything bought</string>
+    <string name="products_remaining">%1$s left</string>
+    <string name="products_total">Total</string>
+    <string name="select_all">Select all</string>
+    <string name="delete_selected">Delete selected</string>
+    <string name="products_delete">Delete</string>
+    <string name="products_mark_bought">Mark as bought</string>
+    <string name="products_mark_pending">Mark as pending</string>
+    <string name="products_drag_handle">Drag to reorder</string>
+    <string name="save_change_error">Could not save the change. Try again.</string>
+    <string name="undo">Undo</string>
+    <plurals name="products_bought_progress">
+        <item quantity="one">%1$d of %2$d bought</item>
+        <item quantity="other">%1$d of %2$d bought</item>
+    </plurals>
+    <plurals name="selected_count">
+        <item quantity="one">%d selected</item>
+        <item quantity="other">%d selected</item>
+    </plurals>
+    <plurals name="products_deleted">
+        <item quantity="one">Product deleted</item>
+        <item quantity="other">%d products deleted</item>
+    </plurals>
+
+    <!-- Compras (Home) -->
+    <string name="carts_empty_message">Create a purchase to start your list.</string>
+    <string name="carts_search_empty">No purchases found</string>
+    <string name="carts_no_products">No products yet</string>
+    <string name="carts_filter_active">Filters on</string>
+    <string name="carts_clear_filter">Clear filters</string>
+    <string name="open_menu">Open menu</string>
+    <string name="edit">Edit</string>
+    <string name="filter">Filter</string>
+    <plurals name="carts_deleted">
+        <item quantity="one">Purchase deleted</item>
+        <item quantity="other">%d purchases deleted</item>
+    </plurals>
 </resources>

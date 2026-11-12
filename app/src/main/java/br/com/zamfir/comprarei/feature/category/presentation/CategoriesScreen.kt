@@ -63,7 +63,6 @@ fun CategoriesRoot(
     viewModel: CategoriesViewModel,
     formViewModel: CategoryFormViewModel,
     onNavigateBack: () -> Unit,
-    onCategoriesChanged: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -75,7 +74,6 @@ fun CategoriesRoot(
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             CategoriesEvent.NavigateBack -> onNavigateBack()
-            CategoriesEvent.CategoriesChanged -> onCategoriesChanged()
             is CategoriesEvent.ShowMessage -> scope.launch {
                 snackbarHostState.showSnackbar(event.message.asString(context))
             }

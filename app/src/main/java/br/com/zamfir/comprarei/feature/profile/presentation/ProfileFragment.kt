@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.core.designsystem.theme.ComprareiTheme
-import br.com.zamfir.comprarei.feature.auth.presentation.DeleteAccountActivity
+import br.com.zamfir.comprarei.feature.profile.presentation.deleteaccount.DeleteAccountActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /** Só hospeda a tela em Compose até os hosts migrarem para Navigation Compose (3.16). */

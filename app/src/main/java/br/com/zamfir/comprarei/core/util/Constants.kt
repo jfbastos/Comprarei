@@ -13,16 +13,8 @@ class Constants {
         const val EMPTY_STRING = ""
         const val MANUAL_BACKUP_KEY = "MANUAL_BACKUP"
         const val MANUAL_BACKUP_WORK_NAME = "manual_backup"
-        const val DEFAULT_OR_MIN_VALUE_PRODUCT = "0"
-
-        const val FILTER_NAME = "Name"
-        const val FILTER_VALUE_HIGH = "Value_high"
-        const val FILTER_VALUE_LOW = "Value_low"
-        const val FILTER_QUANTITY = "Quantity"
-        const val FILTER_DONE = "Done"
-        const val FILTER_UNDONE = "Undone"
-
-        const val SHARED_LOGIN_GOOGLE_KEY = "LOGIN_WITH_GOOGLE"
+        // Nome já agendado nos aparelhos dos usuários: não mudar.
+        const val PERIODIC_BACKUP_WORK_NAME = "Backup_Unique_Job"
 
         const val FIRESTORE_STORAGE_NAME = "profilePictures"
         const val FIRESTORE_PROFILE_PICTURE_NAME = "profilePicture.jpg"

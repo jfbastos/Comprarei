@@ -2,7 +2,6 @@ package br.com.zamfir.comprarei.core.data.preferences
 
 import android.content.Context
 import br.com.zamfir.comprarei.R
-import br.com.zamfir.comprarei.core.util.Constants
 import br.com.zamfir.comprarei.core.util.DateUtil
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -32,13 +31,6 @@ class ConfigRepository(private val context : Context, private val dispatcher: Co
         }
     }
 
-    suspend fun loggedWithGoogle(isFromGoogle : Boolean) = withContext(dispatcher){
-        with(sharedPref.edit()){
-            putBoolean(Constants.SHARED_LOGIN_GOOGLE_KEY, isFromGoogle)
-            apply()
-        }
-    }
-
     suspend fun getLastBackupTime() = withContext(dispatcher){
         return@withContext DateUtil.formatDate(sharedPref.getString(context.getString(R.string.last_backup_key), "") ?: "")
     }
@@ -49,10 +41,6 @@ class ConfigRepository(private val context : Context, private val dispatcher: Co
 
     suspend fun getIsToShowTotalCart() =  withContext(dispatcher){
         return@withContext sharedPref.getBoolean(context.getString(R.string.showtotalcart_key), true)
-    }
-
-    suspend fun getIsUserLoggedFromGoogle() = withContext(dispatcher){
-        return@withContext sharedPref.getBoolean(Constants.SHARED_LOGIN_GOOGLE_KEY, true)
     }
 
     suspend fun getIsAutoBackupEnabled() = withContext(dispatcher){

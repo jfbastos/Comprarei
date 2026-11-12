@@ -6,12 +6,11 @@ import androidx.lifecycle.viewModelScope
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.core.data.firestore.FirestoreRepository
 import br.com.zamfir.comprarei.core.data.firestore.RestoreStep
-import br.com.zamfir.comprarei.core.data.preferences.ConfigRepository
 import br.com.zamfir.comprarei.core.data.user.UserRepository
 import br.com.zamfir.comprarei.core.domain.exceptions.InvalidLogin
 import br.com.zamfir.comprarei.core.presentation.UiText
 import br.com.zamfir.comprarei.core.util.log.AppLogger
-import br.com.zamfir.comprarei.feature.auth.data.GoogleSignInResult
+import br.com.zamfir.comprarei.core.data.auth.GoogleSignInResult
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
@@ -64,7 +63,6 @@ sealed interface SignInEvent {
 class SignInViewModel(
     private val userRepository: UserRepository,
     private val firestoreRepository: FirestoreRepository,
-    private val configRepository: ConfigRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SignInState())
@@ -111,7 +109,6 @@ class SignInViewModel(
         viewModelScope.launch {
             try {
                 userRepository.loginUser(email, current.password)
-                configRepository.loggedWithGoogle(false)
                 _state.update { it.copy(isSigningIn = false) }
                 restore()
             } catch (e: CancellationException) {
@@ -135,7 +132,6 @@ class SignInViewModel(
             is GoogleSignInResult.Success -> viewModelScope.launch {
                 try {
                     userRepository.loginWithGoogle(result.idToken)
-                    configRepository.loggedWithGoogle(true)
                     _state.update { it.copy(isGoogleLoading = false) }
                     restore()
                 } catch (e: CancellationException) {

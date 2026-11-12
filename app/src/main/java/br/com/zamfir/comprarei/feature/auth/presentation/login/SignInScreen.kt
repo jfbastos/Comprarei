@@ -3,7 +3,6 @@ package br.com.zamfir.comprarei.feature.auth.presentation.login
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +25,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -39,7 +37,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -54,10 +51,11 @@ import br.com.zamfir.comprarei.core.data.firestore.RestoreStep
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiButton
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiButtonStyle
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiErrorDialog
+import br.com.zamfir.comprarei.core.designsystem.components.ComprareiGoogleButton
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiTextField
 import br.com.zamfir.comprarei.core.designsystem.theme.ComprareiTheme
 import br.com.zamfir.comprarei.core.presentation.ObserveAsEvents
-import br.com.zamfir.comprarei.feature.auth.data.GoogleAuthClient
+import br.com.zamfir.comprarei.core.data.auth.GoogleAuthClient
 import br.com.zamfir.comprarei.feature.auth.presentation.forgotpassword.ForgotPasswordAction
 import br.com.zamfir.comprarei.feature.auth.presentation.forgotpassword.ForgotPasswordRoot
 import br.com.zamfir.comprarei.feature.auth.presentation.forgotpassword.ForgotPasswordViewModel
@@ -206,7 +204,7 @@ private fun SignInForm(
 
         OrDivider()
 
-        GoogleButton(
+        ComprareiGoogleButton(
             isLoading = state.isGoogleLoading,
             enabled = enabled,
             onClick = { onAction(SignInAction.OnGoogleClick) },
@@ -237,35 +235,6 @@ private fun OrDivider() {
             modifier = Modifier.padding(horizontal = 16.dp),
         )
         HorizontalDivider(Modifier.weight(1f))
-    }
-}
-
-/** Botão "Entrar com Google" no estilo da marca: contorno, logo colorido e texto escuro. */
-@Composable
-private fun GoogleButton(isLoading: Boolean, enabled: Boolean, onClick: () -> Unit) {
-    OutlinedButton(
-        onClick = onClick,
-        enabled = enabled,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(52.dp),
-    ) {
-        if (isLoading) {
-            CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-        } else {
-            Icon(
-                painter = painterResource(R.drawable.google_logo),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier.size(20.dp),
-            )
-        }
-        Text(
-            text = stringResource(R.string.sign_in_with_google),
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(start = 12.dp),
-        )
     }
 }
 

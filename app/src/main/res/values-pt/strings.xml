@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="cart_sort_name_option">Nome</string>
-    <string name="title_confirmation">Tem certeza?</string>
-    <string name="message_delete_confirmation">Você realmente deseja deletar\u0020</string>
-    <string name="single_item_confirmation">item</string>
-    <string name="multiple_items_confirmation">" itens"</string>
-    <string name="positive_confirmation">Sim</string>
-    <string name="negative_confirmation">Cancelar</string>
     <string name="new_product">Novo produto</string>
     <string name="name">Nome</string>
     <string name="brand">Marca</string>
@@ -17,19 +10,12 @@
     <string name="save">Salvar</string>
     <string name="empty_list_message">Ops, nada aqui ainda…</string>
     <string name="new_cart">Nova Compra</string>
-    <string name="product">Produto</string>
-    <string name="search">pesquisa</string>
     <string name="delete">Deletar vários</string>
     <string name="sort">Ordenar</string>
     <string name="share">Compartilhar</string>
-    <string name="quantity_label">"Quantidade: "</string>
     <string name="night_mode">Modo noturno</string>
     <string name="night_off_msg">Modo noturno desligado</string>
     <string name="night_on_msg">Modo noturno ligado</string>
-    <string name="swipe_delete_msg">Deletar</string>
-    <string name="swipe_to_edit">Editar</string>
-    <string name="be_careful_title">Cuidado</string>
-    <string name="select_items">Selecione os itens...</string>
     <string name="blank_name">Nome não pode ser vazio!</string>
     <string name="select_category_color">Por favor, selecione uma cor para a categoria!</string>
     <string name="empty_category">Parece que você ainda não tem nenhuma categoria. Adicione uma nova :)</string>
@@ -39,16 +25,11 @@
     <string name="themes">Temas</string>
     <string name="no_categories">Sem categorias</string>
     <string name="search_carts">Pesquisar carrinhos</string>
-    <string name="highest_value">Valor - Crescente</string>
-    <string name="lowest_value">"Valor - Decrescente "</string>
-    <string name="by_done">Marcados</string>
-    <string name="by_undone">Não marcados</string>
     <string name="password_hint">Senha</string>
     <string name="forgot_password">Esqueceu a senha?</string>
     <string name="log_in">Entrar</string>
     <string name="or">ou</string>
     <string name="sign_in_with_google">Entrar com a conta Google</string>
-    <string name="something_went_wrong">Opa, ocorreu um erro.</string>
     <string name="invalid_email">Este não é um e-mail válido.</string>
     <string name="invalid_name">Seu nome não pode ser vazio.</string>
     <string name="password_requisites">Senha não atende os requisitos mínimos.</string>
@@ -77,23 +58,16 @@
     <string name="logoff">Sair</string>
     <string name="senha_atual">Senha atual</string>
     <string name="nova_senha">Nova senha</string>
-    <string name="excluir_conta">Deletar conta</string>
+    <string name="excluir_conta">Excluir conta</string>
     <string name="salvar">Salvar alterações</string>
     <string name="no_internet_connection">Sem conexão com a internet</string>
     <string name="msg_warning_invalid_password">A senha deve conter pelo menos 6 dígitos</string>
     <string name="category_name_already_exists">Já existe uma categoria com esse nome.</string>
     <string name="sorry_that_you_re_leaving">Sentiremos sua falta 😓</string>
-    <string name="to_delete_account_we_must_re_autenticate_your_user">Para deletar sua conta, precisaremos reautenticar seu usuário.</string>
     <string name="account_deletion">Exclusão de conta</string>
     <string name="something_went_wrong_google_account">Algo deu errado ao entrar com o Google. Tente novamente mais tarde.</string>
     <string name="confirm">Confirmar</string>
-    <string name="no_connection_google_account">Para logar com o google, você precisa ter conexão com a internet.</string>
-    <string name="info_logged_with_google">Querido usuário, você logou usando sua conta google. Para reautentica-la você precisará apertar no botão \'Entrar com a conta Google\'</string>
-    <string name="successfully_re_authenticated">✅ Reautenticação realizada com sucesso. Agora você pode confirmar a deleção da sua conta.</string>
-    <string name="user_already_re_autenticated">Usuário já reautenticado</string>
     <string name="wrong_user_or_password">Usuário ou senha inválidos.</string>
-    <string name="re_autenticate">Reautenticar</string>
-    <string name="re_autentication_offline">Para reautenticar, você precisa ter conexão com a internet.</string>
     <string name="msg_exp_user_password_invalid">Usuário ou senha inválidos.</string>
     <string name="msg_exp_upload_profile_picture_failed">Tivemos um problema ao salvar sua foto de perfil.</string>
     <string name="user_already_exists">Usuário já existente.</string>
@@ -125,7 +99,6 @@
     <string name="ola">Olá</string>
     <string name="welcome">Bem-Vindo</string>
     <string name="can_t_be_blank">Não pode ser vazio!</string>
-    <string name="msg_deletion_confirm">Você confirma a deleção da conta? Todas as suas informações serão permanentemente deletadas.</string>
 
     <string name="cd_show_password">Mostrar senha</string>
     <string name="cd_hide_password">Ocultar senha</string>
@@ -231,4 +204,82 @@
     <string name="restore_carts">Obtendo compras…</string>
     <string name="restore_products">Obtendo produtos…</string>
     <string name="restore_categories">Obtendo categorias…</string>
+
+    <!-- Exclusão de conta -->
+    <string name="delete_account_warning_title">Isto apaga permanentemente:</string>
+    <string name="delete_account_item_account">Sua conta e foto de perfil</string>
+    <string name="delete_account_item_data">Suas compras, produtos e categorias</string>
+    <string name="delete_account_item_backup">Seu backup na nuvem</string>
+    <string name="delete_account_irreversible">Esta ação não pode ser desfeita.</string>
+    <string name="delete_account_identity_title">Confirme sua identidade</string>
+    <string name="delete_account_identity_password">Por segurança, digite sua senha.</string>
+    <string name="delete_account_identity_google">Por segurança, escolha a conta Google que você usa no app.</string>
+    <string name="delete_account_confirm_identity">Confirmar identidade</string>
+    <string name="delete_account_continue_with_google">Continuar com Google</string>
+    <string name="delete_account_identity_confirmed">Identidade confirmada</string>
+    <string name="delete_account_wrong_password">Senha incorreta.</string>
+    <string name="delete_account_google_mismatch">Esta conta Google não é a conectada ao app. Escolha a mesma conta.</string>
+    <string name="delete_account_reauth_failed">Não foi possível confirmar sua identidade. Tente novamente mais tarde.</string>
+    <string name="delete_account_reauth_expired">Por segurança, confirme sua identidade novamente.</string>
+    <string name="delete_account_reauth_error_title">Não foi possível confirmar a identidade</string>
+    <string name="delete_account_confirm_title">Excluir conta?</string>
+    <string name="delete_account_confirm_message">Sua conta e todos os seus dados serão apagados permanentemente. Isso não pode ser desfeito.</string>
+    <string name="delete_account_confirm_button">Excluir</string>
+    <string name="delete_account_deleting">Excluindo sua conta…</string>
+    <string name="delete_account_error_title">Não foi possível excluir a conta</string>
+    <string name="delete_account_failed">Algo deu errado. Os dados no aparelho foram mantidos. Tente novamente mais tarde.</string>
+    <string name="delete_account_network_error">Não foi possível falar com o servidor. Verifique sua conexão e tente novamente. Os dados no aparelho foram mantidos.</string>
+    <string name="account_deleted">Conta excluída.</string>
+
+    <!-- Produtos -->
+    <string name="products_empty_message">Adicione o primeiro produto desta lista.</string>
+    <string name="products_search_empty">Nenhum produto encontrado</string>
+    <string name="products_sort_manual">Manual</string>
+    <string name="products_sort_name">Nome</string>
+    <string name="products_sort_highest">Maior total</string>
+    <string name="products_sort_lowest">Menor total</string>
+    <string name="products_sort_pending">Pendentes primeiro</string>
+    <string name="products_sorted_by">Ordenado por: %1$s</string>
+    <string name="products_clear_sort">Voltar para a ordem manual</string>
+    <string name="products_all_bought">Tudo comprado</string>
+    <string name="products_remaining">Falta %1$s</string>
+    <string name="products_total">Total</string>
+    <string name="select_all">Selecionar todos</string>
+    <string name="delete_selected">Excluir selecionados</string>
+    <string name="products_delete">Excluir</string>
+    <string name="products_mark_bought">Marcar como comprado</string>
+    <string name="products_mark_pending">Marcar como pendente</string>
+    <string name="products_drag_handle">Arraste para reordenar</string>
+    <string name="save_change_error">Não foi possível salvar a alteração. Tente novamente.</string>
+    <string name="undo">Desfazer</string>
+    <plurals name="products_bought_progress">
+        <item quantity="one">%1$d de %2$d comprado</item>
+        <item quantity="other">%1$d de %2$d comprados</item>
+        <item quantity="many">%1$d de %2$d comprados</item>
+    </plurals>
+    <plurals name="selected_count">
+        <item quantity="one">%d selecionado</item>
+        <item quantity="other">%d selecionados</item>
+        <item quantity="many">%d selecionados</item>
+    </plurals>
+    <plurals name="products_deleted">
+        <item quantity="one">%d produto excluído</item>
+        <item quantity="other">%d produtos excluídos</item>
+        <item quantity="many">%d produtos excluídos</item>
+    </plurals>
+
+    <!-- Compras (Home) -->
+    <string name="carts_empty_message">Crie uma compra para começar sua lista.</string>
+    <string name="carts_search_empty">Nenhuma compra encontrada</string>
+    <string name="carts_no_products">Nenhum produto ainda</string>
+    <string name="carts_filter_active">Filtros ativos</string>
+    <string name="carts_clear_filter">Limpar filtros</string>
+    <string name="open_menu">Abrir menu</string>
+    <string name="edit">Editar</string>
+    <string name="filter">Filtrar</string>
+    <plurals name="carts_deleted">
+        <item quantity="one">%d compra excluída</item>
+        <item quantity="many">%d compras excluídas</item>
+        <item quantity="other">%d compras excluídas</item>
+    </plurals>
 </resources>

@@ -21,6 +21,7 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import br.com.zamfir.comprarei.R
+import br.com.zamfir.comprarei.core.util.Constants
 import br.com.zamfir.comprarei.data.workers.BackupWorker
 import br.com.zamfir.comprarei.databinding.ActivityMainBinding
 import br.com.zamfir.comprarei.feature.auth.presentation.LoginViewModel
@@ -114,7 +115,7 @@ class MainActivity : AppCompatActivity() {
         ).setConstraints(constraints).build()
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "Backup_Unique_Job",
+            Constants.PERIODIC_BACKUP_WORK_NAME,
             ExistingPeriodicWorkPolicy.KEEP, periodicWorker
         )
     }
