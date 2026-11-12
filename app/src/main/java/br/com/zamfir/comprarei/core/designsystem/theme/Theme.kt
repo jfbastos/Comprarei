@@ -1,5 +1,6 @@
 package br.com.zamfir.comprarei.core.designsystem.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
@@ -15,16 +16,10 @@ internal val ComprareiShapes = Shapes(
     extraLarge = RoundedCornerShape(28.dp),
 )
 
-/**
- * Tema do app.
- *
- * O tema escuro já está pronto, mas o padrão é `false` até todas as telas migrarem para Compose
- * (etapa 3.16). Antes disso, telas Compose escuras ficariam misturadas com telas XML claras.
- * Na 3.16 o padrão passa a ser `isSystemInDarkTheme()`.
- */
+/** Tema do app. A MainActivity decide [darkTheme] pela escolha em Configurações (padrão: seguir o sistema). */
 @Composable
 fun ComprareiTheme(
-    darkTheme: Boolean = false,
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
     MaterialTheme(

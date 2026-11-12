@@ -1,5 +1,6 @@
 package br.com.zamfir.comprarei.feature.profile.presentation
 
+import br.com.zamfir.comprarei.core.designsystem.components.ComprareiTopAppBarDefaults
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -104,7 +105,6 @@ fun EditProfileScreen(
 
     Scaffold(
         topBar = {
-            // Barra na cor primária para combinar com a status bar verde das telas em XML (até a 3.16).
             TopAppBar(
                 title = { Text(stringResource(R.string.editar_perfil)) },
                 navigationIcon = {
@@ -115,11 +115,7 @@ fun EditProfileScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
+                colors = ComprareiTopAppBarDefaults.brandColors(),
             )
         },
     ) { innerPadding ->

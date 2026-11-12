@@ -1,20 +1,10 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.Comprarei" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/primary_green</item>
-        <item name="colorPrimaryVariant">@color/secondary_green</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/primary_green</item>
-        <item name="colorSecondaryVariant">@color/secondary_green</item>
-        <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" >?attr/colorPrimary</item>
-        <!-- Customize your theme here. -->
-        <item name="android:textColor">@color/secondary_green</item>
-        <item name="fontFamily">@font/inter</item>
-        <!--<item name="android:windowTranslucentStatus">true</item>-->
-        <item name="android:textColorSecondary">@color/white</item>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Tema da janela. As telas são todas em Compose (ComprareiTheme); aqui só ficam o fundo
+        mostrado antes do Compose desenhar e a ausência de action bar.
+    -->
+    <style name="Theme.Comprarei" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
     </style>
 </resources>

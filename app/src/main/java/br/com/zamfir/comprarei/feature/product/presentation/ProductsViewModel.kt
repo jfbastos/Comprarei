@@ -1,6 +1,5 @@
 package br.com.zamfir.comprarei.feature.product.presentation
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.zamfir.comprarei.R
@@ -8,7 +7,6 @@ import br.com.zamfir.comprarei.core.data.preferences.ConfigRepository
 import br.com.zamfir.comprarei.core.data.product.ProductRepository
 import br.com.zamfir.comprarei.core.database.entity.Product
 import br.com.zamfir.comprarei.core.presentation.UiText
-import br.com.zamfir.comprarei.core.util.Constants
 import br.com.zamfir.comprarei.core.util.log.AppLogger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
@@ -78,18 +76,15 @@ sealed interface ProductsEvent {
     data class ShowMessage(val message: UiText) : ProductsEvent
 }
 
+/** [cartId] e [cartName] vêm da rota (ProductsRoute) via parâmetros do Koin. */
 class ProductsViewModel(
-    savedStateHandle: SavedStateHandle,
+    private val cartId: Int,
+    cartName: String,
     private val productRepository: ProductRepository,
     private val configRepository: ConfigRepository,
 ) : ViewModel() {
 
-    // Argumentos do nav graph (o Fragment os repassa ao SavedStateHandle).
-    private val cartId: Int = savedStateHandle.get<Long>(Constants.CART_ID_KEY)?.toInt() ?: -1
-
-    private val _state = MutableStateFlow(
-        ProductsState(cartName = savedStateHandle.get<String>(Constants.CART_NAME_KEY).orEmpty()),
-    )
+    private val _state = MutableStateFlow(ProductsState(cartName = cartName))
     val state: StateFlow<ProductsState> = _state.asStateFlow()
 
     private val eventChannel = Channel<ProductsEvent>()

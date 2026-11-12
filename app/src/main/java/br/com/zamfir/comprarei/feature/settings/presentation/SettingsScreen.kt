@@ -1,5 +1,14 @@
 package br.com.zamfir.comprarei.feature.settings.presentation
 
+import br.com.zamfir.comprarei.core.designsystem.components.ComprareiTopAppBarDefaults
+import br.com.zamfir.comprarei.core.data.preferences.ThemeMode
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.AlertDialog
 import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -98,7 +107,6 @@ fun SettingsScreen(
 ) {
     Scaffold(
         topBar = {
-            // Barra na cor primária para combinar com a status bar verde das telas em XML (até a 3.16).
             TopAppBar(
                 title = { Text(stringResource(R.string.configuration)) },
                 navigationIcon = {
@@ -109,11 +117,7 @@ fun SettingsScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
+                colors = ComprareiTopAppBarDefaults.brandColors(),
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -142,6 +146,14 @@ fun SettingsScreen(
                 title = stringResource(R.string.mostrar_total_do_carrinho),
                 checked = state.showCartTotal,
                 onCheckedChange = { onAction(SettingsAction.OnShowCartTotalChange(it)) },
+            )
+
+            SectionHeader(stringResource(R.string.settings_appearance))
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.settings_theme)) },
+                supportingContent = { Text(stringResource(state.themeMode.labelRes)) },
+                leadingContent = { Icon(painterResource(R.drawable.ic_palette_24), contentDescription = null) },
+                modifier = Modifier.clickable { onAction(SettingsAction.OnThemeClick) },
             )
 
             SectionHeader(stringResource(R.string.backup))
@@ -310,8 +322,54 @@ private fun SettingsDialogs(
                 onDismiss = { onAction(SettingsAction.OnDismissDialog) },
             )
         }
+        SettingsDialog.Theme -> ThemeDialog(
+            selected = state.themeMode,
+            onSelect = { onAction(SettingsAction.OnThemeSelect(it)) },
+            onDismiss = { onAction(SettingsAction.OnDismissDialog) },
+        )
         null -> Unit
     }
+}
+
+private val ThemeMode.labelRes: Int
+    get() = when (this) {
+        ThemeMode.System -> R.string.theme_system
+        ThemeMode.Light -> R.string.theme_light
+        ThemeMode.Dark -> R.string.theme_dark
+    }
+
+/** Escolha única: tocar numa opção já aplica e fecha. */
+@Composable
+private fun ThemeDialog(
+    selected: ThemeMode,
+    onSelect: (ThemeMode) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { Icon(painterResource(R.drawable.ic_palette_24), contentDescription = null) },
+        title = { Text(stringResource(R.string.settings_theme)) },
+        text = {
+            Column(Modifier.selectableGroup()) {
+                ThemeMode.entries.forEach { mode ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 48.dp)
+                            .selectable(selected = mode == selected, role = Role.RadioButton, onClick = { onSelect(mode) }),
+                    ) {
+                        RadioButton(selected = mode == selected, onClick = null)
+                        Spacer(Modifier.width(16.dp))
+                        Text(stringResource(mode.labelRes), style = MaterialTheme.typography.bodyLarge)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        },
+    )
 }
 
 @Preview(showBackground = true)

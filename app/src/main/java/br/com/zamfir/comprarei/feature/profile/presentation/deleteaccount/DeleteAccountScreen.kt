@@ -1,5 +1,6 @@
 package br.com.zamfir.comprarei.feature.profile.presentation.deleteaccount
 
+import br.com.zamfir.comprarei.core.designsystem.components.ComprareiTopAppBarDefaults
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
@@ -91,7 +92,6 @@ fun DeleteAccountScreen(
 
     Scaffold(
         topBar = {
-            // Barra na cor primária para combinar com as demais telas até a 3.16.
             TopAppBar(
                 title = { Text(stringResource(R.string.account_deletion)) },
                 navigationIcon = {
@@ -102,11 +102,7 @@ fun DeleteAccountScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
+                colors = ComprareiTopAppBarDefaults.brandColors(),
             )
         },
     ) { innerPadding ->

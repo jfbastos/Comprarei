@@ -36,8 +36,19 @@ data class CartsState(
     val query: String = "",
     // firestoreUUID das selecionadas; não vazio = modo de seleção.
     val selectedIds: Set<String> = emptySet(),
+    val isCompletedExpanded: Boolean = true,
 ) {
     val visibleCarts: List<Cart> = carts.applyFilter(filter).search(query)
+
+    // Seções da lista, mantendo a ordem (manual ou do filtro) dentro de cada uma.
+    val ongoingCarts: List<Cart> = visibleCarts.filterNot { isCompleted(it) }
+    val completedCarts: List<Cart> = visibleCarts.filter { isCompleted(it) }
+
+    // Resumo do cabeçalho: sempre sobre todas as compras, sem filtro nem busca.
+    val openCount: Int = carts.count { !isCompleted(it) }
+
+    /** Concluída = tem produtos e todos foram comprados. Compra vazia continua em andamento. */
+    fun isCompleted(cart: Cart): Boolean = progress[cart.id]?.let { it.total > 0 && it.done == it.total } ?: false
 
     val isSelectionMode: Boolean get() = selectedIds.isNotEmpty()
 
@@ -72,6 +83,7 @@ sealed interface CartsAction {
     data object OnFilterClick : CartsAction
     data class OnFilterApplied(val filter: CartFilter) : CartsAction
     data object OnClearFilter : CartsAction
+    data object OnToggleCompletedSection : CartsAction
 
     data object OnSelectAllClick : CartsAction
     data object OnDeleteSelectedClick : CartsAction
@@ -138,6 +150,7 @@ class CartsViewModel(
             CartsAction.OnFilterClick -> _state.value.let { sendEvent(CartsEvent.OpenFilter(it.filter, it.carts)) }
             is CartsAction.OnFilterApplied -> _state.update { it.copy(filter = action.filter) }
             CartsAction.OnClearFilter -> _state.update { it.copy(filter = CartFilter()) }
+            CartsAction.OnToggleCompletedSection -> _state.update { it.copy(isCompletedExpanded = !it.isCompletedExpanded) }
 
             CartsAction.OnSelectAllClick -> _state.update { current ->
                 val visibleIds = current.visibleCarts.map { it.firestoreUUID }.toSet()
@@ -207,6 +220,8 @@ class CartsViewModel(
             val from = list.indexOfFirst { it.firestoreUUID == fromKey }
             val to = list.indexOfFirst { it.firestoreUUID == toKey }
             if (from < 0 || to < 0) return@update current
+            // Arrastar não muda o status da compra: só reordena dentro da mesma seção.
+            if (current.isCompleted(list[from]) != current.isCompleted(list[to])) return@update current
             list.add(to, list.removeAt(from))
             current.copy(carts = list)
         }

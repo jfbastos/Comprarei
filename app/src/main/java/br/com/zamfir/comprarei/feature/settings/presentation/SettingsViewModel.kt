@@ -7,6 +7,7 @@ import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.core.data.firestore.BackupStatus
 import br.com.zamfir.comprarei.core.data.firestore.FirestoreRepository
 import br.com.zamfir.comprarei.core.data.preferences.ConfigRepository
+import br.com.zamfir.comprarei.core.data.preferences.ThemeMode
 import br.com.zamfir.comprarei.core.data.user.UserRepository
 import br.com.zamfir.comprarei.core.presentation.UiText
 import kotlinx.coroutines.channels.Channel
@@ -23,6 +24,7 @@ data class SettingsState(
     val moveDoneToBottom: Boolean = false,
     val showCartTotal: Boolean = true,
     val autoBackup: Boolean = true,
+    val themeMode: ThemeMode = ThemeMode.System,
     // Data formatada do último backup; vazia quando nunca houve backup.
     val lastBackup: String = "",
     val backupStatus: BackupStatus = BackupStatus.Idle,
@@ -30,7 +32,7 @@ data class SettingsState(
     val isLoggingOff: Boolean = false,
 )
 
-enum class SettingsDialog { ConfirmBackup, ConfirmLogoff }
+enum class SettingsDialog { ConfirmBackup, ConfirmLogoff, Theme }
 
 sealed interface SettingsAction {
     data object OnScreenShown : SettingsAction
@@ -39,6 +41,8 @@ sealed interface SettingsAction {
     data class OnMoveDoneToBottomChange(val enabled: Boolean) : SettingsAction
     data class OnShowCartTotalChange(val enabled: Boolean) : SettingsAction
     data class OnAutoBackupChange(val enabled: Boolean) : SettingsAction
+    data object OnThemeClick : SettingsAction
+    data class OnThemeSelect(val mode: ThemeMode) : SettingsAction
     data object OnBackupClick : SettingsAction
     data object OnConfirmBackup : SettingsAction
     data object OnLogoffClick : SettingsAction
@@ -86,6 +90,12 @@ class SettingsViewModel(
                 _state.update { it.copy(autoBackup = action.enabled) }
                 configRepository.toggleAutoBackup(action.enabled)
             }
+            SettingsAction.OnThemeClick -> _state.update { it.copy(dialog = SettingsDialog.Theme) }
+            // A MainActivity observa a preferência e troca o tema na hora.
+            is SettingsAction.OnThemeSelect -> {
+                _state.update { it.copy(themeMode = action.mode, dialog = null) }
+                viewModelScope.launch { configRepository.setThemeMode(action.mode) }
+            }
             SettingsAction.OnBackupClick -> {
                 if (!_state.value.backupStatus.isInProgress()) {
                     _state.update { it.copy(dialog = SettingsDialog.ConfirmBackup) }
@@ -112,6 +122,7 @@ class SettingsViewModel(
                 moveDoneToBottom = configRepository.getIsToMoveToBottomDoneItens(),
                 showCartTotal = configRepository.getIsToShowTotalCart(),
                 autoBackup = configRepository.getIsAutoBackupEnabled(),
+                themeMode = configRepository.getThemeMode(),
                 lastBackup = configRepository.getLastBackupTime(),
             )
         }

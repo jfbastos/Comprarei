@@ -13,16 +13,12 @@
     <string name="delete">Deletar vários</string>
     <string name="sort">Ordenar</string>
     <string name="share">Compartilhar</string>
-    <string name="night_mode">Modo noturno</string>
-    <string name="night_off_msg">Modo noturno desligado</string>
-    <string name="night_on_msg">Modo noturno ligado</string>
     <string name="blank_name">Nome não pode ser vazio!</string>
     <string name="select_category_color">Por favor, selecione uma cor para a categoria!</string>
     <string name="empty_category">Parece que você ainda não tem nenhuma categoria. Adicione uma nova :)</string>
     <string name="new_category">Nova categoria</string>
     <string name="store_hint">Loja</string>
     <string name="categories">Categorias</string>
-    <string name="themes">Temas</string>
     <string name="no_categories">Sem categorias</string>
     <string name="search_carts">Pesquisar carrinhos</string>
     <string name="password_hint">Senha</string>
@@ -72,12 +68,9 @@
     <string name="msg_exp_upload_profile_picture_failed">Tivemos um problema ao salvar sua foto de perfil.</string>
     <string name="user_already_exists">Usuário já existente.</string>
     <string name="password_not_meet_minimum_requirement">A senha não atinge os requisitos mínimos.</string>
-    <string name="failed_to_retrieve_profile_picture">Falha ao obter foto do perfil.</string>
     <string name="no_user_logged">Sem usuário logado.</string>
-    <string name="failed_to_save_user_but_exception_don_t_have_message">Falha ao salvar usuário, porém exception sem mensagem.</string>
     <string name="your_current_password_is_incorrect">A senha atual está incorreta.</string>
     <string name="something_went_wrong_on_updating_profile_picture">Falha ao atualizar foto de perfil.</string>
-    <string name="failed_to_download_profile_picture">Falha ao realizar o download da foto de perfil.</string>
     <string name="can_t_get_carts_registers">Não é possível obter os carrinhos.</string>
     <string name="can_t_get_products_registers">Não é possível obter os produtos.</string>
     <string name="can_t_get_categories_registers">Não é possível obter as categorias.</string>
@@ -90,8 +83,6 @@
     <string name="edit_profile_error">Desculpe, não foi possível realizar a atualização do perfil agora. Por favor, tente novamente em alguns instantes.</string>
     <string name="conceder">Grant</string>
     <string name="nao_conceder">Do not grant</string>
-    <string name="permissao_notificaco_negada">Permissão notificação negada</string>
-    <string name="msg_permissao_notificacao_negada">Parece que você não concedeu a permissão de notificação, assim o app não conseguirá mostrar nenhuma notificação.</string>
     <string name="permissao_notificacao">Permissão de notificação</string>
     <string name="msg_permissao_notificacao">Para uma melhor usabilidade do app, conceda a permissão de notificação.</string>
     <string name="moeda_real">R$</string>
@@ -274,6 +265,10 @@
     <string name="carts_no_products">Nenhum produto ainda</string>
     <string name="carts_filter_active">Filtros ativos</string>
     <string name="carts_clear_filter">Limpar filtros</string>
+    <string name="carts_greeting">Olá, %1$s</string>
+    <string name="carts_open_label">em aberto</string>
+    <string name="carts_section_ongoing">Em andamento</string>
+    <string name="carts_section_completed">Concluídas</string>
     <string name="open_menu">Abrir menu</string>
     <string name="edit">Editar</string>
     <string name="filter">Filtrar</string>
@@ -282,4 +277,10 @@
         <item quantity="many">%d compras excluídas</item>
         <item quantity="other">%d compras excluídas</item>
     </plurals>
+    <!-- Tema -->
+    <string name="settings_appearance">Aparência</string>
+    <string name="settings_theme">Tema</string>
+    <string name="theme_system">Padrão do sistema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Escuro</string>
 </resources>

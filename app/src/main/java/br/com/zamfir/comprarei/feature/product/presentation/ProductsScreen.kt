@@ -1,5 +1,7 @@
 package br.com.zamfir.comprarei.feature.product.presentation
 
+import br.com.zamfir.comprarei.core.designsystem.theme.onBrandBar
+import br.com.zamfir.comprarei.core.designsystem.components.ComprareiTopAppBarDefaults
 import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
@@ -37,7 +39,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -84,6 +85,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.core.database.entity.Product
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiEmptyState
+import br.com.zamfir.comprarei.core.designsystem.components.ComprareiFab
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiLoading
 import br.com.zamfir.comprarei.core.designsystem.theme.ComprareiTheme
 import br.com.zamfir.comprarei.core.presentation.ObserveAsEvents
@@ -165,9 +167,9 @@ fun ProductsScreen(
         },
         floatingActionButton = {
             if (!state.isSelectionMode) {
-                ExtendedFloatingActionButton(
-                    text = { Text(stringResource(R.string.new_product)) },
-                    icon = { Icon(painterResource(R.drawable.ic_add), contentDescription = null) },
+                ComprareiFab(
+                    text = stringResource(R.string.new_product),
+                    icon = painterResource(R.drawable.ic_add),
                     onClick = { onAction(ProductsAction.OnAddClick) },
                     expanded = isFabExpanded,
                 )
@@ -506,7 +508,8 @@ private fun SummaryBar(state: ProductsState) {
     val count = state.products.size
 
     Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
-        Column {
+        // A tela vai até a borda: o rodapé fica acima da barra de navegação do sistema.
+        Column(Modifier.navigationBarsPadding()) {
             LinearProgressIndicator(
                 progress = { state.doneCount / count.toFloat() },
                 gapSize = 0.dp,
@@ -559,7 +562,6 @@ private fun SummaryBar(state: ProductsState) {
 private fun ProductsTopBar(state: ProductsState, onAction: (ProductsAction) -> Unit) {
     val focusRequester = remember { FocusRequester() }
 
-    // Barra na cor primária para combinar com a status bar verde das telas em XML (até a 3.16).
     TopAppBar(
         title = {
             if (state.isSearchActive) {
@@ -575,11 +577,11 @@ private fun ProductsTopBar(state: ProductsState, onAction: (ProductsAction) -> U
                         unfocusedContainerColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                        focusedPlaceholderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
-                        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
-                        cursorColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedTextColor = MaterialTheme.colorScheme.onBrandBar,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBrandBar,
+                        focusedPlaceholderColor = MaterialTheme.colorScheme.onBrandBar.copy(alpha = 0.7f),
+                        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onBrandBar.copy(alpha = 0.7f),
+                        cursorColor = MaterialTheme.colorScheme.onBrandBar,
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -615,7 +617,7 @@ private fun ProductsTopBar(state: ProductsState, onAction: (ProductsAction) -> U
                 }
             }
         },
-        colors = primaryTopBarColors(),
+        colors = ComprareiTopAppBarDefaults.brandColors(),
     )
 }
 
@@ -637,18 +639,10 @@ private fun SelectionTopBar(count: Int, onAction: (ProductsAction) -> Unit) {
                 Icon(painterResource(R.drawable.ic_delete_24), contentDescription = stringResource(R.string.delete_selected))
             }
         },
-        colors = primaryTopBarColors(),
+        colors = ComprareiTopAppBarDefaults.brandColors(),
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun primaryTopBarColors() = TopAppBarDefaults.topAppBarColors(
-    containerColor = MaterialTheme.colorScheme.primary,
-    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-    actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
-)
 
 /** Texto compartilhado da compra (mesmo formato de antes da migração). */
 private fun buildShareText(context: Context, cartName: String, products: List<Product>): String {

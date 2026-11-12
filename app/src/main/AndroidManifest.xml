@@ -17,18 +17,10 @@
             android:exported="false"
             android:theme="@style/Theme.Comprarei"/>
         <activity
-            android:name=".feature.auth.presentation.LoginActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Comprarei"/>
-        <activity
-            android:name=".feature.profile.presentation.deleteaccount.DeleteAccountActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Comprarei"/>
-        <activity
             android:name=".app.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Starting"
-            android:windowSoftInputMode="stateAlwaysHidden">
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -1,5 +1,7 @@
 package br.com.zamfir.comprarei.feature.category.presentation
 
+import br.com.zamfir.comprarei.core.designsystem.theme.onBrandBar
+import br.com.zamfir.comprarei.core.designsystem.components.ComprareiTopAppBarDefaults
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -13,7 +15,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -50,6 +51,7 @@ import br.com.zamfir.comprarei.core.database.entity.Category
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiColorDot
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiConfirmDialog
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiEmptyState
+import br.com.zamfir.comprarei.core.designsystem.components.ComprareiFab
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiLoading
 import br.com.zamfir.comprarei.core.designsystem.theme.ComprareiTheme
 import br.com.zamfir.comprarei.core.presentation.ObserveAsEvents
@@ -120,9 +122,9 @@ fun CategoriesScreen(
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text(stringResource(R.string.new_category)) },
-                icon = { Icon(painterResource(R.drawable.ic_add), contentDescription = null) },
+            ComprareiFab(
+                text = stringResource(R.string.new_category),
+                icon = painterResource(R.drawable.ic_add),
                 onClick = onNewClick,
                 expanded = isFabExpanded,
             )
@@ -191,7 +193,6 @@ private fun CategoriesTopBar(
 ) {
     val focusRequester = remember { FocusRequester() }
 
-    // Barra na cor primária para combinar com a status bar verde das telas em XML (até a 3.16).
     TopAppBar(
         title = {
             if (isSearchActive) {
@@ -207,11 +208,11 @@ private fun CategoriesTopBar(
                         unfocusedContainerColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                        focusedPlaceholderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
-                        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
-                        cursorColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedTextColor = MaterialTheme.colorScheme.onBrandBar,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBrandBar,
+                        focusedPlaceholderColor = MaterialTheme.colorScheme.onBrandBar.copy(alpha = 0.7f),
+                        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onBrandBar.copy(alpha = 0.7f),
+                        cursorColor = MaterialTheme.colorScheme.onBrandBar,
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -246,12 +247,7 @@ private fun CategoriesTopBar(
                 }
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            titleContentColor = MaterialTheme.colorScheme.onPrimary,
-            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-            actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
-        ),
+        colors = ComprareiTopAppBarDefaults.brandColors(),
     )
 }
 

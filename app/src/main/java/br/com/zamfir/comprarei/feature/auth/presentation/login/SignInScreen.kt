@@ -1,5 +1,9 @@
 package br.com.zamfir.comprarei.feature.auth.presentation.login
 
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.ui.graphics.luminance
+import br.com.zamfir.comprarei.core.presentation.StatusBarIconsEffect
+import br.com.zamfir.comprarei.core.designsystem.components.ComprareiWaveBackground
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
@@ -37,7 +41,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -96,15 +99,13 @@ fun SignInScreen(
     state: SignInState,
     onAction: (SignInAction) -> Unit,
 ) {
+    // Sem barra verde no topo: com fundo claro, os ícones da status bar precisam ser escuros.
+    StatusBarIconsEffect(darkIcons = MaterialTheme.colorScheme.surface.luminance() > 0.5f)
+
     Surface(color = MaterialTheme.colorScheme.surface) {
         Box(Modifier.fillMaxSize()) {
             // Fundo verde ondulado da identidade do app.
-            Image(
-                painter = painterResource(R.drawable.background_signin_screen),
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier.fillMaxSize(),
-            )
+            ComprareiWaveBackground(Modifier.fillMaxSize())
             SignInForm(state = state, onAction = onAction)
         }
     }
@@ -152,6 +153,7 @@ private fun SignInForm(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .systemBarsPadding()
             .imePadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 32.dp),
@@ -256,12 +258,7 @@ private fun RestoreLoading(step: RestoreStep) {
 
     Surface(color = MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxSize()) {
         Box(Modifier.fillMaxSize()) {
-            Image(
-                painter = painterResource(R.drawable.background_signin_screen),
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier.fillMaxSize(),
-            )
+            ComprareiWaveBackground(Modifier.fillMaxSize())
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally,

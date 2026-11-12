@@ -8,8 +8,6 @@ class Constants {
         const val SORT_TAG = "BOTTOMSHEET"
         const val EMPTY_CART_VALUE = "R$ 0,00"
         const val DATE_PATTERN = "dd/MM/yyyy"
-        const val CART_ID_KEY = "cartId"
-        const val CART_NAME_KEY = "cartName"
         const val EMPTY_STRING = ""
         const val MANUAL_BACKUP_KEY = "MANUAL_BACKUP"
         const val MANUAL_BACKUP_WORK_NAME = "manual_backup"

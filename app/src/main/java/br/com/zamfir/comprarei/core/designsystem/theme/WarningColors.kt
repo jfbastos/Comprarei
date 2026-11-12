@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.luminance
 
 // O M3 não tem papel de "aviso". Em vez de um CompositionLocal, derivamos do próprio ColorScheme:
 // fundo claro → paleta clara, fundo escuro → paleta escura.
-private val ColorScheme.isLight: Boolean get() = background.luminance() > 0.5f
+internal val ColorScheme.isLight: Boolean get() = background.luminance() > 0.5f
 
 val ColorScheme.warning: Color
     get() = if (isLight) WarningPalette.LightWarning else WarningPalette.DarkWarning

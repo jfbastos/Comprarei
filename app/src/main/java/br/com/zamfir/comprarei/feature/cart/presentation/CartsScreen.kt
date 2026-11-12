@@ -1,6 +1,25 @@
 package br.com.zamfir.comprarei.feature.cart.presentation
 
+import br.com.zamfir.comprarei.core.designsystem.theme.brandBar
+import br.com.zamfir.comprarei.core.designsystem.theme.onBrandBar
+import br.com.zamfir.comprarei.core.designsystem.components.ComprareiTopAppBarDefaults
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import br.com.zamfir.comprarei.core.designsystem.components.ComprareiFab
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -27,13 +46,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.InputChipDefaults
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -88,7 +105,6 @@ import br.com.zamfir.comprarei.core.database.entity.Cart
 import br.com.zamfir.comprarei.core.database.entity.Category
 import br.com.zamfir.comprarei.core.database.entity.UserInfo
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiAvatar
-import br.com.zamfir.comprarei.core.designsystem.components.ComprareiColorDot
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiEmptyState
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiLoading
 import br.com.zamfir.comprarei.core.designsystem.theme.ComprareiTheme
@@ -225,55 +241,45 @@ private fun CartsContent(
     snackbarHostState: SnackbarHostState,
 ) {
     val listState = rememberLazyListState()
-    val isFabExpanded by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
+    val isAtTop by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
+    // O cabeçalho verde some na busca e na seleção, que precisam da lista inteira.
+    val showHeader = !state.isSearchActive && !state.isSelectionMode
 
     Scaffold(
         topBar = {
             if (state.isSelectionMode) {
                 SelectionTopBar(count = state.selectedIds.size, onAction = onAction)
             } else {
-                CartsTopBar(state = state, onAction = onAction, onMenuClick = onMenuClick)
+                CartsTopBar(
+                    state = state,
+                    // Com o cabeçalho na tela, o nome do app fica de fora para não repetir a saudação.
+                    showTitle = !showHeader || !isAtTop,
+                    onAction = onAction,
+                    onMenuClick = onMenuClick,
+                )
             }
         },
         floatingActionButton = {
             if (!state.isSelectionMode && !state.isLoading) {
-                ExtendedFloatingActionButton(
-                    text = { Text(stringResource(R.string.new_cart)) },
-                    icon = { Icon(painterResource(R.drawable.ic_add), contentDescription = null) },
+                ComprareiFab(
+                    text = stringResource(R.string.new_cart),
+                    icon = painterResource(R.drawable.ic_add),
                     onClick = { onAction(CartsAction.OnAddClick) },
-                    expanded = isFabExpanded,
+                    expanded = isAtTop,
                 )
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
         ) {
-            AnimatedVisibility(visible = state.filter.isActive && !state.isSelectionMode) {
-                ActiveFilterChip(onClear = { onAction(CartsAction.OnClearFilter) })
-            }
-
-            Box(Modifier.fillMaxSize()) {
-                when {
-                    state.isLoading -> ComprareiLoading(modifier = Modifier.align(Alignment.Center))
-                    state.carts.isEmpty() -> ComprareiEmptyState(
-                        title = stringResource(R.string.empty_list_message),
-                        message = stringResource(R.string.carts_empty_message),
-                        icon = painterResource(R.drawable.baseline_shopping_cart_24),
-                        actionText = stringResource(R.string.new_cart),
-                        onAction = { onAction(CartsAction.OnAddClick) },
-                        modifier = Modifier.align(Alignment.Center),
-                    )
-                    state.visibleCarts.isEmpty() -> ComprareiEmptyState(
-                        title = stringResource(R.string.carts_search_empty),
-                        icon = painterResource(R.drawable.ic_search_24),
-                        modifier = Modifier.align(Alignment.Center),
-                    )
-                    else -> CartList(state = state, listState = listState, onAction = onAction)
-                }
+            if (state.isLoading) {
+                ComprareiLoading(modifier = Modifier.align(Alignment.Center))
+            } else {
+                CartList(state = state, showHeader = showHeader, listState = listState, onAction = onAction)
             }
         }
     }
@@ -282,6 +288,7 @@ private fun CartsContent(
 @Composable
 private fun CartList(
     state: CartsState,
+    showHeader: Boolean,
     listState: LazyListState,
     onAction: (CartsAction) -> Unit,
 ) {
@@ -289,52 +296,206 @@ private fun CartList(
     val reorderState = rememberReorderableLazyListState(listState) { from, to ->
         onAction(CartsAction.OnMove(from.key, to.key))
     }
+    val hasSections = state.completedCarts.isNotEmpty()
+
+    // Um item de compra; usado nas duas seções.
+    val cartItem: @Composable LazyItemScope.(Cart) -> Unit = { cart ->
+        ReorderableItem(reorderState, key = cart.firestoreUUID, modifier = Modifier.padding(horizontal = 12.dp)) { isDragging ->
+            // A alça precisa do escopo do ReorderableItem, por isso é montada aqui e passada como slot.
+            val dragHandle: @Composable () -> Unit = {
+                IconButton(
+                    onClick = {},
+                    modifier = Modifier.draggableHandle(
+                        onDragStarted = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
+                        onDragStopped = { onAction(CartsAction.OnMoveFinished) },
+                    ),
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_drag_indicator_24),
+                        contentDescription = stringResource(R.string.products_drag_handle),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    )
+                }
+            }
+            SwipeableCartRow(
+                enabled = !state.isSelectionMode,
+                onEdit = { onAction(CartsAction.OnEditClick(cart)) },
+                onDelete = { onAction(CartsAction.OnDelete(listOf(cart))) },
+            ) {
+                CartRow(
+                    cart = cart,
+                    progress = state.progress[cart.id],
+                    showTotal = state.showTotal,
+                    isSelected = cart.firestoreUUID in state.selectedIds,
+                    isDragging = isDragging,
+                    dragHandle = if (state.canReorder) dragHandle else null,
+                    onClick = { onAction(CartsAction.OnCartClick(cart)) },
+                    onLongClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onAction(CartsAction.OnCartLongClick(cart))
+                    },
+                )
+            }
+        }
+    }
 
     LazyColumn(
         state = listState,
         // Espaço no fim para o FAB não cobrir o último item.
-        contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 96.dp),
+        contentPadding = PaddingValues(bottom = 96.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxSize(),
     ) {
-        items(state.visibleCarts, key = { it.firestoreUUID }) { cart ->
-            ReorderableItem(reorderState, key = cart.firestoreUUID) { isDragging ->
-                // A alça precisa do escopo do ReorderableItem, por isso é montada aqui e passada como slot.
-                val dragHandle: @Composable () -> Unit = {
-                    IconButton(
-                        onClick = {},
-                        modifier = Modifier.draggableHandle(
-                            onDragStarted = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
-                            onDragStopped = { onAction(CartsAction.OnMoveFinished) },
-                        ),
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_drag_indicator_24),
-                            contentDescription = stringResource(R.string.products_drag_handle),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                        )
+        if (showHeader) {
+            item(key = "header") { CartsHeader(state) }
+        }
+        if (state.filter.isActive && !state.isSelectionMode) {
+            item(key = "filter_chip") {
+                ActiveFilterChip(onClear = { onAction(CartsAction.OnClearFilter) })
+            }
+        }
+
+        when {
+            state.carts.isEmpty() -> item(key = "empty") {
+                ComprareiEmptyState(
+                    title = stringResource(R.string.empty_list_message),
+                    message = stringResource(R.string.carts_empty_message),
+                    icon = painterResource(R.drawable.baseline_shopping_cart_24),
+                    actionText = stringResource(R.string.new_cart),
+                    onAction = { onAction(CartsAction.OnAddClick) },
+                    modifier = Modifier.fillParentMaxWidth(),
+                )
+            }
+            state.visibleCarts.isEmpty() -> item(key = "search_empty") {
+                ComprareiEmptyState(
+                    title = stringResource(R.string.carts_search_empty),
+                    icon = painterResource(R.drawable.ic_search_24),
+                    modifier = Modifier.fillParentMaxWidth(),
+                )
+            }
+            else -> {
+                // O título "Em andamento" só aparece quando há a outra seção, para não poluir a lista.
+                if (hasSections && state.ongoingCarts.isNotEmpty()) {
+                    item(key = "section_ongoing") {
+                        SectionHeader(title = stringResource(R.string.carts_section_ongoing), count = state.ongoingCarts.size)
                     }
                 }
-                SwipeableCartRow(
-                    enabled = !state.isSelectionMode,
-                    onEdit = { onAction(CartsAction.OnEditClick(cart)) },
-                    onDelete = { onAction(CartsAction.OnDelete(listOf(cart))) },
-                ) {
-                    CartRow(
-                        cart = cart,
-                        progress = state.progress[cart.id],
-                        showTotal = state.showTotal,
-                        isSelected = cart.firestoreUUID in state.selectedIds,
-                        isDragging = isDragging,
-                        dragHandle = if (state.canReorder) dragHandle else null,
-                        onClick = { onAction(CartsAction.OnCartClick(cart)) },
-                        onLongClick = {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            onAction(CartsAction.OnCartLongClick(cart))
-                        },
-                    )
+                items(state.ongoingCarts, key = { it.firestoreUUID }) { cartItem(it) }
+                if (hasSections) {
+                    item(key = "section_completed") {
+                        SectionHeader(
+                            title = stringResource(R.string.carts_section_completed),
+                            count = state.completedCarts.size,
+                            expanded = state.isCompletedExpanded,
+                            onClick = { onAction(CartsAction.OnToggleCompletedSection) },
+                        )
+                    }
+                    if (state.isCompletedExpanded) {
+                        items(state.completedCarts, key = { it.firestoreUUID }) { cartItem(it) }
+                    }
                 }
             }
+        }
+    }
+}
+
+/** Cabeçalho verde com saudação e resumo; termina com a onda da tela de login (assinatura visual do app). */
+@Composable
+private fun CartsHeader(state: CartsState) {
+    val colors = MaterialTheme.colorScheme
+    val firstName = state.user?.name?.trim()?.substringBefore(' ')?.takeIf { it.isNotBlank() }
+    val waveDepth = 36.dp
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .drawBehind { drawHeaderWave(colors.brandBar, waveDepth.toPx()) }
+            .padding(start = 24.dp, end = 24.dp, top = 4.dp, bottom = waveDepth + 12.dp),
+    ) {
+        Text(
+            text = firstName?.let { stringResource(R.string.carts_greeting, it) } ?: stringResource(R.string.ola),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = colors.onBrandBar,
+        )
+        Spacer(Modifier.height(16.dp))
+        HeaderStat(
+            value = state.openCount.toString(),
+            label = stringResource(R.string.carts_open_label),
+        )
+    }
+}
+
+@Composable
+private fun HeaderStat(value: String, label: String) {
+    Column {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBrandBar,
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onBrandBar.copy(alpha = 0.8f),
+        )
+    }
+}
+
+/**
+ * Mesma curva do fundo da tela de login (`background_signin_screen`): funda nas pontas e rasa a 1/3 da largura.
+ * Uma segunda onda espelhada e translúcida fica por trás, como as duas camadas do login.
+ */
+private fun DrawScope.drawHeaderWave(color: Color, depth: Float) {
+    val echo = wavePath(size.width, size.height, depth, mirrored = true)
+    drawPath(echo, color.copy(alpha = 0.3f))
+    val main = wavePath(size.width, size.height - depth * 0.35f, depth * 0.8f, mirrored = false)
+    drawPath(main, color)
+}
+
+private fun wavePath(width: Float, height: Float, depth: Float, mirrored: Boolean): Path {
+    val shallow = height - depth
+    fun x(fraction: Float) = if (mirrored) width * (1 - fraction) else width * fraction
+    // Borda de baixo percorrida da ponta direita do desenho original até a esquerda; o topo fecha a forma.
+    return Path().apply {
+        moveTo(x(1f), height)
+        cubicTo(x(1f), height, x(0.591f), shallow + depth * 0.005f, x(0.325f), shallow)
+        cubicTo(x(0.064f), shallow - depth * 0.016f, x(0.002f), height - depth * 0.031f, x(0f), height)
+        lineTo(x(0f), 0f)
+        lineTo(x(1f), 0f)
+        close()
+    }
+}
+
+@Composable
+private fun SectionHeader(
+    title: String,
+    count: Int,
+    expanded: Boolean? = null,
+    onClick: (() -> Unit)? = null,
+) {
+    val rotation by animateFloatAsState(if (expanded == true) 90f else 0f, label = "chevron")
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .padding(horizontal = 24.dp, vertical = 8.dp),
+    ) {
+        Text(
+            text = "$title · $count",
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f),
+        )
+        if (expanded != null) {
+            Icon(
+                painter = painterResource(R.drawable.chevron_right),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.rotate(rotation),
+            )
         }
     }
 }
@@ -425,23 +586,28 @@ private fun CartRow(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 72.dp)
-                .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-                .padding(start = 16.dp, end = if (dragHandle == null) 16.dp else 0.dp, top = 12.dp, bottom = 12.dp),
+                .height(IntrinsicSize.Min)
+                .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         ) {
-            Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (category != null) {
-                        ComprareiColorDot(color = category.color, modifier = Modifier.size(10.dp))
-                        Spacer(Modifier.width(8.dp))
-                    }
-                    Text(
-                        text = cart.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
+            // Faixa na cor da categoria; sem categoria, um tom neutro.
+            Box(
+                Modifier
+                    .width(6.dp)
+                    .fillMaxHeight()
+                    .background(category?.let { Color(it.color) } ?: colors.outlineVariant),
+            )
+            Column(
+                Modifier
+                    .weight(1f)
+                    .padding(start = 14.dp, end = 8.dp, top = 14.dp, bottom = 14.dp),
+            ) {
+                Text(
+                    text = cart.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
                 if (details.isNotEmpty()) {
                     Text(
                         text = details,
@@ -451,49 +617,64 @@ private fun CartRow(
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
-                Spacer(Modifier.height(8.dp))
-                CartProgressRow(progress)
+                if (showTotal) {
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = cart.total,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = colors.primary,
+                    )
+                }
             }
-            if (showTotal) {
-                Text(
-                    text = cart.total,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(start = 12.dp),
-                )
-            }
+            ProgressRing(progress, Modifier.padding(end = if (dragHandle == null) 16.dp else 0.dp))
             dragHandle?.invoke()
         }
     }
 }
 
+/** Anel com "comprados/total"; cheio vira um check. */
 @Composable
-private fun CartProgressRow(progress: CartProgress?) {
+private fun ProgressRing(progress: CartProgress?, modifier: Modifier = Modifier) {
     val colors = MaterialTheme.colorScheme
-    if (progress == null || progress.total == 0) {
-        Text(
-            text = stringResource(R.string.carts_no_products),
-            style = MaterialTheme.typography.labelMedium,
-            color = colors.onSurfaceVariant,
-        )
-        return
+    val total = progress?.total ?: 0
+    val done = progress?.done ?: 0
+    val isComplete = total > 0 && done == total
+    val description = if (total == 0) {
+        stringResource(R.string.carts_no_products)
+    } else {
+        pluralStringResource(R.plurals.products_bought_progress, total, done, total)
     }
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        LinearProgressIndicator(
-            progress = { progress.done / progress.total.toFloat() },
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .size(48.dp)
+            .clearAndSetSemantics { contentDescription = description },
+    ) {
+        CircularProgressIndicator(
+            progress = { if (total == 0) 0f else done / total.toFloat() },
+            strokeWidth = 4.dp,
+            trackColor = colors.surfaceVariant,
+            strokeCap = StrokeCap.Round,
             gapSize = 0.dp,
-            drawStopIndicator = {},
-            modifier = Modifier
-                .width(72.dp)
-                .height(4.dp)
-                .clip(MaterialTheme.shapes.small),
+            modifier = Modifier.fillMaxSize(),
         )
-        Spacer(Modifier.width(8.dp))
-        Text(
-            text = pluralStringResource(R.plurals.products_bought_progress, progress.total, progress.done, progress.total),
-            style = MaterialTheme.typography.labelMedium,
-            color = if (progress.done == progress.total) colors.primary else colors.onSurfaceVariant,
-        )
+        if (isComplete) {
+            Icon(
+                painter = painterResource(R.drawable.ic_baseline_done_24),
+                contentDescription = null,
+                tint = colors.primary,
+                modifier = Modifier.size(22.dp),
+            )
+        } else {
+            Text(
+                text = if (total == 0) "0" else "$done/$total",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = colors.onSurfaceVariant,
+            )
+        }
     }
 }
 
@@ -511,7 +692,7 @@ private fun ActiveFilterChip(onClear: () -> Unit) {
                 modifier = Modifier.size(InputChipDefaults.IconSize),
             )
         },
-        modifier = Modifier.padding(start = 16.dp, top = 8.dp),
+        modifier = Modifier.padding(horizontal = 16.dp),
     )
 }
 
@@ -566,10 +747,14 @@ private fun CartsDrawer(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CartsTopBar(state: CartsState, onAction: (CartsAction) -> Unit, onMenuClick: () -> Unit) {
+private fun CartsTopBar(
+    state: CartsState,
+    showTitle: Boolean,
+    onAction: (CartsAction) -> Unit,
+    onMenuClick: () -> Unit,
+) {
     val focusRequester = remember { FocusRequester() }
 
-    // Barra na cor primária para combinar com a status bar verde (até a 3.16).
     TopAppBar(
         title = {
             if (state.isSearchActive) {
@@ -585,18 +770,20 @@ private fun CartsTopBar(state: CartsState, onAction: (CartsAction) -> Unit, onMe
                         unfocusedContainerColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                        focusedPlaceholderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
-                        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
-                        cursorColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedTextColor = MaterialTheme.colorScheme.onBrandBar,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBrandBar,
+                        focusedPlaceholderColor = MaterialTheme.colorScheme.onBrandBar.copy(alpha = 0.7f),
+                        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onBrandBar.copy(alpha = 0.7f),
+                        cursorColor = MaterialTheme.colorScheme.onBrandBar,
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
                 )
             } else {
-                Text(stringResource(R.string.app_name))
+                AnimatedVisibility(visible = showTitle, enter = fadeIn(), exit = fadeOut()) {
+                    Text(stringResource(R.string.app_name))
+                }
             }
         },
         navigationIcon = {
@@ -628,7 +815,7 @@ private fun CartsTopBar(state: CartsState, onAction: (CartsAction) -> Unit, onMe
                 }
             }
         },
-        colors = primaryTopBarColors(),
+        colors = ComprareiTopAppBarDefaults.brandColors(),
     )
 }
 
@@ -650,18 +837,10 @@ private fun SelectionTopBar(count: Int, onAction: (CartsAction) -> Unit) {
                 Icon(painterResource(R.drawable.ic_delete_24), contentDescription = stringResource(R.string.delete_selected))
             }
         },
-        colors = primaryTopBarColors(),
+        colors = ComprareiTopAppBarDefaults.brandColors(),
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun primaryTopBarColors() = TopAppBarDefaults.topAppBarColors(
-    containerColor = MaterialTheme.colorScheme.primary,
-    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-    actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
-)
 
 private val previewCategory = Category(description = "Supermercado", color = 0xFF4CAF50.toInt()).apply { id = 1 }
 

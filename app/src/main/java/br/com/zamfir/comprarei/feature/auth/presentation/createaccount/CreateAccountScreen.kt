@@ -1,5 +1,6 @@
 package br.com.zamfir.comprarei.feature.auth.presentation.createaccount
 
+import br.com.zamfir.comprarei.core.designsystem.components.ComprareiTopAppBarDefaults
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -88,7 +89,6 @@ fun CreateAccountScreen(
 
     Scaffold(
         topBar = {
-            // Barra na cor primária para combinar com a status bar verde (até a 3.16).
             TopAppBar(
                 title = { Text(stringResource(R.string.create_account)) },
                 navigationIcon = {
@@ -99,11 +99,7 @@ fun CreateAccountScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
+                colors = ComprareiTopAppBarDefaults.brandColors(),
             )
         },
     ) { innerPadding ->
