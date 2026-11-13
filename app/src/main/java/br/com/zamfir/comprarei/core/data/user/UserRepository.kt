@@ -27,6 +27,7 @@ import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.Firebase
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.tasks.await
@@ -54,6 +55,9 @@ class UserRepository(
     suspend fun hasUserLogged() = withContext(dispatcher){ auth.currentUser != null }
 
     suspend fun getUserFromDb() = withContext(dispatcher) { appDatabase.UserInfoDao().getUserInfo() }
+
+    /** Usuário salvo no aparelho; emite de novo quando nome ou foto mudam. */
+    fun observeUser(): Flow<UserInfo?> = appDatabase.UserInfoDao().observeUserInfo()
 
     suspend fun requestPasswordReset(email : String) { withContext(dispatcher){ auth.sendPasswordResetEmail(email).await() } }
 
@@ -184,10 +188,9 @@ class UserRepository(
                     name = getUserName(),
                     lastUpdate = LocalDateTime.now().toString(),
                     email = currenUserInfo.email,
-                    profilePicture = absolutePath.takeIf { it.isNotBlank() } ?: currenUserInfo.profilePicture
-                ).apply {
-                    id = currenUserInfo.id
-                }
+                    profilePicture = absolutePath.takeIf { it.isNotBlank() } ?: currenUserInfo.profilePicture,
+                    id = currenUserInfo.id,
+                )
 
                 appDatabase.UserInfoDao().save(updatedUser)
             }else{

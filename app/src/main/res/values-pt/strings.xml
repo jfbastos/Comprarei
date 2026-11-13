@@ -244,6 +244,8 @@
     <string name="products_mark_pending">Marcar como pendente</string>
     <string name="products_drag_handle">Arraste para reordenar</string>
     <string name="save_change_error">Não foi possível salvar a alteração. Tente novamente.</string>
+    <string name="products_load_error">Não foi possível carregar os produtos. Tente novamente.</string>
+    <string name="carts_load_error">Não foi possível carregar suas compras. Tente novamente.</string>
     <string name="undo">Desfazer</string>
     <plurals name="products_bought_progress">
         <item quantity="one">%1$d de %2$d comprado</item>

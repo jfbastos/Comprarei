@@ -1,6 +1,7 @@
 package br.com.zamfir.comprarei.feature.cart.presentation.filter
 
 import br.com.zamfir.comprarei.core.database.entity.Cart
+import br.com.zamfir.comprarei.core.database.entity.Category
 import br.com.zamfir.comprarei.core.util.Constants
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -29,7 +30,11 @@ data class ValueFilter(val operator: ValueOperator, val minCents: Long, val maxC
  * @param totalCents valor total de cada compra em centavos, por id local; compra ausente vale 0
  *   (compra sem produtos).
  */
-fun List<Cart>.applyFilter(filter: CartFilter, totalCents: Map<Int, Long>): List<Cart> {
+fun List<Cart>.applyFilter(
+    filter: CartFilter,
+    totalCents: Map<Int, Long>,
+    categories: Map<Int, Category>,
+): List<Cart> {
     fun Cart.totalCents(): Long = totalCents[id] ?: 0L
 
     var result = this
@@ -57,7 +62,7 @@ fun List<Cart>.applyFilter(filter: CartFilter, totalCents: Map<Int, Long>): List
         CartSort.Oldest -> result.sortedWith(compareBy(nullsLast()) { it.parsedDate() })
         CartSort.HighestValue -> result.sortedByDescending { it.totalCents() }
         CartSort.LowestValue -> result.sortedBy { it.totalCents() }
-        CartSort.Category -> result.sortedWith(compareBy(nullsLast()) { it.category?.description?.lowercase() })
+        CartSort.Category -> result.sortedWith(compareBy(nullsLast()) { categories[it.categoryId]?.description?.lowercase() })
     }
 }
 

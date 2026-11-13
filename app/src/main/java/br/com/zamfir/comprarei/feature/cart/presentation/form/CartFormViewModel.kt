@@ -160,16 +160,12 @@ class CartFormViewModel(private val cartRepository: CartRepository) : ViewModel(
         val date = fields.date.format(DATE_FORMATTER)
         val editing = current.editing
         val event = if (editing != null) {
-            // Cópia em vez de alterar o objeto da lista; id e category não fazem parte do construtor.
             val edited = editing.copy(
                 name = name,
                 data = date,
                 categoryId = category?.id ?: 0,
                 store = fields.store.trim(),
-            ).also {
-                it.id = editing.id
-                it.category = category
-            }
+            )
             CartFormEvent.CartEdited(edited)
         } else {
             val created = Cart(
@@ -179,7 +175,7 @@ class CartFormViewModel(private val cartRepository: CartRepository) : ViewModel(
                 position = position,
                 categoryId = category?.id ?: 0,
                 store = fields.store.trim(),
-            ).also { it.category = category }
+            )
             CartFormEvent.CartCreated(created)
         }
         viewModelScope.launch { eventChannel.send(event) }

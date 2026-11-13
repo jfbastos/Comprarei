@@ -1,6 +1,7 @@
 package br.com.zamfir.comprarei.feature.product.presentation
 
 import br.com.zamfir.comprarei.core.designsystem.theme.onBrandBar
+import br.com.zamfir.comprarei.core.designsystem.components.rememberUnsavedSwipeToDismissBoxState
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiTopAppBarDefaults
 import android.content.Context
 import androidx.activity.compose.BackHandler
@@ -56,7 +57,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -279,7 +279,7 @@ private fun SwipeableProductRow(
     onDelete: () -> Unit,
     content: @Composable () -> Unit,
 ) {
-    val swipeState = rememberSwipeToDismissBoxState()
+    val swipeState = rememberUnsavedSwipeToDismissBoxState()
     val scope = rememberCoroutineScope()
 
     SwipeToDismissBox(

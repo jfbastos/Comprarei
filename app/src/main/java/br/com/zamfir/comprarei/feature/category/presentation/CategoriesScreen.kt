@@ -71,7 +71,6 @@ fun CategoriesRoot(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) { viewModel.onAction(CategoriesAction.OnScreenShown) }
 
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {

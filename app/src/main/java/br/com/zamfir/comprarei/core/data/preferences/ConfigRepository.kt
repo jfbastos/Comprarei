@@ -47,8 +47,14 @@ class ConfigRepository(private val context : Context, private val dispatcher: Co
     }
 
     suspend fun getIsToShowTotalCart() =  withContext(dispatcher){
-        return@withContext sharedPref.getBoolean(context.getString(R.string.showtotalcart_key), true)
+        return@withContext isToShowTotalCart()
     }
+
+    /** Emite a opção "mostrar total" atual e cada mudança feita em Configurações. */
+    fun observeShowTotalCart(): Flow<Boolean> =
+        observeKey(context.getString(R.string.showtotalcart_key)) { isToShowTotalCart() }
+
+    private fun isToShowTotalCart(): Boolean = sharedPref.getBoolean(context.getString(R.string.showtotalcart_key), true)
 
     suspend fun getIsAutoBackupEnabled() = withContext(dispatcher){
         return@withContext sharedPref.getBoolean(context.getString(R.string.auto_backup_key), true)
@@ -61,10 +67,13 @@ class ConfigRepository(private val context : Context, private val dispatcher: Co
             ?: ThemeMode.System
 
     /** Emite o tema atual e cada mudança feita em Configurações. */
-    fun observeThemeMode(): Flow<ThemeMode> = callbackFlow {
-        trySend(getThemeMode())
-        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            if (key == THEME_MODE_KEY) trySend(getThemeMode())
+    fun observeThemeMode(): Flow<ThemeMode> = observeKey(THEME_MODE_KEY) { getThemeMode() }
+
+    /** Emite [read] agora e de novo sempre que a chave [key] muda. */
+    private fun <T> observeKey(key: String, read: () -> T): Flow<T> = callbackFlow {
+        trySend(read())
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, changedKey ->
+            if (changedKey == key) trySend(read())
         }
         sharedPref.registerOnSharedPreferenceChangeListener(listener)
         awaitClose { sharedPref.unregisterOnSharedPreferenceChangeListener(listener) }

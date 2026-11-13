@@ -140,13 +140,12 @@ class ProductFormViewModel : ViewModel() {
 
         val editing = current.editing
         val event = if (editing != null) {
-            // Cópia em vez de alterar o objeto da lista; id não faz parte do construtor.
             val edited = editing.copy(
                 name = name,
                 brand = fields.brand.trim(),
                 price = fields.priceValue,
                 quantity = fields.quantityValue,
-            ).also { it.id = editing.id }
+            )
             ProductFormEvent.ProductEdited(edited)
         } else {
             ProductFormEvent.ProductCreated(

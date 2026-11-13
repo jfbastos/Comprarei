@@ -3,19 +3,30 @@ package br.com.zamfir.comprarei.feature.cart.data
 import br.com.zamfir.comprarei.core.database.AppDatabase
 import br.com.zamfir.comprarei.core.database.dao.CartProgress
 import br.com.zamfir.comprarei.core.database.entity.Cart
+import br.com.zamfir.comprarei.core.database.entity.Category
 import br.com.zamfir.comprarei.core.database.entity.Product
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
+/**
+ * Compras. A Home observa os Flows e não precisa recarregar depois de gravar.
+ * O dispatcher só é usado nas funções que chamam o DAO de forma bloqueante.
+ */
 class CartRepository(private val appDatabase: AppDatabase, private val dispatcher: CoroutineDispatcher) {
 
-    suspend fun getCarts() = withContext(dispatcher) { appDatabase.CartDao().carts }
+    fun observeCarts(): Flow<List<Cart>> = appDatabase.CartDao().observeCarts()
 
-    suspend fun saveCart(cart: Cart): Long = withContext(dispatcher) { appDatabase.CartDao().insertCart(cart) }
+    /** Progresso e valor de cada compra; muda junto com os produtos. */
+    fun observeProgress(): Flow<List<CartProgress>> = appDatabase.ProductDao().observeProgressByCart()
 
-    suspend fun updateCart(cart: Cart) = withContext(dispatcher) { appDatabase.CartDao().updateCart(cart) }
+    fun observeCategories(): Flow<List<Category>> = appDatabase.CategoryDao().observeCategories()
 
-    suspend fun updatePosition(carts: List<Cart>) = withContext(dispatcher) { appDatabase.CartDao().updateOrder(carts) }
+    suspend fun saveCart(cart: Cart): Long = appDatabase.CartDao().insertCart(cart)
+
+    suspend fun updateCart(cart: Cart) = appDatabase.CartDao().updateCart(cart)
+
+    suspend fun updatePosition(carts: List<Cart>) = appDatabase.CartDao().updateOrder(carts)
 
     /**
      * Exclui as compras e os produtos delas numa transação.
@@ -38,8 +49,6 @@ class CartRepository(private val appDatabase: AppDatabase, private val dispatche
             appDatabase.ProductDao().insertAll(products)
         }
     }
-
-    suspend fun getProgress(): List<CartProgress> = withContext(dispatcher) { appDatabase.ProductDao().progressByCart() }
 
     suspend fun getStores(): List<String> = withContext(dispatcher) { appDatabase.CartDao().getStores() }
 

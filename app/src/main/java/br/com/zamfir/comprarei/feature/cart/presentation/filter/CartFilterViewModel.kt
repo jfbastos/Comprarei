@@ -55,7 +55,7 @@ data class CartFilterState(
             categoryIds = categoryIds,
         )
 
-    val resultCount: Int get() = carts.applyFilter(draftFilter, totalCents).size
+    val resultCount: Int get() = carts.applyFilter(draftFilter, totalCents, categories.associateBy { it.id }).size
 
     private fun valueFilter(): ValueFilter? {
         val operator = valueOperator ?: return null

@@ -1,60 +1,60 @@
 package br.com.zamfir.comprarei.core.data.product
 
 import android.content.Context
+import androidx.room.withTransaction
 import br.com.zamfir.comprarei.R
-import br.com.zamfir.comprarei.core.database.dao.CartDao
-import br.com.zamfir.comprarei.core.database.dao.ProductDao
+import br.com.zamfir.comprarei.core.database.AppDatabase
 import br.com.zamfir.comprarei.core.database.entity.Product
 import br.com.zamfir.comprarei.core.util.formatMoney
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
 
 /**
- * Produtos de uma compra. Toda alteração que muda valores recalcula o total salvo na compra
- * (a Home mostra esse total), então as telas não precisam atualizá-lo por conta própria.
+ * Produtos de uma compra. As telas observam [observeProducts] e não precisam recarregar depois
+ * de gravar: o Room emite a lista nova sozinho.
+ *
+ * Não usa dispatcher próprio: funções suspend e Flow do Room já rodam fora da thread principal.
  */
 class ProductRepository(
     private val context: Context,
-    private val productDao: ProductDao,
-    private val cartDao: CartDao,
-    private val dispacher: CoroutineDispatcher,
+    private val appDatabase: AppDatabase,
 ) {
 
-    suspend fun getProducts(cartId: Int) = withContext(dispacher){ productDao.getProducts(cartId) }
+    private val productDao get() = appDatabase.ProductDao()
 
-    suspend fun saveProduct(product: Product) : Long = withContext(dispacher) {
+    fun observeProducts(cartId: Int): Flow<List<Product>> = productDao.observeProducts(cartId)
+
+    suspend fun saveProduct(product: Product): Long = appDatabase.withTransaction {
         productDao.insertProduct(product).also { updateCartTotal(product.cartId) }
     }
 
-    suspend fun updateProduct(product: Product) = withContext(dispacher) {
+    suspend fun updateProduct(product: Product) = appDatabase.withTransaction {
         productDao.updateProduct(product)
         updateCartTotal(product.cartId)
     }
 
-    suspend fun deleteProducts(cartId: Int) = withContext(dispacher) { productDao.deleteProductsFromCart(cartId) }
-
-    suspend fun deleteProducts(products: List<Product>) = withContext(dispacher) {
+    suspend fun deleteProducts(products: List<Product>) = appDatabase.withTransaction {
         productDao.delete(products.map { it.id })
         products.map { it.cartId }.distinct().forEach { updateCartTotal(it) }
     }
 
     /** Desfaz uma exclusão: reinsere os produtos com os mesmos ids, posições e firestoreUUID. */
-    suspend fun restoreProducts(products: List<Product>) = withContext(dispacher) {
+    suspend fun restoreProducts(products: List<Product>) = appDatabase.withTransaction {
         productDao.insertAll(products)
         products.map { it.cartId }.distinct().forEach { updateCartTotal(it) }
     }
 
-    suspend fun updateDone(isDone: Boolean, id: Int) = withContext(dispacher) { productDao.updateDone(isDone, id) }
+    suspend fun updateDone(isDone: Boolean, id: Int) = productDao.updateDone(isDone, id)
 
-    suspend fun updateOrder(reorderedList: List<Product>) = withContext(dispacher) { productDao.updateOrder(reorderedList) }
+    suspend fun updateOrder(reorderedList: List<Product>) = productDao.updateOrder(reorderedList)
 
     /*
-     * O app calcula o total a partir dos produtos (ProductDao.progressByCart) e não lê este campo.
+     * O app calcula o total a partir dos produtos (ProductDao.observeProgressByCart) e não lê este campo.
      * Ele continua sendo gravado só para os documentos do Firestore seguirem compatíveis com
      * versões antigas do app em outros aparelhos, que exibem esse texto.
+     * Roda na mesma transação da alteração, para o texto nunca ficar diferente dos produtos.
      */
     private fun updateCartTotal(cartId: Int) {
         val total = productDao.getProducts(cartId).sumOf { it.price * it.quantity }
-        cartDao.updateTotal(formatMoney(total, context.getString(R.string.moeda_real)), cartId)
+        appDatabase.CartDao().updateTotal(formatMoney(total, context.getString(R.string.moeda_real)), cartId)
     }
 }

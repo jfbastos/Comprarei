@@ -21,8 +21,7 @@ class ProductSortTest {
         price: Double = 1.0,
         quantity: Int = 1,
         done: Boolean = false,
-    ) = Product(name = name, brand = brand, price = price, quantity = quantity, cartId = 1, done = done, position = id)
-        .apply { this.id = id }
+    ) = Product(name = name, brand = brand, price = price, quantity = quantity, cartId = 1, done = done, position = id, id = id)
 
     private fun List<Product>.sorted(sort: ProductSort, query: String = "", moveDoneToBottom: Boolean = false) =
         applySortAndSearch(sort, query, moveDoneToBottom, collator).map { it.id }

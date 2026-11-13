@@ -15,7 +15,7 @@ import org.koin.dsl.module
 val coreDataModule = module {
     single(named(Constants.IO_DISPATCHER)) { Dispatchers.IO }
 
-    single { ProductRepository(androidContext(), get(), get(), get(named(Constants.IO_DISPATCHER))) }
+    single { ProductRepository(androidContext(), get()) }
     single { UserRepository(androidContext(), get(), get(), get(), get(named(Constants.IO_DISPATCHER))) }
     single { FirestoreRepository(androidContext(), get(), get(), get(named(Constants.IO_DISPATCHER))) }
     single { ConfigRepository(androidContext(), get(named(Constants.IO_DISPATCHER))) }

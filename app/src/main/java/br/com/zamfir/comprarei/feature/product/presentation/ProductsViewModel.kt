@@ -13,6 +13,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -90,11 +91,28 @@ class ProductsViewModel(
     private val eventChannel = Channel<ProductsEvent>()
     val events = eventChannel.receiveAsFlow()
 
+    // Última lista vinda do banco. Mudanças otimistas (marcar, excluir, arrastar) voltam a ela se a gravação falhar.
+    private var savedProducts: List<Product> = emptyList()
+
+    // Durante o arrasto a tela mostra a ordem em andamento; uma emissão do banco no meio desfaria o movimento.
+    private var isReordering = false
+
     init {
         viewModelScope.launch {
+            // A preferência vem antes da lista, para ela não aparecer numa ordem e logo trocar.
             val moveDoneToBottom = configRepository.getIsToMoveToBottomDoneItens()
             _state.update { it.copy(moveDoneToBottom = moveDoneToBottom) }
-            reload()
+
+            productRepository.observeProducts(cartId)
+                .catch { e ->
+                    AppLogger.error("Falha ao carregar os produtos", e)
+                    _state.update { it.copy(isLoading = false) }
+                    sendEvent(ProductsEvent.ShowMessage(UiText.StringResource(R.string.products_load_error)))
+                }
+                .collect { products ->
+                    savedProducts = products
+                    if (!isReordering) showProducts(products)
+                }
         }
     }
 
@@ -112,14 +130,12 @@ class ProductsViewModel(
             is ProductsAction.OnMove -> move(action.fromKey, action.toKey)
             ProductsAction.OnMoveFinished -> saveOrder()
             ProductsAction.OnAddClick -> sendEvent(ProductsEvent.OpenNewProduct(cartId, _state.value.products.size))
-            // O formulário só devolve o produto; salvar e recarregar (para ter o id local) fica aqui.
+            // O formulário só devolve o produto; quem salva é a tela. A lista se atualiza pelo Flow.
             is ProductsAction.OnProductCreated -> launchSafely("Falha ao salvar o produto") {
                 productRepository.saveProduct(action.product)
-                reload()
             }
             is ProductsAction.OnProductEdited -> launchSafely("Falha ao editar o produto") {
                 productRepository.updateProduct(action.product)
-                reload()
             }
             ProductsAction.OnShareClick -> _state.value.let { sendEvent(ProductsEvent.Share(it.cartName, it.products)) }
 
@@ -150,8 +166,7 @@ class ProductsViewModel(
         }
     }
 
-    private suspend fun reload() {
-        val products = productRepository.getProducts(cartId)
+    private fun showProducts(products: List<Product>) {
         _state.update { current ->
             val ids = products.map { it.firestoreUUID }.toSet()
             current.copy(isLoading = false, products = products, selectedIds = current.selectedIds intersect ids)
@@ -165,15 +180,16 @@ class ProductsViewModel(
         }
     }
 
+    // Atualiza a tela na hora (o check não espera o banco); a emissão do Flow confirma em seguida.
     private fun toggleDone(product: Product) {
         val done = !product.done
-        // Cópias novas: as entidades são mutáveis, e mudar a mesma instância não recomporia a lista.
         _state.update { current ->
-            current.copy(products = current.products.map { if (it.firestoreUUID == product.firestoreUUID) it.copyWith(done = done) else it })
+            current.copy(products = current.products.map { if (it.firestoreUUID == product.firestoreUUID) it.copy(done = done) else it })
         }
         launchSafely("Falha ao marcar o produto") { productRepository.updateDone(done, product.id) }
     }
 
+    // Some da lista na hora, para o gesto de deslizar não voltar o item antes do banco responder.
     private fun delete(products: List<Product>) {
         if (products.isEmpty()) return
         val ids = products.map { it.firestoreUUID }.toSet()
@@ -187,16 +203,14 @@ class ProductsViewModel(
     }
 
     private fun undoDelete(products: List<Product>) {
-        launchSafely("Falha ao desfazer a exclusão") {
-            productRepository.restoreProducts(products)
-            reload()
-        }
+        launchSafely("Falha ao desfazer a exclusão") { productRepository.restoreProducts(products) }
     }
 
     // Move na lista exibida (ordem manual, talvez com comprados no fim) e passa a usá-la como ordem salva.
     private fun move(fromKey: Any, toKey: Any) {
+        if (!_state.value.canReorder) return
+        isReordering = true
         _state.update { current ->
-            if (!current.canReorder) return@update current
             val list = current.visibleProducts.toMutableList()
             val from = list.indexOfFirst { it.firestoreUUID == fromKey }
             val to = list.indexOfFirst { it.firestoreUUID == toKey }
@@ -207,9 +221,16 @@ class ProductsViewModel(
     }
 
     private fun saveOrder() {
-        val reordered = _state.value.products.mapIndexed { index, product -> product.copyWith(position = index) }
+        if (!isReordering) return
+        val reordered = _state.value.products.mapIndexed { index, product -> product.copy(position = index) }
         _state.update { it.copy(products = reordered) }
-        launchSafely("Falha ao salvar a ordem dos produtos") { productRepository.updateOrder(reordered) }
+        launchSafely("Falha ao salvar a ordem dos produtos") {
+            try {
+                productRepository.updateOrder(reordered)
+            } finally {
+                isReordering = false
+            }
+        }
     }
 
     private fun launchSafely(logMessage: String, block: suspend () -> Unit) {
@@ -221,7 +242,8 @@ class ProductsViewModel(
             } catch (e: Exception) {
                 AppLogger.error(logMessage, e)
                 sendEvent(ProductsEvent.ShowMessage(UiText.StringResource(R.string.save_change_error)))
-                reload()
+                // Desfaz a mudança otimista: volta ao que está no banco.
+                showProducts(savedProducts)
             }
         }
     }
@@ -230,7 +252,3 @@ class ProductsViewModel(
         viewModelScope.launch { eventChannel.send(event) }
     }
 }
-
-/** copy() de data class não leva o id (fica fora do construtor); esta cópia leva. */
-private fun Product.copyWith(done: Boolean = this.done, position: Int = this.position): Product =
-    copy(done = done, position = position).also { it.id = id }

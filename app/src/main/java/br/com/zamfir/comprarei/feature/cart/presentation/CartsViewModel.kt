@@ -7,6 +7,7 @@ import br.com.zamfir.comprarei.core.data.preferences.ConfigRepository
 import br.com.zamfir.comprarei.core.data.user.UserRepository
 import br.com.zamfir.comprarei.core.database.dao.CartProgress
 import br.com.zamfir.comprarei.core.database.entity.Cart
+import br.com.zamfir.comprarei.core.database.entity.Category
 import br.com.zamfir.comprarei.core.database.entity.Product
 import br.com.zamfir.comprarei.core.database.entity.UserInfo
 import br.com.zamfir.comprarei.core.presentation.UiText
@@ -20,14 +21,18 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class CartsState(
     val isLoading: Boolean = true,
-    // Na ordem salva (posição), com a categoria já preenchida.
+    // Na ordem salva (posição).
     val carts: List<Cart> = emptyList(),
+    // Por id local da categoria.
+    val categories: Map<Int, Category> = emptyMap(),
     // Por id local da compra; compra sem produtos não tem entrada.
     val progress: Map<Int, CartProgress> = emptyMap(),
     val user: UserInfo? = null,
@@ -42,7 +47,7 @@ data class CartsState(
     // Valor de cada compra em centavos, calculado a partir dos produtos (compra sem produtos = 0).
     val totalCents: Map<Int, Long> = progress.mapValues { it.value.totalValue.toCents() }
 
-    val visibleCarts: List<Cart> = carts.applyFilter(filter, totalCents).search(query)
+    val visibleCarts: List<Cart> = carts.applyFilter(filter, totalCents, categories).search(query)
 
     // Seções da lista, mantendo a ordem (manual ou do filtro) dentro de cada uma.
     val ongoingCarts: List<Cart> = visibleCarts.filterNot { isCompleted(it) }
@@ -66,9 +71,16 @@ private fun List<Cart>.search(query: String): List<Cart> {
     return filter { it.name.contains(term, ignoreCase = true) || it.data.contains(term) }
 }
 
+/** O que a Home lê do banco e das preferências, combinado num valor só. */
+private data class HomeData(
+    val carts: List<Cart>,
+    val categories: Map<Int, Category>,
+    val progress: Map<Int, CartProgress>,
+    val user: UserInfo?,
+    val showTotal: Boolean,
+)
+
 sealed interface CartsAction {
-    /** A tela voltou a aparecer: produtos, categorias e configurações podem ter mudado. */
-    data object OnResume : CartsAction
     data object OnBackClick : CartsAction
     data class OnCartClick(val cart: Cart) : CartsAction
     data class OnCartLongClick(val cart: Cart) : CartsAction
@@ -117,9 +129,42 @@ class CartsViewModel(
     private val eventChannel = Channel<CartsEvent>()
     val events = eventChannel.receiveAsFlow()
 
+    // Última lista vinda do banco. Mudanças otimistas (excluir, arrastar) voltam a ela se a gravação falhar.
+    private var savedCarts: List<Cart> = emptyList()
+
+    // Durante o arrasto a tela mostra a ordem em andamento; uma emissão do banco no meio desfaria o movimento.
+    private var isReordering = false
+
+    init {
+        // Recupera a foto de perfil se o arquivo local sumiu; o caminho novo chega pelo Flow do usuário.
+        viewModelScope.launch { userRepository.ensureLocalProfilePicture() }
+
+        // Tudo o que a Home mostra vem do banco e das preferências: qualquer mudança feita em
+        // Produtos, Categorias ou Configurações chega aqui sozinha, sem recarregar ao voltar.
+        viewModelScope.launch {
+            combine(
+                cartRepository.observeCarts(),
+                cartRepository.observeCategories(),
+                cartRepository.observeProgress(),
+                userRepository.observeUser(),
+                configRepository.observeShowTotalCart(),
+            ) { carts, categories, progress, user, showTotal ->
+                HomeData(carts, categories.associateBy { it.id }, progress.associateBy { it.cartId }, user, showTotal)
+            }
+                .catch { e ->
+                    AppLogger.error("Falha ao carregar as compras", e)
+                    _state.update { it.copy(isLoading = false) }
+                    sendEvent(CartsEvent.ShowMessage(UiText.StringResource(R.string.carts_load_error)))
+                }
+                .collect { data ->
+                    savedCarts = data.carts
+                    show(data)
+                }
+        }
+    }
+
     fun onAction(action: CartsAction) {
         when (action) {
-            CartsAction.OnResume -> launchSafely("Falha ao carregar as compras") { reload() }
             CartsAction.OnBackClick -> onBack()
             is CartsAction.OnCartClick -> {
                 if (_state.value.isSelectionMode) toggleSelection(action.cart)
@@ -130,7 +175,6 @@ class CartsViewModel(
             is CartsAction.OnDelete -> delete(action.carts)
             is CartsAction.OnUndoDelete -> launchSafely("Falha ao desfazer a exclusão de compras") {
                 cartRepository.restoreCarts(action.carts, action.products)
-                reload()
             }
             is CartsAction.OnMove -> move(action.fromKey, action.toKey)
             CartsAction.OnMoveFinished -> saveOrder()
@@ -138,14 +182,12 @@ class CartsViewModel(
                 val position = _state.value.carts.maxOfOrNull { it.position }?.plus(1) ?: 0
                 sendEvent(CartsEvent.OpenNewCart(position))
             }
-            // O formulário só devolve a compra; salvar e recarregar (para ter o id local) fica aqui.
+            // O formulário só devolve a compra; quem salva é a tela. A lista se atualiza pelo Flow.
             is CartsAction.OnCartCreated -> launchSafely("Falha ao salvar a compra") {
                 cartRepository.saveCart(action.cart)
-                reload()
             }
             is CartsAction.OnCartEdited -> launchSafely("Falha ao editar a compra") {
                 cartRepository.updateCart(action.cart)
-                reload()
             }
 
             CartsAction.OnSearchClick -> _state.update { it.copy(isSearchActive = true) }
@@ -177,26 +219,29 @@ class CartsViewModel(
         }
     }
 
-    private suspend fun reload() {
-        val categories = cartRepository.getCategories().associateBy { it.id }
-        val carts = cartRepository.getCarts().onEach { it.category = categories[it.categoryId] }
-        val progress = cartRepository.getProgress().associateBy { it.cartId }
-        // Antes de ler o usuário: recupera a foto se o arquivo local sumiu (e atualiza o caminho salvo).
-        userRepository.ensureLocalProfilePicture()
-        val user = userRepository.getUserFromDb()
-        val showTotal = configRepository.getIsToShowTotalCart()
+    private fun show(data: HomeData) {
         _state.update { current ->
+            // Durante o arrasto a lista continua a da tela; o resto (progresso, usuário...) atualiza.
+            val carts = if (isReordering) current.carts else data.carts
             val ids = carts.map { it.firestoreUUID }.toSet()
             current.copy(
                 isLoading = false,
                 carts = carts,
-                progress = progress,
-                user = user,
-                showTotal = showTotal,
-                // Categoria excluída enquanto a Home estava fora da tela: some do filtro.
-                filter = current.filter.copy(categoryIds = current.filter.categoryIds intersect categories.keys),
+                categories = data.categories,
+                progress = data.progress,
+                user = data.user,
+                showTotal = data.showTotal,
+                // Categoria excluída em outra tela: some do filtro.
+                filter = current.filter.copy(categoryIds = current.filter.categoryIds intersect data.categories.keys),
                 selectedIds = current.selectedIds intersect ids,
             )
+        }
+    }
+
+    private fun showSavedCarts() {
+        _state.update { current ->
+            val ids = savedCarts.map { it.firestoreUUID }.toSet()
+            current.copy(carts = savedCarts, selectedIds = current.selectedIds intersect ids)
         }
     }
 
@@ -207,6 +252,7 @@ class CartsViewModel(
         }
     }
 
+    // Some da lista na hora, para o gesto de deslizar não voltar o item antes do banco responder.
     private fun delete(carts: List<Cart>) {
         if (carts.isEmpty()) return
         val ids = carts.map { it.firestoreUUID }.toSet()
@@ -220,8 +266,9 @@ class CartsViewModel(
     }
 
     private fun move(fromKey: Any, toKey: Any) {
+        if (!_state.value.canReorder) return
+        isReordering = true
         _state.update { current ->
-            if (!current.canReorder) return@update current
             val list = current.carts.toMutableList()
             val from = list.indexOfFirst { it.firestoreUUID == fromKey }
             val to = list.indexOfFirst { it.firestoreUUID == toKey }
@@ -234,9 +281,16 @@ class CartsViewModel(
     }
 
     private fun saveOrder() {
-        val reordered = _state.value.carts.mapIndexed { index, cart -> cart.copyWith(position = index) }
+        if (!isReordering) return
+        val reordered = _state.value.carts.mapIndexed { index, cart -> cart.copy(position = index) }
         _state.update { it.copy(carts = reordered) }
-        launchSafely("Falha ao salvar a ordem das compras") { cartRepository.updatePosition(reordered) }
+        launchSafely("Falha ao salvar a ordem das compras") {
+            try {
+                cartRepository.updatePosition(reordered)
+            } finally {
+                isReordering = false
+            }
+        }
     }
 
     private fun launchSafely(logMessage: String, block: suspend () -> Unit) {
@@ -248,7 +302,8 @@ class CartsViewModel(
             } catch (e: Exception) {
                 AppLogger.error(logMessage, e)
                 sendEvent(CartsEvent.ShowMessage(UiText.StringResource(R.string.save_change_error)))
-                runCatching { reload() }
+                // Desfaz a mudança otimista: volta ao que está no banco.
+                showSavedCarts()
             }
         }
     }
@@ -257,10 +312,3 @@ class CartsViewModel(
         viewModelScope.launch { eventChannel.send(event) }
     }
 }
-
-/** Cópia que mantém o id local e a categoria, que ficam fora do construtor da entidade. */
-private fun Cart.copyWith(position: Int = this.position): Cart =
-    copy(position = position).also {
-        it.id = id
-        it.category = category
-    }

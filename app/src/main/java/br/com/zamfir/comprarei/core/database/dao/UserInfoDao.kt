@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import br.com.zamfir.comprarei.core.database.entity.UserInfo
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserInfoDao {
@@ -17,5 +18,8 @@ interface UserInfoDao {
 
     @Query("SELECT * FROM USER_INFO")
     fun getUserInfo() : UserInfo?
+
+    @Query("SELECT * FROM USER_INFO")
+    fun observeUserInfo(): Flow<UserInfo?>
 
 }

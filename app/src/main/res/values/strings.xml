@@ -252,6 +252,8 @@
     <string name="products_mark_pending">Mark as pending</string>
     <string name="products_drag_handle">Drag to reorder</string>
     <string name="save_change_error">Could not save the change. Try again.</string>
+    <string name="products_load_error">Could not load the products. Try again.</string>
+    <string name="carts_load_error">Could not load your carts. Try again.</string>
     <string name="undo">Undo</string>
     <plurals name="products_bought_progress">
         <item quantity="one">%1$d of %2$d bought</item>

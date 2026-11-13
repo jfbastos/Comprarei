@@ -364,7 +364,7 @@ private fun CartFormNewPreview() {
             state = CartFormState(
                 isVisible = true,
                 fields = CartFormFields(name = "Compra do mês", store = "Atacadão", categoryId = 1),
-                categories = listOf(Category("Mercado", 0xFF186F35.toInt()).apply { id = 1 }),
+                categories = listOf(Category("Mercado", 0xFF186F35.toInt(), id = 1)),
             ),
             onAction = {},
         )

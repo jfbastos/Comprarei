@@ -2,15 +2,24 @@ package br.com.zamfir.comprarei.core.database.dao
 
 import androidx.room.*
 import br.com.zamfir.comprarei.core.database.entity.Product
+import kotlinx.coroutines.flow.Flow
 
+/**
+ * Funções suspend e Flow são usadas pelas telas; as bloqueantes ficam para quem roda dentro de
+ * runInTransaction (backup, restauração, exclusão de compras), onde suspend não é permitido.
+ */
 @Dao
 interface ProductDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insertProduct(product : Product) : Long
+    suspend fun insertProduct(product : Product) : Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(products : List<Product>)
+
+    /** Produtos da compra na ordem salva; emite de novo a cada alteração na tabela. */
+    @Query("SELECT * FROM PRODUCTS WHERE cartId = :cartId ORDER BY position")
+    fun observeProducts(cartId : Int) : Flow<List<Product>>
 
     @Query("SELECT * FROM PRODUCTS WHERE cartId = :cartId ORDER BY position")
     fun getProducts(cartId : Int) : List<Product>
@@ -19,7 +28,7 @@ interface ProductDao {
     val allProducts : List<Product>
 
     @Query("DELETE FROM PRODUCTS WHERE id IN (:ids)")
-    fun delete(ids : List<Int>)
+    suspend fun delete(ids : List<Int>)
 
     @Query("DELETE FROM PRODUCTS")
     fun deleteAll()
@@ -28,19 +37,22 @@ interface ProductDao {
     fun deleteProductsFromCart(cartId : Int) : Int
 
     @Update
-    fun updateProduct(product : Product)
+    suspend fun updateProduct(product : Product)
 
     @Update
-    fun updateOrder(reorderedList : List<Product>)
+    suspend fun updateOrder(reorderedList : List<Product>)
 
-    /** Progresso e valor total de cada compra que tem produtos (compras vazias não aparecem). */
+    /**
+     * Progresso e valor total de cada compra que tem produtos (compras vazias não aparecem).
+     * Emite de novo a cada alteração em PRODUCTS.
+     */
     @Query(
         "SELECT cartId, COUNT(*) AS total, SUM(CASE WHEN done THEN 1 ELSE 0 END) AS done, " +
             "SUM(price * quantity) AS totalValue FROM PRODUCTS GROUP BY cartId"
     )
-    fun progressByCart(): List<CartProgress>
+    fun observeProgressByCart(): Flow<List<CartProgress>>
 
     @Query("UPDATE PRODUCTS SET done=:isDone WHERE id = :id")
-    fun updateDone(isDone : Boolean, id : Int)
+    suspend fun updateDone(isDone : Boolean, id : Int)
 
 }

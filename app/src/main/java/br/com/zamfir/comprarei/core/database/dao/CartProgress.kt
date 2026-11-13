@@ -1,7 +1,7 @@
 package br.com.zamfir.comprarei.core.database.dao
 
 /**
- * Resultado de [ProductDao.progressByCart]: quantos produtos a compra tem, quantos já foram
+ * Resultado de [ProductDao.observeProgressByCart]: quantos produtos a compra tem, quantos já foram
  * comprados e o valor total (soma de preço × quantidade).
  */
 data class CartProgress(

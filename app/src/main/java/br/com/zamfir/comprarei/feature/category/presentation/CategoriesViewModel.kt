@@ -12,6 +12,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -37,7 +39,6 @@ data class CategoriesState(
 }
 
 sealed interface CategoriesAction {
-    data object OnScreenShown : CategoriesAction
     data object OnBackClick : CategoriesAction
     data object OnSearchClick : CategoriesAction
     data class OnQueryChange(val query: String) : CategoriesAction
@@ -69,9 +70,28 @@ class CategoriesViewModel(private val categoryRepository: CategoryRepository) : 
     // Ordem alfabética que respeita acentos ("Água" junto de "Agua", não depois de "Z").
     private val collator = Collator.getInstance().apply { strength = Collator.PRIMARY }
 
+    init {
+        // Lista e contagens vêm do banco: criar, editar ou excluir (aqui ou em outra tela) atualiza sozinho.
+        viewModelScope.launch {
+            combine(
+                categoryRepository.observeCategories(),
+                categoryRepository.observeCartCountByCategory(),
+            ) { categories, counts ->
+                categories
+                    .sortedWith { a, b -> collator.compare(a.description, b.description) }
+                    .map { CategoryItem(it, counts[it.id] ?: 0) }
+            }
+                .catch { e ->
+                    AppLogger.error("Falha ao carregar categorias", e)
+                    _state.update { it.copy(isLoading = false) }
+                    sendEvent(CategoriesEvent.ShowMessage(UiText.StringResource(R.string.categories_load_failed)))
+                }
+                .collect { items -> _state.update { it.copy(isLoading = false, items = items) } }
+        }
+    }
+
     fun onAction(action: CategoriesAction) {
         when (action) {
-            CategoriesAction.OnScreenShown -> load()
             CategoriesAction.OnBackClick -> {
                 if (_state.value.isSearchActive) closeSearch() else sendEvent(CategoriesEvent.NavigateBack)
             }
@@ -93,29 +113,9 @@ class CategoriesViewModel(private val categoryRepository: CategoryRepository) : 
 
     private fun closeSearch() = _state.update { it.copy(isSearchActive = false, query = "") }
 
-    private fun load() = viewModelScope.launch {
-        try {
-            val categories = categoryRepository.getCategories()
-            val counts = categoryRepository.getCartCountByCategory()
-            val items = categories
-                .sortedWith { a, b -> collator.compare(a.description, b.description) }
-                .map { CategoryItem(it, counts[it.id] ?: 0) }
-            _state.update { it.copy(isLoading = false, items = items) }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            AppLogger.error("Falha ao carregar categorias", e)
-            _state.update { it.copy(isLoading = false) }
-            sendEvent(CategoriesEvent.ShowMessage(UiText.StringResource(R.string.categories_load_failed)))
-        }
-    }
-
     private fun delete(category: Category) = persist { categoryRepository.deleteCategory(category) }
 
-    /**
-     * Grava e recarrega a lista do banco. Recarregar (em vez de mexer na lista em memória)
-     * garante ids corretos para categorias recém-criadas e contagens atualizadas.
-     */
+    /** Grava no banco; a lista (com ids e contagens corretos) chega pelo Flow. */
     private fun persist(operation: suspend () -> Any?) = viewModelScope.launch {
         try {
             operation()
@@ -125,7 +125,6 @@ class CategoriesViewModel(private val categoryRepository: CategoryRepository) : 
             AppLogger.error("Falha ao salvar alteração de categoria", e)
             sendEvent(CategoriesEvent.ShowMessage(UiText.StringResource(R.string.categories_save_failed)))
         }
-        load().join()
     }
 
     private fun sendEvent(event: CategoriesEvent) {

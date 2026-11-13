@@ -156,8 +156,7 @@ class CategoryFormViewModel(private val categoryRepository: CategoryRepository) 
 
         val editing = current.editing
         val event = if (editing != null) {
-            // Cópia em vez de alterar o objeto da lista; id não faz parte do construtor.
-            val edited = editing.copy(description = name, color = color).also { it.id = editing.id }
+            val edited = editing.copy(description = name, color = color)
             CategoryFormEvent.CategoryEdited(edited)
         } else {
             CategoryFormEvent.CategoryCreated(Category(description = name, color = color))

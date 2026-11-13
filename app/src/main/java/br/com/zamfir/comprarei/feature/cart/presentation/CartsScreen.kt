@@ -2,6 +2,7 @@ package br.com.zamfir.comprarei.feature.cart.presentation
 
 import br.com.zamfir.comprarei.core.designsystem.theme.brandBar
 import br.com.zamfir.comprarei.core.designsystem.theme.onBrandBar
+import br.com.zamfir.comprarei.core.designsystem.components.rememberUnsavedSwipeToDismissBoxState
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiTopAppBarDefaults
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
@@ -70,7 +71,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -97,7 +97,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.core.database.dao.CartProgress
@@ -138,12 +137,6 @@ fun CartsRoot(
     val context = LocalContext.current
     val resources = LocalResources.current
     val keyboard = LocalSoftwareKeyboardController.current
-
-    // Recarrega ao voltar de Produtos, Categorias ou Configurações (totais, progresso, categorias, "mostrar total").
-    LifecycleResumeEffect(Unit) {
-        viewModel.onAction(CartsAction.OnResume)
-        onPauseOrDispose { }
-    }
 
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
@@ -326,6 +319,7 @@ private fun CartList(
             ) {
                 CartRow(
                     cart = cart,
+                    category = state.categories[cart.categoryId],
                     progress = state.progress[cart.id],
                     showTotal = state.showTotal,
                     isSelected = cart.firestoreUUID in state.selectedIds,
@@ -510,7 +504,7 @@ private fun SwipeableCartRow(
     onDelete: () -> Unit,
     content: @Composable () -> Unit,
 ) {
-    val swipeState = rememberSwipeToDismissBoxState()
+    val swipeState = rememberUnsavedSwipeToDismissBoxState()
     val scope = rememberCoroutineScope()
 
     SwipeToDismissBox(
@@ -562,6 +556,7 @@ private fun SwipeableCartRow(
 @Composable
 private fun CartRow(
     cart: Cart,
+    category: Category?,
     progress: CartProgress?,
     showTotal: Boolean,
     isSelected: Boolean,
@@ -571,7 +566,6 @@ private fun CartRow(
     onLongClick: () -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
-    val category = cart.category
     val details = listOfNotNull(
         category?.description,
         cart.store.takeIf { it.isNotBlank() },
@@ -844,18 +838,18 @@ private fun SelectionTopBar(count: Int, onAction: (CartsAction) -> Unit) {
 }
 
 
-private val previewCategory = Category(description = "Supermercado", color = 0xFF4CAF50.toInt()).apply { id = 1 }
+private val previewCategory = Category(description = "Supermercado", color = 0xFF4CAF50.toInt(), id = 1)
 
 private val previewCarts = listOf(
-    Cart(name = "Mercado", data = "12/11/2026", total = "R$ 124,90", position = 0, categoryId = 1, store = "Atacadão")
-        .apply { id = 1; category = previewCategory },
-    Cart(name = "Obra", data = "10/11/2026", total = "R$ 980,00", position = 1).apply { id = 2 },
-    Cart(name = "Farmácia", data = "08/11/2026", total = "R$ 0,00", position = 2).apply { id = 3 },
+    Cart(name = "Mercado", data = "12/11/2026", total = "R$ 124,90", position = 0, categoryId = 1, store = "Atacadão", id = 1),
+    Cart(name = "Obra", data = "10/11/2026", total = "R$ 980,00", position = 1, id = 2),
+    Cart(name = "Farmácia", data = "08/11/2026", total = "R$ 0,00", position = 2, id = 3),
 )
 
 private val previewState = CartsState(
     isLoading = false,
     carts = previewCarts,
+    categories = mapOf(previewCategory.id to previewCategory),
     progress = mapOf(1 to CartProgress(1, 7, 3, 124.9), 2 to CartProgress(2, 4, 4, 980.0)),
 )
 

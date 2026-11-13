@@ -90,15 +90,15 @@ class FirestoreRepository(
 
         sync(
             uid, docRef.collection(Constants.FIRESTORE_CARTS_DOCUMENT_PATH), local.carts,
-            uuidOf = { it.firestoreUUID }, idOf = { it.id }, fromDocument = FirebaseMapper::cartDocumentToEntity,
+            uuidOf = { it.firestoreUUID }, fromDocument = FirebaseMapper::cartDocumentToEntity,
         )
         sync(
             uid, docRef.collection(Constants.FIRESTORE_PRODUCTS_DOCUMENT_PATH), local.products,
-            uuidOf = { it.firestoreUUID }, idOf = { it.id }, fromDocument = FirebaseMapper::productDocumentToEntity,
+            uuidOf = { it.firestoreUUID }, fromDocument = FirebaseMapper::productDocumentToEntity,
         )
         sync(
             uid, docRef.collection(Constants.FIRESTORE_CATEGORIES_DOCUMENT_PATH), local.categories,
-            uuidOf = { it.firestoreUUID }, idOf = { it.id }, fromDocument = FirebaseMapper::categoryDocumentToEntity,
+            uuidOf = { it.firestoreUUID }, fromDocument = FirebaseMapper::categoryDocumentToEntity,
         )
 
         configRepository.setLastBackupTime(LocalDateTime.now())
@@ -114,7 +114,6 @@ class FirestoreRepository(
         collection: CollectionReference,
         local: List<T>,
         uuidOf: (T) -> String,
-        idOf: (T) -> Int,
         fromDocument: (MutableMap<String, Any>?) -> T,
     ) {
         val withoutUuid = local.count { uuidOf(it).isBlank() }
@@ -125,7 +124,7 @@ class FirestoreRepository(
         val remote = collection.get(Source.SERVER).await().documents
             .associate { it.id to fromDocument(it.data) }
 
-        val plan = planSync(local, remote, uuidOf, idOf)
+        val plan = planSync(local, remote, uuidOf)
         val operations = buildList<(WriteBatch) -> Unit> {
             plan.toDelete.forEach { uuid -> add { batch -> batch.delete(collection.document(uuid)) } }
             plan.toWrite.forEach { item -> add { batch -> batch.set(collection.document(uuidOf(item)), item) } }

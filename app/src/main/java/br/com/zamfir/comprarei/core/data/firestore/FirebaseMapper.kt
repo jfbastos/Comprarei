@@ -14,10 +14,9 @@ object FirebaseMapper {
             position = (document?.get("position") as? Long ?: 0).toInt(),
             categoryId = (document?.get("categoryId") as? Long ?: 0).toInt(),
             store = document?.get("store") as? String ?: "",
-            firestoreUUID = document?.get("firestoreUUID") as? String ?: ""
-        ).apply {
-            id = (document?.get("id") as? Long ?: 0).toInt()
-        }
+            firestoreUUID = document?.get("firestoreUUID") as? String ?: "",
+            id = (document?.get("id") as? Long ?: 0).toInt(),
+        )
     }
 
     fun productDocumentToEntity(document: MutableMap<String, Any>?) : Product {
@@ -29,20 +28,18 @@ object FirebaseMapper {
             cartId = (document?.get("cartId") as? Long ?: 0).toInt(),
             done = document?.get("done") as? Boolean ?: false,
             position = (document?.get("position") as? Long ?: 0).toInt(),
-            firestoreUUID = document?.get("firestoreUUID") as? String ?: ""
-        ).apply {
-            id = (document?.get("id") as? Long ?: 0).toInt()
-        }
+            firestoreUUID = document?.get("firestoreUUID") as? String ?: "",
+            id = (document?.get("id") as? Long ?: 0).toInt(),
+        )
     }
 
     fun categoryDocumentToEntity(document : MutableMap<String, Any>?) : Category {
         return Category(
             description = document?.get("description") as? String ?: "",
             color = (document?.get("color") as? Long ?: 0).toInt(),
-            firestoreUUID = document?.get("firestoreUUID") as? String ?: ""
-        ).apply {
-            id = (document?.get("id") as? Long ?: 0).toInt()
-        }
+            firestoreUUID = document?.get("firestoreUUID") as? String ?: "",
+            id = (document?.get("id") as? Long ?: 0).toInt(),
+        )
     }
 
 }

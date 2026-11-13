@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test
 class SyncPlanTest {
 
     private fun cart(uuid: String, name: String = "Mercado", id: Int = 1) =
-        Cart(name = name, data = "13/11/2026", total = "R$ 10,00", position = 0, firestoreUUID = uuid).apply { this.id = id }
+        Cart(name = name, data = "13/11/2026", total = "R$ 10,00", position = 0, firestoreUUID = uuid, id = id)
 
     private fun plan(local: List<Cart>, remote: List<Cart>) =
-        planSync(local, remote.associateBy { it.firestoreUUID }, uuidOf = { it.firestoreUUID }, idOf = { it.id })
+        planSync(local, remote.associateBy { it.firestoreUUID }, uuidOf = { it.firestoreUUID })
 
     @Test
     fun `equal data produces no operation`() {

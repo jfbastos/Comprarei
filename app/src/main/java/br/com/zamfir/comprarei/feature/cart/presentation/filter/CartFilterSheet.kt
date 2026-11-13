@@ -465,8 +465,8 @@ private fun CartFilterPreview() {
                 minCents = "5000",
                 maxCents = "20000",
                 categories = listOf(
-                    Category("Mercado", 0xFF186F35.toInt()).apply { id = 1 },
-                    Category("Obra", 0xFFB3261E.toInt()).apply { id = 2 },
+                    Category("Mercado", 0xFF186F35.toInt(), id = 1),
+                    Category("Obra", 0xFFB3261E.toInt(), id = 2),
                 ),
                 categoryIds = setOf(1),
             ),

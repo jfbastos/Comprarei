@@ -4,12 +4,12 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.time.LocalDateTime
 
+/** Dados do usuário logado guardados no aparelho. Imutável; o [id] fica por último (ver [Cart]). */
 @Entity(tableName = "USER_INFO")
 data class UserInfo(
-    var name : String = "",
-    var email : String = "",
-    var profilePicture : String = "",
-    var lastUpdate : String = LocalDateTime.now().toString()
-){
-    @PrimaryKey(autoGenerate = true) var id : Int = 0
-}
+    val name: String = "",
+    val email: String = "",
+    val profilePicture: String = "",
+    val lastUpdate: String = LocalDateTime.now().toString(),
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+)
