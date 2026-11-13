@@ -181,6 +181,8 @@ class CartsViewModel(
         val categories = cartRepository.getCategories().associateBy { it.id }
         val carts = cartRepository.getCarts().onEach { it.category = categories[it.categoryId] }
         val progress = cartRepository.getProgress().associateBy { it.cartId }
+        // Antes de ler o usuário: recupera a foto se o arquivo local sumiu (e atualiza o caminho salvo).
+        userRepository.ensureLocalProfilePicture()
         val user = userRepository.getUserFromDb()
         val showTotal = configRepository.getIsToShowTotalCart()
         _state.update { current ->

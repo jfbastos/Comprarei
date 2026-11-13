@@ -13,7 +13,10 @@ import java.io.ByteArrayOutputStream
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-/** Lê uma imagem escolhida pelo usuário e reduz para upload (lado maior ≤ [MAX_SIZE], JPEG [QUALITY]%). */
+/**
+ * Lê a foto de perfil escolhida pelo usuário e reduz para upload (lado maior ≤ [MAX_SIZE], JPEG [QUALITY]%).
+ * A foto vai num documento do Firestore (limite de 1 MiB); neste tamanho fica com dezenas de KB.
+ */
 class ImageCompressor(private val context: Context, private val dispatcher: CoroutineDispatcher) {
 
     suspend fun compress(uri: Uri): ByteArray = withContext(dispatcher) {
@@ -56,7 +59,7 @@ class ImageCompressor(private val context: Context, private val dispatcher: Coro
     }
 
     private companion object {
-        const val MAX_SIZE = 1024
-        const val QUALITY = 85
+        const val MAX_SIZE = 512
+        const val QUALITY = 80
     }
 }

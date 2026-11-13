@@ -19,7 +19,9 @@ import br.com.zamfir.comprarei.core.util.log.AppLogger
 import br.com.zamfir.comprarei.data.workers.BackupWorker
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.Blob
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.firestore.firestore
@@ -219,6 +221,7 @@ class FirestoreRepository(
                 Constants.FIRESTORE_CARTS_DOCUMENT_PATH,
                 Constants.FIRESTORE_PRODUCTS_DOCUMENT_PATH,
                 Constants.FIRESTORE_CATEGORIES_DOCUMENT_PATH,
+                Constants.FIRESTORE_PROFILE_COLLECTION_PATH,
             ).forEach { path ->
                 val documents = docRef.collection(path).get(Source.SERVER).await().documents
                 // Um lote do Firestore aceita no máximo 500 operações.
@@ -230,6 +233,29 @@ class FirestoreRepository(
             // await() de Task<Void> devolve null; sem isto o ?: abaixo trataria o sucesso como timeout.
             Unit
         } ?: throw TimeoutException("Tempo esgotado ao apagar os dados do Firestore")
+    }
+
+    /**
+     * Grava a foto de perfil no Firestore, substituindo a anterior.
+     * Fica num documento próprio (e não no user_data) para o backup não baixá-la a cada leitura.
+     * O Cloud Storage não é usado: o projeto está no plano gratuito, que não dá mais acesso a ele.
+     */
+    suspend fun uploadProfilePicture(bytes: ByteArray) = withContext(dispatcher) {
+        require(bytes.size <= MAX_PROFILE_PICTURE_BYTES) { "Foto de perfil grande demais: ${bytes.size} bytes" }
+        profilePictureDocument().set(mapOf(Constants.FIRESTORE_PROFILE_PICTURE_FIELD to Blob.fromBytes(bytes))).await()
+    }
+
+    /** Foto de perfil salva na nuvem, ou nulo se a conta não tem foto. Falhas de rede viram exceção. */
+    suspend fun downloadProfilePicture(): ByteArray? = withContext(dispatcher) {
+        profilePictureDocument().get(Source.SERVER).await()
+            .getBlob(Constants.FIRESTORE_PROFILE_PICTURE_FIELD)?.toBytes()
+    }
+
+    private fun profilePictureDocument(): DocumentReference {
+        val uid = auth.uid ?: throw IllegalStateException("Nenhum usuário logado")
+        return firestore.collection(uid).document(Constants.FIRESTORE_DOCUMENT_PATH)
+            .collection(Constants.FIRESTORE_PROFILE_COLLECTION_PATH)
+            .document(Constants.FIRESTORE_PROFILE_PICTURE_DOCUMENT)
     }
 
     /**
@@ -274,5 +300,8 @@ class FirestoreRepository(
     private companion object {
         const val MAX_BATCH_SIZE = 500
         const val DELETE_TIMEOUT_MS = 60_000L
+
+        // Abaixo do limite de 1 MiB por documento, com folga para o nome do campo.
+        const val MAX_PROFILE_PICTURE_BYTES = 900 * 1024
     }
 }

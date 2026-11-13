@@ -14,14 +14,16 @@ class Constants {
         // Nome já agendado nos aparelhos dos usuários: não mudar.
         const val PERIODIC_BACKUP_WORK_NAME = "Backup_Unique_Job"
 
-        const val FIRESTORE_STORAGE_NAME = "profilePictures"
-        const val FIRESTORE_PROFILE_PICTURE_NAME = "profilePicture.jpg"
         const val PROFILE_PICTURE_DEFAULT_NAME = "profilePhoto_"
         const val PROFILE_PICTURE_DEFAULT_EXTENSION = ".jpg"
         const val FIRESTORE_DOCUMENT_PATH = "user_data"
         const val FIRESTORE_CARTS_DOCUMENT_PATH = "Carts"
         const val FIRESTORE_PRODUCTS_DOCUMENT_PATH = "Products"
         const val FIRESTORE_CATEGORIES_DOCUMENT_PATH = "Categories"
+        // Foto de perfil: {uid}/user_data/Profile/picture, campo "picture" (Blob).
+        const val FIRESTORE_PROFILE_COLLECTION_PATH = "Profile"
+        const val FIRESTORE_PROFILE_PICTURE_DOCUMENT = "picture"
+        const val FIRESTORE_PROFILE_PICTURE_FIELD = "picture"
 
 
     }

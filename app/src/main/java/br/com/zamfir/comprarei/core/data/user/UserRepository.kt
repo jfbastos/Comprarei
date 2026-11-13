@@ -25,10 +25,10 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.Firebase
-import com.google.firebase.storage.StorageException
-import com.google.firebase.storage.StorageReference
-import com.google.firebase.storage.storage
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -46,6 +46,10 @@ class UserRepository(
 ) {
 
     private var auth : FirebaseAuth = Firebase.auth
+
+    // Evita que duas telas recuperem ou troquem a foto ao mesmo tempo.
+    private val pictureMutex = Mutex()
+    private var legacyCacheCleaned = false
 
     suspend fun hasUserLogged() = withContext(dispatcher){ auth.currentUser != null }
 
@@ -118,20 +122,56 @@ class UserRepository(
         return@withContext ""
     }
 
-    suspend fun getUserProfilePicture() = withContext(dispatcher){
-        try{
-            val userDb = getUserFromDb()
+    /** Foto de perfil para exibir: o arquivo local, recuperado se preciso (ver [ensureLocalProfilePicture]). */
+    suspend fun getUserProfilePicture(): Uri? = ensureLocalProfilePicture()?.toUri()
 
-            if(userDb != null){
-                val file = File(userDb.profilePicture)
-                if(file.exists()) return@withContext file.toUri()
-                else return@withContext null
+    /**
+     * Garante que a foto salva em [UserInfo.profilePicture] existe em [profilePictureDir] e devolve o arquivo.
+     *
+     * - Caminho vazio: o usuário não tem foto (não consulta a nuvem).
+     * - Arquivo fora da pasta da foto (versões antigas gravavam no cache): move para a pasta.
+     * - Arquivo apagado ou vazio: baixa de novo. Sem rede, devolve nulo e mantém o caminho para
+     *   tentar depois; se a foto não existe mais na nuvem, limpa o caminho.
+     *
+     * Nunca lança exceção (só cancelamento): a foto é acessória e não deve virar erro na tela.
+     */
+    suspend fun ensureLocalProfilePicture(): File? = withContext(dispatcher) {
+        pictureMutex.withLock {
+            try {
+                val userInfoDao = appDatabase.UserInfoDao()
+                val path = userInfoDao.getUserInfo()?.profilePicture.orEmpty()
+                if (path.isBlank()) {
+                    deleteLegacyCachedPictures()
+                    return@withLock null
+                }
+
+                val saved = File(path)
+                // Versões antigas às vezes deixavam o arquivo vazio: conta como ausente.
+                if (saved.length() > 0) {
+                    if (saved.parentFile?.canonicalPath == profilePictureDir().canonicalPath) {
+                        deleteLegacyCachedPictures()
+                        return@withLock saved
+                    }
+                    val moved = newProfilePictureFile()
+                    saved.copyTo(moved)
+                    userInfoDao.updateProfilePicturePath(moved.absolutePath)
+                    saved.delete()
+                    deleteLegacyCachedPictures()
+                    uploadLegacyProfilePicture(moved)
+                    return@withLock moved
+                }
+                saved.delete()
+                deleteLegacyCachedPictures()
+
+                val downloaded = downloadProfilePicture()
+                userInfoDao.updateProfilePicturePath(downloaded?.absolutePath.orEmpty())
+                downloaded
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                AppLogger.warning("Foto de perfil local indisponível: ${e.message}")
+                null
             }
-
-            return@withContext getProfilePictureUriFromFirestore()
-
-        }catch (e : Exception){
-            return@withContext null
         }
     }
 
@@ -219,39 +259,99 @@ class UserRepository(
         }
     }
 
+    /**
+     * Envia a foto e só depois troca a cópia local: se o envio falhar, a foto anterior continua.
+     * A cópia local é gravada a partir dos mesmos bytes (não precisa baixar o que acabou de subir).
+     */
     private suspend fun updateProfilePicture(data: ByteArray) = withContext(dispatcher){
         try{
-            appDatabase.UserInfoDao().getUserInfo()?.let {
-                if (it.profilePicture.isNotBlank()) {
-                    File(it.profilePicture).delete()
-                }
+            firestoreRepository.uploadProfilePicture(data)
+
+            pictureMutex.withLock {
+                val previous = appDatabase.UserInfoDao().getUserInfo()?.profilePicture.orEmpty()
+                val localFile = newProfilePictureFile().apply { writeBytes(data) }
+                saveUserInfo(localFile.absolutePath)
+                if (previous.isNotBlank() && previous != localFile.absolutePath) File(previous).delete()
             }
-
-            val localFile = File.createTempFile(Constants.PROFILE_PICTURE_DEFAULT_NAME, Constants.PROFILE_PICTURE_DEFAULT_EXTENSION)
-
-            val upload = getImageRef().putBytes(data).await()
-
-            val downloadNewProfilePicture = getImageRef().getFile(localFile).await()
-
-            if(upload.task.isSuccessful && downloadNewProfilePicture.task.isSuccessful) saveUserInfo(localFile.absolutePath)
-            else throw IllegalStateException("Upload ou download da foto não concluído")
+        }catch (e : CancellationException){
+            throw e
         }catch (e : Exception){
             AppLogger.error("Problem on profile picture persistence", e)
             throw UserProfilePictureException(context.getString(R.string.something_went_wrong_on_updating_profile_picture))
         }
     }
 
-    private suspend fun getProfilePicturePath() = withContext(dispatcher){
-        if(getProfilePictureUriFromFirestore() != null){
-            val localFile = File.createTempFile(Constants.PROFILE_PICTURE_DEFAULT_NAME, Constants.PROFILE_PICTURE_DEFAULT_EXTENSION)
-
-            getImageRef().getFile(localFile).await()
-
-            if(localFile.exists()) return@withContext localFile.absolutePath
-            else Constants.EMPTY_STRING
-        } else {
-            return@withContext Constants.EMPTY_STRING
+    /** Baixa a foto da nuvem no login. Sem foto ou com falha, devolve vazio (o login segue sem foto). */
+    private suspend fun getProfilePicturePath(): String = withContext(dispatcher) {
+        try {
+            downloadProfilePicture()?.absolutePath.orEmpty()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            AppLogger.warning("Não foi possível baixar a foto de perfil: ${e.message}")
+            Constants.EMPTY_STRING
         }
+    }
+
+    /**
+     * Baixa a foto da nuvem para um arquivo novo em [profilePictureDir].
+     * Devolve nulo se a conta não tem foto; outras falhas (rede, por exemplo) viram exceção.
+     */
+    private suspend fun downloadProfilePicture(): File? {
+        val bytes = firestoreRepository.downloadProfilePicture() ?: return null
+        return newProfilePictureFile().apply { writeBytes(bytes) }
+    }
+
+    /**
+     * A foto de versões antigas ficava no Cloud Storage, que o projeto não acessa mais. Se ela ainda
+     * está no aparelho e a nuvem não tem foto, envia para o Firestore para não se perder.
+     * Melhor esforço: uma falha só é registrada.
+     */
+    private suspend fun uploadLegacyProfilePicture(file: File) {
+        try {
+            if (file.length() > LEGACY_UPLOAD_MAX_BYTES) {
+                AppLogger.warning("Foto de perfil antiga grande demais para enviar: ${file.length()} bytes")
+                return
+            }
+            if (firestoreRepository.downloadProfilePicture() == null) {
+                firestoreRepository.uploadProfilePicture(file.readBytes())
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            AppLogger.warning("Não foi possível enviar a foto de perfil antiga: ${e.message}")
+        }
+    }
+
+    /**
+     * Pasta da foto de perfil em filesDir. Não usar o cache: o Android pode limpá-lo a qualquer
+     * momento, e a foto sumia até o próximo login.
+     */
+    private fun profilePictureDir(): File = File(context.filesDir, PROFILE_PICTURE_DIR).apply { mkdirs() }
+
+    // Nome novo a cada foto: o Coil guarda imagens pelo caminho, e reaproveitar o nome mostraria a foto antiga.
+    private fun newProfilePictureFile(): File = File(
+        profilePictureDir(),
+        "${Constants.PROFILE_PICTURE_DEFAULT_NAME}${System.currentTimeMillis()}${Constants.PROFILE_PICTURE_DEFAULT_EXTENSION}",
+    )
+
+    /** Apaga a foto local, inclusive a de versões antigas, que ficava no cache. */
+    private fun deleteLocalProfilePictures() {
+        appDatabase.UserInfoDao().getUserInfo()?.profilePicture?.takeIf { it.isNotBlank() }?.let { File(it).delete() }
+        File(context.filesDir, PROFILE_PICTURE_DIR).deleteRecursively()
+        legacyCacheCleaned = false
+        deleteLegacyCachedPictures()
+    }
+
+    /**
+     * Versões antigas criavam um arquivo no cache a cada foto (às vezes vazio) e não apagavam os
+     * anteriores. Depois que a foto atual sai do cache, todos são lixo. Roda uma vez por processo.
+     */
+    private fun deleteLegacyCachedPictures() {
+        if (legacyCacheCleaned) return
+        context.cacheDir.listFiles { file -> file.isFile && file.name.startsWith(Constants.PROFILE_PICTURE_DEFAULT_NAME) }
+            ?.forEach { it.delete() }
+        legacyCacheCleaned = true
     }
 
     /**
@@ -264,7 +364,7 @@ class UserRepository(
             firestoreRepository.cancelBackups()
             configRepository.clearSession()
             auth.signOut()
-            appDatabase.UserInfoDao().getUserInfo()?.profilePicture?.let { File(it).delete() }
+            deleteLocalProfilePictures()
             appDatabase.clearAllTables()
             true
         }catch (e : Exception){
@@ -298,45 +398,24 @@ class UserRepository(
     }
 
     /**
-     * Apaga a foto e a conta no Firebase e, só depois que tudo deu certo, os dados locais.
+     * Apaga a conta no Firebase e, só depois que deu certo, os dados locais. A foto na nuvem sai
+     * junto com os outros dados em [FirestoreRepository.deleteUserData], chamado antes.
      * Lança exceção em qualquer falha (inclusive FirebaseAuthRecentLoginRequiredException se a
      * reautenticação expirou), deixando os dados do aparelho intactos.
      */
     suspend fun deleteUser() = withContext(dispatcher) {
         val currentUser = auth.currentUser ?: throw NoUserLogged(context.getString(R.string.no_user_logged))
 
-        try {
-            getImageRef().delete().await()
-        } catch (e: StorageException) {
-            // Conta sem foto de perfil: nada a apagar.
-            if (e.errorCode != StorageException.ERROR_OBJECT_NOT_FOUND) throw e
-        }
-
         currentUser.delete().await()
         configRepository.clearSession()
         auth.signOut()
-
-        appDatabase.UserInfoDao().getUserInfo()?.let {
-            if (it.profilePicture.isNotBlank()) {
-                File(it.profilePicture).delete()
-            }
-        }
-
+        deleteLocalProfilePictures()
         appDatabase.clearAllTables()
     }
 
-    private fun getImageRef(): StorageReference {
-        val currentUser = auth.currentUser ?: throw NoUserLogged(context.getString(R.string.no_user_logged))
-        val userRef = Firebase.storage.reference.child(Constants.FIRESTORE_STORAGE_NAME).child(currentUser.uid)
-
-        return userRef.child(Constants.FIRESTORE_PROFILE_PICTURE_NAME)
-    }
-
-    private suspend fun getProfilePictureUriFromFirestore() : Uri?{
-        return try{
-            getImageRef().downloadUrl.await()
-        }catch (e : Exception){
-            null
-        }
+    private companion object {
+        const val PROFILE_PICTURE_DIR = "profile_picture"
+        // Mesmo limite do documento no Firestore (fotos antigas não passavam pelo compressor).
+        const val LEGACY_UPLOAD_MAX_BYTES = 900 * 1024
     }
 }
