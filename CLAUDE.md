@@ -8,14 +8,9 @@ Comprarei is an Android shopping-list app (Kotlin, package `br.com.zamfir.compra
 
 ## Build & test
 
-Gradle 8.14.6 wrapper, AGP 8.13.2, Kotlin 2.4 (Compose compiler plugin), KSP for Room (no kapt), Groovy DSL. Every dependency and plugin version lives in the version catalog `gradle/libs.versions.toml`; never hardcode a version in `build.gradle`. `compileSdk 36`, `targetSdk 34`, `minSdk 27`. The build needs JDK 17 (local install: `~/.jdks/ms-17.0.20.1`).
+Gradle 9.9.1 wrapper, AGP 9.5.1, Kotlin 2.4 (Compose compiler plugin), KSP for Room (no kapt), Groovy DSL (use `=` assignments; the space syntax is deprecated). Every dependency and plugin version lives in the version catalog `gradle/libs.versions.toml`; never hardcode a version in `build.gradle`. `compileSdk 37`, `targetSdk 36`, `minSdk 27`. The build needs JDK 17 (local install: `~/.jdks/ms-17.0.20.1`).
 
-Version ceilings while the project stays on AGP 8 / compileSdk 36. Newer versions require AGP 9.1+ and compileSdk 37, so do not bump them without migrating AGP first:
-- lifecycle 2.10.x
-- core-ktx 1.18.x
-- Compose BOM 2026.06.x (Compose 1.11)
-- Navigation 3 1.2.x, with `lifecycle-viewmodel-navigation3` on the lifecycle version (newer lines pull lifecycle 2.11 / Compose 1.12)
-- Coil 3.5.x (3.6 pulls Compose 1.12)
+AGP 9 has built-in Kotlin: do not apply `org.jetbrains.kotlin.android`, and do not add opt-outs such as `android.builtInKotlin=false` or `android.newDsl=false`. The Kotlin jvmTarget follows `compileOptions.targetCompatibility`. AGP 9 would pull KGP 2.2.10, so the root `build.gradle` pins KGP to the catalog's `kotlin` version through `buildscript { classpath libs.kotlin.gradle.plugin }`; when bumping Kotlin, keep KGP, the Compose compiler plugin and serialization on the same version. Raising `compileSdk` past 37 requires a newer AGP (9.5 supports up to API 37).
 
 Images: Coil 3 (`ComprareiAvatar` for profile pictures). Drag-to-reorder lists use `sh.calvin.reorderable`. Firebase BOM 34+ has no KTX modules: import `com.google.firebase.Firebase`, `com.google.firebase.auth.auth`, and so on.
 

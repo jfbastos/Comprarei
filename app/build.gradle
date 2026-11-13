@@ -1,8 +1,6 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    // Kotlin vem embutido no AGP 9: não aplicar org.jetbrains.kotlin.android.
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
@@ -12,47 +10,42 @@ plugins {
 }
 
 android {
-    namespace 'br.com.zamfir.comprarei'
-    compileSdk 36
+    namespace = 'br.com.zamfir.comprarei'
+    compileSdk = 37
 
     defaultConfig {
-        applicationId "br.com.zamfir.comprarei"
-        minSdk 27
-        targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        applicationId = "br.com.zamfir.comprarei"
+        minSdk = 27
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildFeatures {
-        buildConfig true
-        compose true
+        buildConfig = true
+        compose = true
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    // O jvmTarget do Kotlin segue o targetCompatibility.
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     testOptions {
         unitTests.all { useJUnitPlatform() }
     }
 }
 
-kotlin {
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_17
-    }
-}
-
 room {
-    schemaDirectory "$projectDir/schemas"
+    schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
