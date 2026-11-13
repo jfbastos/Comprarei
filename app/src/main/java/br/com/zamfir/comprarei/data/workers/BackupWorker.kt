@@ -1,19 +1,20 @@
 package br.com.zamfir.comprarei.data.workers
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
-import android.media.RingtoneManager
-import br.com.zamfir.comprarei.core.util.log.AppLogger
+import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.core.data.firestore.BackupAbortedException
 import br.com.zamfir.comprarei.core.data.firestore.BackupOutcome
-import br.com.zamfir.comprarei.core.data.preferences.ConfigRepository
 import br.com.zamfir.comprarei.core.data.firestore.FirestoreRepository
+import br.com.zamfir.comprarei.core.data.preferences.ConfigRepository
 import br.com.zamfir.comprarei.core.util.Constants
+import br.com.zamfir.comprarei.core.util.log.AppLogger
 import kotlinx.coroutines.CancellationException
 import org.koin.java.KoinJavaComponent.inject
 
@@ -36,7 +37,7 @@ class BackupWorker(context : Context, parameters: WorkerParameters) : CoroutineW
         return try {
             when (firestoreRepository.backup()) {
                 BackupOutcome.Done -> {
-                    if (isManualBackup) sendNotification("Backup", "Compras salvas com sucesso.")
+                    if (isManualBackup) notifyManualBackupDone()
                     Result.success()
                 }
                 // Sem usuário ou sem restauração concluída não há o que enviar; o manual avisa a tela.
@@ -53,29 +54,43 @@ class BackupWorker(context : Context, parameters: WorkerParameters) : CoroutineW
         }
     }
 
-    private fun sendNotification(title : String, msg : String) {
-        val channelName = "comprarei"
-        val channelId = "99999"
-        val notificationId = 99999
+    /** Avisa que o backup manual terminou (ele pode concluir só quando a internet voltar, com o app fechado). */
+    private fun notifyManualBackupDone() {
+        val context = applicationContext
+        val notificationManager = NotificationManagerCompat.from(context)
+        // Sem a permissão (Android 13+) ou com notificações desligadas não há o que mostrar.
+        if (!notificationManager.areNotificationsEnabled()) return
 
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(channelId, channelName, importance)
-        val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
-        notificationManager?.createNotificationChannel(channel)
+        // Mesmo id de canal das versões anteriores, para manter as preferências que o usuário já ajustou.
+        // Som e vibração vêm do canal; recriar o canal só atualiza o nome (traduzido).
+        val channel = NotificationChannelCompat.Builder(CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_DEFAULT)
+            .setName(context.getString(R.string.backup_notification_channel))
+            .build()
+        notificationManager.createNotificationChannel(channel)
 
-        // Notification builder with channel id
-        val builder = NotificationCompat.Builder(applicationContext, channelId)
+        val openApp = context.packageManager.getLaunchIntentForPackage(context.packageName)?.let {
+            PendingIntent.getActivity(context, 0, it, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        }
 
-        // Set notification content
-        builder.setContentTitle(title)
-            .setContentText(msg)
-            .setSmallIcon(R.drawable.icone_fundo_branco) // Replace with your icon resource
-            .setVibrate(longArrayOf(1000, 1000))
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification_backup)
+            .setColor(ContextCompat.getColor(context, R.color.notification_accent))
+            .setContentTitle(context.getString(R.string.backup_notification_title))
+            .setContentText(context.getString(R.string.backup_notification_text))
+            .setContentIntent(openApp)
+            .setAutoCancel(true)
+            .build()
 
-        val alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        builder.setSound(alarmSound)
+        try {
+            notificationManager.notify(NOTIFICATION_ID, notification)
+        } catch (e: SecurityException) {
+            // A permissão pode ser revogada entre a checagem e o envio.
+            AppLogger.warning("Notificação de backup não enviada: ${e.message}")
+        }
+    }
 
-        // Send notification
-        notificationManager?.notify(notificationId, builder.build())
+    private companion object {
+        const val CHANNEL_ID = "99999"
+        const val NOTIFICATION_ID = 99999
     }
 }

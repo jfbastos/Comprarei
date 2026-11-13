@@ -109,6 +109,9 @@
     <string name="settings_backup_waiting_network">Aguardando conexão…</string>
     <string name="settings_backup_success">Backup concluído</string>
     <string name="settings_backup_failed">Não foi possível concluir o backup. Tente novamente.</string>
+    <string name="backup_notification_channel">Backup</string>
+    <string name="backup_notification_title">Backup concluído</string>
+    <string name="backup_notification_text">Suas compras foram salvas na nuvem.</string>
     <string name="settings_logoff_failed">Não foi possível sair. Tente novamente.</string>
     <string name="settings_confirm_backup_title">Fazer backup agora?</string>
     <string name="settings_confirm_backup_message">Seus carrinhos, produtos e categorias serão enviados para a nuvem assim que houver conexão com a internet.</string>

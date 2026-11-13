@@ -4,4 +4,6 @@
     <color name="dark_gray">#333333</color>
     <!-- Fundo da janela antes do Compose desenhar; igual ao background do ComprareiTheme. -->
     <color name="window_background">#F7FBF2</color>
+    <!-- Cor de destaque das notificações; verde da marca. -->
+    <color name="notification_accent">#186F35</color>
 </resources>

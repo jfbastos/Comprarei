@@ -119,6 +119,9 @@
     <string name="settings_backup_waiting_network">Waiting for connection…</string>
     <string name="settings_backup_success">Backup completed</string>
     <string name="settings_backup_failed">Could not complete the backup. Please try again.</string>
+    <string name="backup_notification_channel">Backup</string>
+    <string name="backup_notification_title">Backup completed</string>
+    <string name="backup_notification_text">Your purchases were saved to the cloud.</string>
     <string name="settings_logoff_failed">Could not log off. Please try again.</string>
     <string name="settings_confirm_backup_title">Back up now?</string>
     <string name="settings_confirm_backup_message">Your carts, products and categories will be sent to the cloud as soon as you are connected to the internet.</string>
