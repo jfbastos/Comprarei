@@ -272,7 +272,7 @@ private fun BackupItem(
     val inProgress = status.isInProgress()
     val supporting = when (status) {
         BackupStatus.Running -> stringResource(R.string.settings_backup_running)
-        BackupStatus.WaitingForNetwork -> stringResource(R.string.settings_backup_waiting_wifi)
+        BackupStatus.WaitingForNetwork -> stringResource(R.string.settings_backup_waiting_network)
         else -> if (lastBackup.isBlank()) stringResource(R.string.sem_backup_realizado)
         else stringResource(R.string.settings_last_backup, lastBackup)
     }
@@ -305,20 +305,30 @@ private fun SettingsDialogs(
             onConfirm = { onAction(SettingsAction.OnConfirmBackup) },
             onDismiss = { onAction(SettingsAction.OnDismissDialog) },
         )
-        SettingsDialog.ConfirmLogoff -> {
+        SettingsDialog.ConfirmLogoff -> ComprareiConfirmDialog(
+            title = stringResource(R.string.settings_confirm_logoff_title),
+            text = stringResource(R.string.settings_confirm_logoff_message),
+            icon = painterResource(R.drawable.ic_logout_24),
+            confirmText = stringResource(R.string.logoff),
+            isDestructive = true,
+            isConfirming = state.isLoggingOff,
+            onConfirm = { onAction(SettingsAction.OnConfirmLogoff) },
+            onDismiss = { onAction(SettingsAction.OnDismissDialog) },
+        )
+        SettingsDialog.LogoffBackupFailed -> {
             val lastBackupLine = if (state.lastBackup.isBlank()) {
                 stringResource(R.string.settings_confirm_logoff_no_backup)
             } else {
                 stringResource(R.string.settings_last_backup, state.lastBackup)
             }
             ComprareiConfirmDialog(
-                title = stringResource(R.string.settings_confirm_logoff_title),
-                text = stringResource(R.string.settings_confirm_logoff_message) + "\n\n" + lastBackupLine,
+                title = stringResource(R.string.settings_logoff_backup_failed_title),
+                text = stringResource(R.string.settings_logoff_backup_failed_message) + "\n\n" + lastBackupLine,
                 icon = painterResource(R.drawable.ic_logout_24),
-                confirmText = stringResource(R.string.logoff),
+                confirmText = stringResource(R.string.settings_logoff_anyway),
                 isDestructive = true,
                 isConfirming = state.isLoggingOff,
-                onConfirm = { onAction(SettingsAction.OnConfirmLogoff) },
+                onConfirm = { onAction(SettingsAction.OnConfirmLogoffWithoutBackup) },
                 onDismiss = { onAction(SettingsAction.OnDismissDialog) },
             )
         }

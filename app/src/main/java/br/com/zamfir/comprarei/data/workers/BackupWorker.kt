@@ -6,15 +6,16 @@ import android.content.Context
 import android.media.RingtoneManager
 import br.com.zamfir.comprarei.core.util.log.AppLogger
 import androidx.core.app.NotificationCompat
-import androidx.core.content.edit
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import br.com.zamfir.comprarei.R
+import br.com.zamfir.comprarei.core.data.firestore.BackupAbortedException
+import br.com.zamfir.comprarei.core.data.firestore.BackupOutcome
 import br.com.zamfir.comprarei.core.data.preferences.ConfigRepository
 import br.com.zamfir.comprarei.core.data.firestore.FirestoreRepository
 import br.com.zamfir.comprarei.core.util.Constants
+import kotlinx.coroutines.CancellationException
 import org.koin.java.KoinJavaComponent.inject
-import java.time.LocalDateTime
 
 /**
  * Não mover este arquivo de pacote: o WorkManager persiste o nome completo da classe
@@ -32,16 +33,21 @@ class BackupWorker(context : Context, parameters: WorkerParameters) : CoroutineW
 
         if(!configRepository.getIsAutoBackupEnabled() && !isManualBackup) return Result.success()
 
-        return try{
-            firestoreRepository.saveCarts()
-            firestoreRepository.saveProducts()
-            firestoreRepository.saveCategories()
-            applicationContext.getSharedPreferences(applicationContext.getString(R.string.shared_file_name), Context.MODE_PRIVATE).edit {
-                putString(applicationContext.getString(R.string.last_backup_key), LocalDateTime.now().toString())
+        return try {
+            when (firestoreRepository.backup()) {
+                BackupOutcome.Done -> {
+                    if (isManualBackup) sendNotification("Backup", "Compras salvas com sucesso.")
+                    Result.success()
+                }
+                // Sem usuário ou sem restauração concluída não há o que enviar; o manual avisa a tela.
+                BackupOutcome.NoUser, BackupOutcome.NotRestored -> if (isManualBackup) Result.failure() else Result.success()
             }
-            if(isManualBackup) sendNotification("Backup", "Compras salvas com sucesso.")
-            Result.success()
-        }catch (e : Exception){
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: BackupAbortedException) {
+            AppLogger.warning("Backup interrompido: ${e.message}")
+            Result.failure()
+        } catch (e: Exception) {
             AppLogger.error(if (isManualBackup) "Falha no backup manual" else "Falha no backup automático", e)
             Result.failure()
         }

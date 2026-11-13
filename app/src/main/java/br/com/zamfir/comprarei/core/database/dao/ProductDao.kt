@@ -21,6 +21,9 @@ interface ProductDao {
     @Query("DELETE FROM PRODUCTS WHERE id IN (:ids)")
     fun delete(ids : List<Int>)
 
+    @Query("DELETE FROM PRODUCTS")
+    fun deleteAll()
+
     @Query("DELETE FROM PRODUCTS WHERE cartId = :cartId")
     fun deleteProductsFromCart(cartId : Int) : Int
 
@@ -30,8 +33,11 @@ interface ProductDao {
     @Update
     fun updateOrder(reorderedList : List<Product>)
 
-    /** Progresso de cada compra que tem produtos (compras vazias não aparecem). */
-    @Query("SELECT cartId, COUNT(*) AS total, SUM(CASE WHEN done THEN 1 ELSE 0 END) AS done FROM PRODUCTS GROUP BY cartId")
+    /** Progresso e valor total de cada compra que tem produtos (compras vazias não aparecem). */
+    @Query(
+        "SELECT cartId, COUNT(*) AS total, SUM(CASE WHEN done THEN 1 ELSE 0 END) AS done, " +
+            "SUM(price * quantity) AS totalValue FROM PRODUCTS GROUP BY cartId"
+    )
     fun progressByCart(): List<CartProgress>
 
     @Query("UPDATE PRODUCTS SET done=:isDone WHERE id = :id")

@@ -3,207 +3,205 @@ package br.com.zamfir.comprarei.core.data.firestore
 import android.content.Context
 import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkInfo
 import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import br.com.zamfir.comprarei.R
+import br.com.zamfir.comprarei.core.data.preferences.ConfigRepository
 import br.com.zamfir.comprarei.core.database.AppDatabase
 import br.com.zamfir.comprarei.core.database.entity.Cart
 import br.com.zamfir.comprarei.core.database.entity.Category
 import br.com.zamfir.comprarei.core.database.entity.Product
 import br.com.zamfir.comprarei.core.util.Constants
-import br.com.zamfir.comprarei.core.domain.exceptions.FirestoreDocumentCreationException
-import br.com.zamfir.comprarei.core.domain.exceptions.FirestoreLoadRegistersException
-import br.com.zamfir.comprarei.data.workers.BackupWorker
 import br.com.zamfir.comprarei.core.util.log.AppLogger
+import br.com.zamfir.comprarei.data.workers.BackupWorker
+import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.Source
+import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.firestore.firestore
-import com.google.firebase.Firebase
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import java.time.LocalDateTime
 import java.util.concurrent.TimeoutException
 
-class FirestoreRepository(private val context : Context, private val appDatabase: AppDatabase, private val dispatcher : CoroutineDispatcher) {
+/** Resultado de [FirestoreRepository.backup]. Falhas de rede ou do Firestore viram exceção. */
+enum class BackupOutcome {
+    Done,
+
+    /** Ninguém logado: nada a enviar. */
+    NoUser,
+
+    /** A restauração após o login não terminou; o banco local ainda não é confiável. */
+    NotRestored,
+}
+
+/** O usuário saiu ou trocou de conta durante o backup; o envio parou para não misturar dados. */
+class BackupAbortedException(message: String) : IllegalStateException(message)
+
+class FirestoreRepository(
+    private val context: Context,
+    private val appDatabase: AppDatabase,
+    private val configRepository: ConfigRepository,
+    private val dispatcher: CoroutineDispatcher,
+) {
 
     private val auth = Firebase.auth
     private val firestore = Firebase.firestore
 
-    @Throws
-    suspend fun saveCarts() = withContext(dispatcher){
-        //validate auth
-        if(auth.currentUser == null) return@withContext
-        val docRef = firestore.collection(auth.uid!!).document(Constants.FIRESTORE_DOCUMENT_PATH)
+    /**
+     * Envia o banco local para a nuvem: grava o que é novo ou mudou e apaga da nuvem o que não
+     * existe mais no aparelho. Aguarda cada escrita e lança exceção em qualquer falha.
+     *
+     * Só roda depois de uma restauração concluída para o usuário logado ([ConfigRepository.isRestoreCompleted]).
+     * Sem isso o banco local pode estar vazio ou pela metade, e o sync apagaria dados da nuvem.
+     */
+    suspend fun backup(): BackupOutcome = withContext(dispatcher) {
+        val uid = auth.uid ?: return@withContext BackupOutcome.NoUser
+        if (!configRepository.isRestoreCompleted(uid)) {
+            AppLogger.warning("Backup ignorado: a restauração dos dados não foi concluída")
+            return@withContext BackupOutcome.NotRestored
+        }
 
-        createUserDataIfNotExists(docRef){ docRefException ->
-            CoroutineScope(dispatcher).launch(CoroutineExceptionHandler{ _, throwable ->
-               throw throwable
-            }) {
-                val collectionRef = docRef.collection(Constants.FIRESTORE_CARTS_DOCUMENT_PATH)
-                if(docRefException != null){
-                    throw docRefException
-                }else{
-                    val dataBaseCarts = appDatabase.CartDao().carts
+        // Foto única do banco, lida numa transação para compras e produtos ficarem coerentes.
+        val local = appDatabase.runInTransaction<LocalSnapshot> {
+            LocalSnapshot(
+                carts = appDatabase.CartDao().carts,
+                products = appDatabase.ProductDao().allProducts,
+                categories = appDatabase.CategoryDao().allCategories,
+            )
+        }
+        // O logoff apaga a marca antes de limpar o banco: se a leitura pegou o banco já limpo, para aqui.
+        ensureStillAllowed(uid)
 
-                    getCartsFirestore(collectionRef){ firestoreCarts, exception ->
-                        if(exception != null){
-                           throw exception
-                        }else{
-                            //Se tem no firebase, mas não tem no banco local, deleta do firebase
-                            //Se tem no firebase, e no banco local, edita
-                            firestoreCarts.forEach { firestoreCart ->
-                                if(dataBaseCarts.none { it.firestoreUUID == firestoreCart.firestoreUUID }){
-                                    collectionRef.document(firestoreCart.firestoreUUID).delete()
-                                }else{
-                                    dataBaseCarts.firstOrNull { it.firestoreUUID == firestoreCart.firestoreUUID }?.let { databaseCart ->
-                                        collectionRef.document(firestoreCart.firestoreUUID).set(databaseCart)
-                                    }
-                                }
-                            }
+        val docRef = firestore.collection(uid).document(Constants.FIRESTORE_DOCUMENT_PATH)
+        if (!docRef.get(Source.SERVER).await().exists()) {
+            docRef.set(hashMapOf("userId" to uid)).await()
+        }
 
-                            //Se tem no banco local, e não tem no firebase, insere
-                            dataBaseCarts.forEach { databaseCart ->
-                                if(firestoreCarts.none {it.firestoreUUID == databaseCart.firestoreUUID}){
-                                    collectionRef.document(databaseCart.firestoreUUID).set(databaseCart)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        sync(
+            uid, docRef.collection(Constants.FIRESTORE_CARTS_DOCUMENT_PATH), local.carts,
+            uuidOf = { it.firestoreUUID }, idOf = { it.id }, fromDocument = FirebaseMapper::cartDocumentToEntity,
+        )
+        sync(
+            uid, docRef.collection(Constants.FIRESTORE_PRODUCTS_DOCUMENT_PATH), local.products,
+            uuidOf = { it.firestoreUUID }, idOf = { it.id }, fromDocument = FirebaseMapper::productDocumentToEntity,
+        )
+        sync(
+            uid, docRef.collection(Constants.FIRESTORE_CATEGORIES_DOCUMENT_PATH), local.categories,
+            uuidOf = { it.firestoreUUID }, idOf = { it.id }, fromDocument = FirebaseMapper::categoryDocumentToEntity,
+        )
+
+        configRepository.setLastBackupTime(LocalDateTime.now())
+        BackupOutcome.Done
+    }
+
+    /**
+     * Deixa a coleção igual à lista local. Documentos iguais (campos e id) não são regravados,
+     * para economizar escritas. As operações vão em lotes de até 500, cada um aguardado.
+     */
+    private suspend fun <T : Any> sync(
+        uid: String,
+        collection: CollectionReference,
+        local: List<T>,
+        uuidOf: (T) -> String,
+        idOf: (T) -> Int,
+        fromDocument: (MutableMap<String, Any>?) -> T,
+    ) {
+        val withoutUuid = local.count { uuidOf(it).isBlank() }
+        if (withoutUuid > 0) {
+            AppLogger.warning("Backup: $withoutUuid registro(s) sem firestoreUUID em ${collection.id} ignorados")
+        }
+
+        val remote = collection.get(Source.SERVER).await().documents
+            .associate { it.id to fromDocument(it.data) }
+
+        val plan = planSync(local, remote, uuidOf, idOf)
+        val operations = buildList<(WriteBatch) -> Unit> {
+            plan.toDelete.forEach { uuid -> add { batch -> batch.delete(collection.document(uuid)) } }
+            plan.toWrite.forEach { item -> add { batch -> batch.set(collection.document(uuidOf(item)), item) } }
+        }
+
+        operations.chunked(MAX_BATCH_SIZE).forEach { chunk ->
+            ensureStillAllowed(uid)
+            firestore.batch().apply { chunk.forEach { it(this) } }.commit().await()
         }
     }
 
-    @Throws
-    suspend fun saveProducts() = withContext(dispatcher){
-        //validate auth
-        if(auth.currentUser == null) return@withContext
-        val docRef = firestore.collection(auth.uid!!).document(Constants.FIRESTORE_DOCUMENT_PATH)
-
-        createUserDataIfNotExists(docRef){ docRefException ->
-            CoroutineScope(dispatcher).launch(CoroutineExceptionHandler{ _, throwable ->
-                throw throwable
-            }) {
-                val collectionRef = docRef.collection(Constants.FIRESTORE_PRODUCTS_DOCUMENT_PATH)
-                if(docRefException != null){
-                    throw docRefException
-                }else{
-                    val dataBaseProducts = appDatabase.ProductDao().allProducts
-
-                    getProductsFirestore(collectionRef){ firestoreProducts, exception ->
-                        if(exception != null){
-                            throw exception
-                        }else{
-                            //Se tem no firebase, mas não tem no banco local, deleta do firebase
-                            //Se tem no firebase, e no banco local, edita
-                            firestoreProducts.forEach { firestoreProduct ->
-                                if(dataBaseProducts.none { it.firestoreUUID == firestoreProduct.firestoreUUID }){
-                                    collectionRef.document(firestoreProduct.firestoreUUID).delete()
-                                }else{
-                                    dataBaseProducts.firstOrNull { it.firestoreUUID == firestoreProduct.firestoreUUID }?.let { databaseCart ->
-                                        collectionRef.document(firestoreProduct.firestoreUUID).set(databaseCart)
-                                    }
-                                }
-                            }
-
-                            //Se tem no banco local, e não tem no firebase, insere
-                            dataBaseProducts.forEach { databaseCart ->
-                                if(firestoreProducts.none {it.firestoreUUID == databaseCart.firestoreUUID}){
-                                    collectionRef.document(databaseCart.firestoreUUID).set(databaseCart)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @Throws
-    suspend fun saveCategories() = withContext(dispatcher){
-        //validate auth
-        if(auth.currentUser == null) return@withContext
-        val docRef = firestore.collection(auth.uid!!).document(Constants.FIRESTORE_DOCUMENT_PATH)
-
-        createUserDataIfNotExists(docRef){ docRefException ->
-            CoroutineScope(dispatcher).launch(CoroutineExceptionHandler{ _, throwable ->
-                throw throwable
-            }) {
-                val collectionRef = docRef.collection(Constants.FIRESTORE_CATEGORIES_DOCUMENT_PATH)
-                if(docRefException != null){
-                    throw docRefException
-                }else{
-                    val dataBaseProducts = appDatabase.CategoryDao().allCategories
-
-                    getCategoryFirestore(collectionRef){ firestoreCategories, exception ->
-                        if(exception != null){
-                            throw exception
-                        }else{
-                            //Se tem no firebase, mas não tem no banco local, deleta do firebase
-                            //Se tem no firebase, e no banco local, edita
-                            firestoreCategories.forEach { firestoreProduct ->
-                                if(dataBaseProducts.none { it.firestoreUUID == firestoreProduct.firestoreUUID }){
-                                    collectionRef.document(firestoreProduct.firestoreUUID).delete()
-                                }else{
-                                    dataBaseProducts.firstOrNull { it.firestoreUUID == firestoreProduct.firestoreUUID }?.let { databaseCart ->
-                                        collectionRef.document(firestoreProduct.firestoreUUID).set(databaseCart)
-                                    }
-                                }
-                            }
-
-                            //Se tem no banco local, e não tem no firebase, insere
-                            dataBaseProducts.forEach { databaseCart ->
-                                if(firestoreCategories.none {it.firestoreUUID == databaseCart.firestoreUUID}){
-                                    collectionRef.document(databaseCart.firestoreUUID).set(databaseCart)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+    /** Interrompe o backup se o usuário saiu da conta (ou trocou de conta) no meio do envio. */
+    private fun ensureStillAllowed(uid: String) {
+        if (auth.uid != uid || !configRepository.isRestoreCompleted(uid)) {
+            throw BackupAbortedException("A sessão mudou durante o backup")
         }
     }
 
     /**
-     * Baixa compras, produtos e categorias da nuvem para o banco local, avisando cada etapa.
-     * Lança exceção em qualquer falha: a tela não deve seguir para o app com dados incompletos,
-     * senão o próximo backup apagaria da nuvem o que não foi restaurado.
+     * Se o usuário logado precisa restaurar os dados antes de usar o app: uma restauração foi
+     * iniciada e não terminou (app fechado no meio, por exemplo).
+     *
+     * Quem já usava o app antes desta marca existir não tem nenhuma das duas; nesse caso o banco
+     * local é a referência, se tiver dados. Banco vazio passa pela restauração (não perde nada).
+     */
+    suspend fun needsRestore(): Boolean = withContext(dispatcher) {
+        val uid = auth.uid ?: return@withContext false
+        if (configRepository.isRestoreCompleted(uid)) return@withContext false
+        if (configRepository.wasRestoreStarted(uid)) return@withContext true
+
+        val hasLocalData = appDatabase.CartDao().carts.isNotEmpty() || appDatabase.CategoryDao().allCategories.isNotEmpty()
+        if (hasLocalData) configRepository.markRestoreCompleted(uid)
+        !hasLocalData
+    }
+
+    /** Conta recém-criada: não há nada na nuvem para restaurar, o banco local já é a referência. */
+    fun markNewAccountReady() {
+        auth.uid?.let { configRepository.markRestoreCompleted(it) }
+    }
+
+    /**
+     * Baixa compras, produtos e categorias da nuvem e substitui o banco local, avisando cada etapa.
+     * Lança exceção em qualquer falha: a tela não deve seguir para o app com dados incompletos.
+     * Só depois de gravar tudo marca a restauração como concluída, liberando o backup.
      */
     suspend fun restoreUserData(onStep: (RestoreStep) -> Unit) = withContext(dispatcher) {
         val uid = auth.uid ?: throw IllegalStateException("Nenhum usuário logado para restaurar")
+        configRepository.markRestoreStarted(uid)
         val docRef = firestore.collection(uid).document(Constants.FIRESTORE_DOCUMENT_PATH)
 
         onStep(RestoreStep.Preparing)
-        if (!docRef.get().await().exists()) {
+        if (!docRef.get(Source.SERVER).await().exists()) {
             docRef.set(hashMapOf("userId" to uid)).await()
         }
 
+        // Baixa tudo primeiro e só então grava, numa transação: o banco nunca fica pela metade.
         onStep(RestoreStep.Carts)
-        docRef.collection(Constants.FIRESTORE_CARTS_DOCUMENT_PATH).get().await().documents
+        val carts = docRef.collection(Constants.FIRESTORE_CARTS_DOCUMENT_PATH).get(Source.SERVER).await().documents
             .map { FirebaseMapper.cartDocumentToEntity(it.data) }
-            .also { appDatabase.CartDao().insertAll(it) }
 
         onStep(RestoreStep.Products)
-        docRef.collection(Constants.FIRESTORE_PRODUCTS_DOCUMENT_PATH).get().await().documents
+        val products = docRef.collection(Constants.FIRESTORE_PRODUCTS_DOCUMENT_PATH).get(Source.SERVER).await().documents
             .map { FirebaseMapper.productDocumentToEntity(it.data) }
-            .also { appDatabase.ProductDao().insertAll(it) }
 
         onStep(RestoreStep.Categories)
-        docRef.collection(Constants.FIRESTORE_CATEGORIES_DOCUMENT_PATH).get().await().documents
+        val categories = docRef.collection(Constants.FIRESTORE_CATEGORIES_DOCUMENT_PATH).get(Source.SERVER).await().documents
             .map { FirebaseMapper.categoryDocumentToEntity(it.data) }
-            .also { appDatabase.CategoryDao().insertAll(it) }
+
+        // Substitui o que houver no aparelho (pode ser o resto de uma restauração interrompida).
+        appDatabase.runInTransaction {
+            appDatabase.ProductDao().deleteAll()
+            appDatabase.CartDao().deleteAll()
+            appDatabase.CategoryDao().deleteAll()
+            appDatabase.CartDao().insertAll(carts)
+            appDatabase.ProductDao().insertAll(products)
+            appDatabase.CategoryDao().insertAll(categories)
+        }
+        configRepository.markRestoreCompleted(uid)
     }
 
     /**
@@ -235,9 +233,9 @@ class FirestoreRepository(private val context : Context, private val appDatabase
     }
 
     /**
-     * Cancela os backups periódico e manual. Usado antes de excluir a conta, para um backup em
-     * andamento não reenviar os dados que estão sendo apagados. O periódico volta a ser agendado
-     * pela MainActivity no próximo login.
+     * Cancela os backups periódico e manual. Usado ao sair e antes de excluir a conta, para um
+     * backup não rodar com o banco sendo apagado. O periódico volta a ser agendado pela
+     * MainActivity no próximo login.
      */
     fun cancelBackups() {
         WorkManager.getInstance(context).apply {
@@ -246,100 +244,10 @@ class FirestoreRepository(private val context : Context, private val appDatabase
         }
     }
 
-    private suspend fun getCartsFirestore(collection : CollectionReference,callBack : (List<Cart>, Exception?) -> Unit) = withContext(dispatcher){
-        try {
-            if(auth.currentUser == null) callBack.invoke(listOf(), RuntimeException(context.getString(R.string.no_user_logged)))
-
-            collection.get().addOnCompleteListener { documents ->
-                    if(documents.isSuccessful){
-                        callBack.invoke(documents.result.documents.map { FirebaseMapper.cartDocumentToEntity(it.data)}, null)
-                    }
-
-                    if(documents.exception != null){
-                        callBack.invoke(listOf(), documents.exception)
-                    }
-
-                    if(!documents.isSuccessful){
-                        callBack.invoke(listOf(), FirestoreLoadRegistersException(context.getString(R.string.can_t_get_carts_registers)))
-                    }
-            }
-        } catch (e: Exception) {
-            AppLogger.error("Erro no método getCartsFirestore", e)
-        }
-    }
-
-    private suspend fun getProductsFirestore(collection : CollectionReference,callBack : (List<Product>, Exception?) -> Unit) = withContext(dispatcher){
-        try {
-            if(auth.currentUser == null) callBack.invoke(listOf(), RuntimeException(context.getString(R.string.no_user_logged)))
-
-            collection.get().addOnCompleteListener { documents ->
-                if(documents.isSuccessful){
-                    callBack.invoke(documents.result.documents.map { FirebaseMapper.productDocumentToEntity(it.data)}, null)
-                }
-
-                if(documents.exception != null){
-                    callBack.invoke(listOf(), documents.exception)
-                }
-
-                if(!documents.isSuccessful){
-                    callBack.invoke(listOf(), FirestoreLoadRegistersException(context.getString(R.string.can_t_get_products_registers)))
-                }
-            }
-        } catch (e: Exception) {
-            AppLogger.error("Erro no método getProductsFirestore", e)
-        }
-    }
-
-    private suspend fun getCategoryFirestore(collection : CollectionReference,callBack : (List<Category>, Exception?) -> Unit) = withContext(dispatcher){
-        try {
-            if(auth.currentUser == null) callBack.invoke(listOf(), RuntimeException(context.getString(R.string.no_user_logged)))
-
-            collection.get().addOnCompleteListener { documents ->
-                if(documents.isSuccessful){
-                    callBack.invoke(documents.result.documents.map { FirebaseMapper.categoryDocumentToEntity(it.data)}, null)
-                }
-
-                if(documents.exception != null){
-                    callBack.invoke(listOf(), documents.exception)
-                }
-
-                if(!documents.isSuccessful){
-                    callBack.invoke(listOf(),  FirestoreLoadRegistersException(context.getString(R.string.can_t_get_categories_registers)))
-                }
-            }
-        } catch (e: Exception) {
-            AppLogger.error("Erro no método getCategoryFirestore", e)
-        }
-    }
-
-    private suspend fun createUserDataIfNotExists(docRef : DocumentReference, callback : (exception : Exception?) -> Unit) = withContext(dispatcher){
-        try {
-            docRef.get().addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val document = task.result
-                    if(document != null) {
-                        if(!document.exists()){
-                            docRef.set(hashMapOf("userId" to auth.currentUser!!.uid)).addOnCompleteListener {
-                                if(it.isSuccessful) callback.invoke(null)
-                                else callback.invoke(if(it.exception != null) it.exception else FirestoreDocumentCreationException(context.getString(R.string.something_went_wrong_on_document_creation)))
-                            }
-                        }else{
-                            callback.invoke(null)
-                        }
-                    }
-                } else {
-                    callback.invoke(if(task.exception != null) task.exception else FirestoreDocumentCreationException(context.getString(R.string.something_went_wrong_on_document_creation)))
-                }
-            }
-        } catch (e: Exception) {
-            AppLogger.error("Erro no método createUserDataIfNotExists", e)
-        }
-    }
-
-    suspend fun doBackup() = withContext(dispatcher){
+    suspend fun doBackup() = withContext(dispatcher) {
         val uploadWorkRequest: OneTimeWorkRequest =
             OneTimeWorkRequestBuilder<BackupWorker>()
-                .setConstraints(Constraints(requiredNetworkType = NetworkType.UNMETERED))
+                .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
                 .setInputData(workDataOf(Constants.MANUAL_BACKUP_KEY to true))
                 .build()
 
@@ -360,6 +268,8 @@ class FirestoreRepository(private val context : Context, private val appDatabase
         WorkInfo.State.SUCCEEDED -> BackupStatus.Succeeded
         WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> BackupStatus.Failed
     }
+
+    private class LocalSnapshot(val carts: List<Cart>, val products: List<Product>, val categories: List<Category>)
 
     private companion object {
         const val MAX_BATCH_SIZE = 500

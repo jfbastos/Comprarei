@@ -63,6 +63,7 @@ sealed interface SignInEvent {
 class SignInViewModel(
     private val userRepository: UserRepository,
     private val firestoreRepository: FirestoreRepository,
+    resumeRestore: Boolean = false,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SignInState())
@@ -70,6 +71,11 @@ class SignInViewModel(
 
     private val eventChannel = Channel<SignInEvent>()
     val events = eventChannel.receiveAsFlow()
+
+    init {
+        // O app foi fechado no meio da restauração: refaz antes de liberar o app.
+        if (resumeRestore) restore()
+    }
 
     fun onAction(action: SignInAction) {
         when (action) {

@@ -10,9 +10,11 @@ import br.com.zamfir.comprarei.feature.auth.presentation.createaccount.CreateAcc
 import br.com.zamfir.comprarei.feature.auth.presentation.login.SignInRoot
 import kotlinx.serialization.Serializable
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
+/** [resumeRestore]: já logado, mas a restauração dos dados não terminou; a tela retoma direto nela. */
 @Serializable
-data object SignInRoute : NavKey
+data class SignInRoute(val resumeRestore: Boolean = false) : NavKey
 
 @Serializable
 data object CreateAccountRoute : NavKey
@@ -22,9 +24,9 @@ fun EntryProviderScope<NavKey>.authEntries(
     backStack: NavBackStack<NavKey>,
     onLoggedIn: () -> Unit,
 ) {
-    entry<SignInRoute> {
+    entry<SignInRoute> { route ->
         SignInRoot(
-            viewModel = koinViewModel(),
+            viewModel = koinViewModel { parametersOf(route.resumeRestore) },
             forgotPasswordViewModel = koinViewModel(),
             onNavigateToMain = onLoggedIn,
             onNavigateToCreateAccount = { backStack.add(CreateAccountRoute) },

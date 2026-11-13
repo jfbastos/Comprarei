@@ -40,6 +40,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+    testOptions {
+        unitTests.all { useJUnitPlatform() }
+    }
 }
 
 kotlin {
@@ -109,7 +112,10 @@ dependencies {
     implementation libs.coil.network.okhttp
 
     // Test
-    testImplementation libs.junit
+    testImplementation platform(libs.junit5.bom)
+    testImplementation libs.junit5.jupiter
+    testRuntimeOnly libs.junit5.platform.launcher
+    testImplementation libs.assertk
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.androidx.test.espresso.core
 }

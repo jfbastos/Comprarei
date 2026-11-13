@@ -2,10 +2,8 @@ package br.com.zamfir.comprarei.feature.cart.presentation.filter
 
 import br.com.zamfir.comprarei.core.database.entity.Cart
 import br.com.zamfir.comprarei.core.util.Constants
-import br.com.zamfir.comprarei.core.util.convertMonetaryToDouble
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import kotlin.math.roundToLong
 
 /** Ordenação e filtros da lista de compras da Home. Imutável: cada mudança gera uma cópia. */
 data class CartFilter(
@@ -27,7 +25,13 @@ data class DateRange(val start: LocalDate, val end: LocalDate)
 /** Valores em centavos; [maxCents] só vale para [ValueOperator.Between] e nulo = sem limite superior. */
 data class ValueFilter(val operator: ValueOperator, val minCents: Long, val maxCents: Long? = null)
 
-fun List<Cart>.applyFilter(filter: CartFilter): List<Cart> {
+/**
+ * @param totalCents valor total de cada compra em centavos, por id local; compra ausente vale 0
+ *   (compra sem produtos).
+ */
+fun List<Cart>.applyFilter(filter: CartFilter, totalCents: Map<Int, Long>): List<Cart> {
+    fun Cart.totalCents(): Long = totalCents[id] ?: 0L
+
     var result = this
 
     filter.dateRange?.let { range ->
@@ -70,6 +74,3 @@ private fun ValueFilter.matches(cents: Long): Boolean = when (operator) {
 private val CART_DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern(Constants.DATE_PATTERN)
 
 private fun Cart.parsedDate(): LocalDate? = runCatching { LocalDate.parse(data, CART_DATE_FORMATTER) }.getOrNull()
-
-// O total ainda é gravado como texto formatado (etapa 4); aqui vira centavos para comparar sem erro de Double.
-private fun Cart.totalCents(): Long = (total.convertMonetaryToDouble() * 100).roundToLong()

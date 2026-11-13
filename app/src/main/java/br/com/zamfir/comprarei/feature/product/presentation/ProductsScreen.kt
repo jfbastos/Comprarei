@@ -90,7 +90,7 @@ import br.com.zamfir.comprarei.core.designsystem.components.ComprareiLoading
 import br.com.zamfir.comprarei.core.designsystem.theme.ComprareiTheme
 import br.com.zamfir.comprarei.core.presentation.ObserveAsEvents
 import br.com.zamfir.comprarei.core.presentation.Share
-import br.com.zamfir.comprarei.core.util.FormatFrom
+import br.com.zamfir.comprarei.core.util.formatMoney
 import br.com.zamfir.comprarei.feature.product.presentation.form.ProductFormAction
 import br.com.zamfir.comprarei.feature.product.presentation.form.ProductFormRoot
 import br.com.zamfir.comprarei.feature.product.presentation.form.ProductFormViewModel
@@ -356,7 +356,7 @@ private fun ProductRow(
     // Com quantidade 1 o preço unitário repete o subtotal: só a marca aparece.
     val secondaryText = listOfNotNull(
         product.brand.takeIf { it.isNotBlank() },
-        if (product.quantity > 1) "${product.quantity} × ${FormatFrom.doubleToMonetary(currency, product.price)}" else null,
+        if (product.quantity > 1) "${product.quantity} × ${formatMoney(product.price, currency)}" else null,
     ).joinToString(" · ")
     val contentColor = if (product.done) colors.onSurfaceVariant else colors.onSurface
     val decoration = if (product.done) TextDecoration.LineThrough else null
@@ -402,7 +402,7 @@ private fun ProductRow(
                 }
             }
             Text(
-                text = FormatFrom.doubleToMonetary(currency, product.subtotal),
+                text = formatMoney(product.subtotal, currency),
                 style = MaterialTheme.typography.titleSmall,
                 color = contentColor,
                 textDecoration = decoration,
@@ -531,7 +531,7 @@ private fun SummaryBar(state: ProductsState) {
                     )
                     Text(
                         text = if (state.remaining > 0.0) {
-                            stringResource(R.string.products_remaining, FormatFrom.doubleToMonetary(currency, state.remaining))
+                            stringResource(R.string.products_remaining, formatMoney(state.remaining, currency))
                         } else {
                             stringResource(R.string.products_all_bought)
                         },
@@ -546,7 +546,7 @@ private fun SummaryBar(state: ProductsState) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        text = FormatFrom.doubleToMonetary(currency, state.total),
+                        text = formatMoney(state.total, currency),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,
@@ -652,11 +652,11 @@ private fun buildShareText(context: Context, cartName: String, products: List<Pr
         products.forEach { product ->
             append(" * ${product.name}")
             if (product.brand.isNotBlank()) append(" - ${product.brand}")
-            if (product.price != 0.0) append(" -> ${FormatFrom.doubleToMonetary(currency, product.price)}")
+            if (product.price != 0.0) append(" -> ${formatMoney(product.price, currency)}")
             if (product.quantity != 0) append(" x ${product.quantity.toString().padStart(2, '0')}")
             append("\n")
         }
-        append("\nTotal : ${FormatFrom.doubleToMonetary(currency, products.sumOf { it.subtotal })}")
+        append("\nTotal : ${formatMoney(products.sumOf { it.subtotal }, currency)}")
     }
 }
 

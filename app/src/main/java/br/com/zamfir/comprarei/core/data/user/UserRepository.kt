@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
 import br.com.zamfir.comprarei.R
+import br.com.zamfir.comprarei.core.data.firestore.FirestoreRepository
+import br.com.zamfir.comprarei.core.data.preferences.ConfigRepository
 import br.com.zamfir.comprarei.core.database.AppDatabase
 import br.com.zamfir.comprarei.core.database.entity.UserInfo
 import br.com.zamfir.comprarei.core.util.Constants
@@ -35,7 +37,13 @@ import java.time.LocalDateTime
 /** Troca de senha pedida no perfil. */
 data class PasswordChange(val currentPassword: String, val newPassword: String)
 
-class UserRepository(private val context : Context, private val appDatabase: AppDatabase, private val dispatcher: CoroutineDispatcher) {
+class UserRepository(
+    private val context: Context,
+    private val appDatabase: AppDatabase,
+    private val configRepository: ConfigRepository,
+    private val firestoreRepository: FirestoreRepository,
+    private val dispatcher: CoroutineDispatcher,
+) {
 
     private var auth : FirebaseAuth = Firebase.auth
 
@@ -63,6 +71,8 @@ class UserRepository(private val context : Context, private val appDatabase: App
     suspend fun createNewUserInFirebase(email: String, user: String, password: String, photoByte: ByteArray?) = withContext(dispatcher) {
         try {
             auth.createUserWithEmailAndPassword(email, password).await()
+            // Conta nova: a nuvem está vazia, então o banco local já pode ser enviado no backup.
+            firestoreRepository.markNewAccountReady()
 
             updateUserName(user)
 
@@ -244,8 +254,15 @@ class UserRepository(private val context : Context, private val appDatabase: App
         }
     }
 
+    /**
+     * Sai da conta e apaga os dados do aparelho. Quem chama decide antes se faz um último backup.
+     * A marca de restauração some antes do banco ser limpo: um backup que esteja rodando
+     * percebe e para, em vez de enviar o banco vazio (o que apagaria a nuvem).
+     */
     suspend fun logOffUser() = withContext(dispatcher){
         return@withContext try{
+            firestoreRepository.cancelBackups()
+            configRepository.clearSession()
             auth.signOut()
             appDatabase.UserInfoDao().getUserInfo()?.profilePicture?.let { File(it).delete() }
             appDatabase.clearAllTables()
@@ -296,6 +313,7 @@ class UserRepository(private val context : Context, private val appDatabase: App
         }
 
         currentUser.delete().await()
+        configRepository.clearSession()
         auth.signOut()
 
         appDatabase.UserInfoDao().getUserInfo()?.let {

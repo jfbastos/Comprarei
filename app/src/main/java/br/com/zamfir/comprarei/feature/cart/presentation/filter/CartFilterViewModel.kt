@@ -39,6 +39,7 @@ data class CartFilterState(
     val categories: List<Category> = emptyList(),
     // Lista completa da Home, usada só para a contagem ao vivo.
     val carts: List<Cart> = emptyList(),
+    val totalCents: Map<Int, Long> = emptyMap(),
     val today: LocalDate = LocalDate.now(),
     val isDateRangePickerVisible: Boolean = false,
     val isClosing: Boolean = false,
@@ -54,7 +55,7 @@ data class CartFilterState(
             categoryIds = categoryIds,
         )
 
-    val resultCount: Int get() = carts.applyFilter(draftFilter).size
+    val resultCount: Int get() = carts.applyFilter(draftFilter, totalCents).size
 
     private fun valueFilter(): ValueFilter? {
         val operator = valueOperator ?: return null
@@ -69,7 +70,7 @@ data class CartFilterState(
 }
 
 sealed interface CartFilterAction {
-    data class OnOpen(val filter: CartFilter, val carts: List<Cart>) : CartFilterAction
+    data class OnOpen(val filter: CartFilter, val carts: List<Cart>, val totalCents: Map<Int, Long>) : CartFilterAction
     data class OnSortClick(val sort: CartSort) : CartFilterAction
     data class OnPresetClick(val preset: PeriodPreset) : CartFilterAction
     data object OnCustomPeriodClick : CartFilterAction
@@ -102,7 +103,7 @@ class CartFilterViewModel(private val cartRepository: CartRepository) : ViewMode
 
     fun onAction(action: CartFilterAction) {
         when (action) {
-            is CartFilterAction.OnOpen -> open(action.filter, action.carts)
+            is CartFilterAction.OnOpen -> open(action.filter, action.carts, action.totalCents)
             // Tocar no chip já selecionado desmarca.
             is CartFilterAction.OnSortClick -> _state.update { it.copy(sort = action.sort.takeIf { sort -> sort != it.sort }) }
             is CartFilterAction.OnPresetClick -> _state.update {
@@ -138,7 +139,7 @@ class CartFilterViewModel(private val cartRepository: CartRepository) : ViewMode
         }
     }
 
-    private fun open(filter: CartFilter, carts: List<Cart>) {
+    private fun open(filter: CartFilter, carts: List<Cart>, totalCents: Map<Int, Long>) {
         val value = filter.value
         _state.value = CartFilterState(
             isVisible = true,
@@ -149,6 +150,7 @@ class CartFilterViewModel(private val cartRepository: CartRepository) : ViewMode
             maxCents = value?.maxCents?.toString().orEmpty(),
             categoryIds = filter.categoryIds,
             carts = carts,
+            totalCents = totalCents,
         )
         viewModelScope.launch {
             try {

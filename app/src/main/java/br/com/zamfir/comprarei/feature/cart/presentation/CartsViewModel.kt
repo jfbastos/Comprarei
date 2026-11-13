@@ -14,6 +14,7 @@ import br.com.zamfir.comprarei.core.util.log.AppLogger
 import br.com.zamfir.comprarei.feature.cart.data.CartRepository
 import br.com.zamfir.comprarei.feature.cart.presentation.filter.CartFilter
 import br.com.zamfir.comprarei.feature.cart.presentation.filter.applyFilter
+import br.com.zamfir.comprarei.core.util.toCents
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +39,10 @@ data class CartsState(
     val selectedIds: Set<String> = emptySet(),
     val isCompletedExpanded: Boolean = true,
 ) {
-    val visibleCarts: List<Cart> = carts.applyFilter(filter).search(query)
+    // Valor de cada compra em centavos, calculado a partir dos produtos (compra sem produtos = 0).
+    val totalCents: Map<Int, Long> = progress.mapValues { it.value.totalValue.toCents() }
+
+    val visibleCarts: List<Cart> = carts.applyFilter(filter, totalCents).search(query)
 
     // Seções da lista, mantendo a ordem (manual ou do filtro) dentro de cada uma.
     val ongoingCarts: List<Cart> = visibleCarts.filterNot { isCompleted(it) }
@@ -94,7 +98,7 @@ sealed interface CartsEvent {
     data class OpenCart(val cart: Cart) : CartsEvent
     data class OpenNewCart(val position: Int) : CartsEvent
     data class OpenEditCart(val cart: Cart) : CartsEvent
-    data class OpenFilter(val filter: CartFilter, val carts: List<Cart>) : CartsEvent
+    data class OpenFilter(val filter: CartFilter, val carts: List<Cart>, val totalCents: Map<Int, Long>) : CartsEvent
 
     /** Exclusão feita; a tela oferece desfazer com as compras e os produtos delas. */
     data class CartsDeleted(val carts: List<Cart>, val products: List<Product>) : CartsEvent
@@ -147,7 +151,7 @@ class CartsViewModel(
             CartsAction.OnSearchClick -> _state.update { it.copy(isSearchActive = true) }
             is CartsAction.OnQueryChange -> _state.update { it.copy(query = action.value) }
             CartsAction.OnCloseSearch -> _state.update { it.copy(isSearchActive = false, query = "") }
-            CartsAction.OnFilterClick -> _state.value.let { sendEvent(CartsEvent.OpenFilter(it.filter, it.carts)) }
+            CartsAction.OnFilterClick -> _state.value.let { sendEvent(CartsEvent.OpenFilter(it.filter, it.carts, it.totalCents)) }
             is CartsAction.OnFilterApplied -> _state.update { it.copy(filter = action.filter) }
             CartsAction.OnClearFilter -> _state.update { it.copy(filter = CartFilter()) }
             CartsAction.OnToggleCompletedSection -> _state.update { it.copy(isCompletedExpanded = !it.isCompletedExpanded) }

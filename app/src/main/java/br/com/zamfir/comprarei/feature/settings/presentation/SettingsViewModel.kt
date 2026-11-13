@@ -10,6 +10,8 @@ import br.com.zamfir.comprarei.core.data.preferences.ConfigRepository
 import br.com.zamfir.comprarei.core.data.preferences.ThemeMode
 import br.com.zamfir.comprarei.core.data.user.UserRepository
 import br.com.zamfir.comprarei.core.presentation.UiText
+import br.com.zamfir.comprarei.core.util.log.AppLogger
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 data class SettingsState(
     val userName: String = "",
@@ -32,7 +35,14 @@ data class SettingsState(
     val isLoggingOff: Boolean = false,
 )
 
-enum class SettingsDialog { ConfirmBackup, ConfirmLogoff, Theme }
+enum class SettingsDialog {
+    ConfirmBackup,
+    ConfirmLogoff,
+
+    /** O backup antes de sair falhou: sair mesmo assim perde o que não foi enviado. */
+    LogoffBackupFailed,
+    Theme,
+}
 
 sealed interface SettingsAction {
     data object OnScreenShown : SettingsAction
@@ -47,6 +57,7 @@ sealed interface SettingsAction {
     data object OnConfirmBackup : SettingsAction
     data object OnLogoffClick : SettingsAction
     data object OnConfirmLogoff : SettingsAction
+    data object OnConfirmLogoffWithoutBackup : SettingsAction
     data object OnDismissDialog : SettingsAction
 }
 
@@ -106,7 +117,11 @@ class SettingsViewModel(
                 viewModelScope.launch { firestoreRepository.doBackup() }
             }
             SettingsAction.OnLogoffClick -> _state.update { it.copy(dialog = SettingsDialog.ConfirmLogoff) }
-            SettingsAction.OnConfirmLogoff -> logoff()
+            SettingsAction.OnConfirmLogoff -> backupThenLogoff()
+            SettingsAction.OnConfirmLogoffWithoutBackup -> viewModelScope.launch {
+                _state.update { it.copy(isLoggingOff = true) }
+                logoff()
+            }
             SettingsAction.OnDismissDialog -> _state.update { it.copy(dialog = null) }
         }
     }
@@ -147,8 +162,26 @@ class SettingsViewModel(
         }
     }
 
-    private fun logoff() = viewModelScope.launch {
+    // Último backup antes de apagar o aparelho; se falhar, pergunta se sai mesmo assim.
+    private fun backupThenLogoff() = viewModelScope.launch {
+        if (_state.value.isLoggingOff) return@launch
         _state.update { it.copy(isLoggingOff = true) }
+        val backedUp = try {
+            withTimeoutOrNull(LOGOFF_BACKUP_TIMEOUT_MS) { firestoreRepository.backup() } != null
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            AppLogger.warning("Backup antes de sair falhou: ${e.message}")
+            false
+        }
+        if (backedUp) {
+            logoff()
+        } else {
+            _state.update { it.copy(isLoggingOff = false, dialog = SettingsDialog.LogoffBackupFailed) }
+        }
+    }
+
+    private suspend fun logoff() {
         val success = userRepository.logOffUser()
         _state.update { it.copy(isLoggingOff = false, dialog = null) }
         if (success) {
@@ -162,5 +195,7 @@ class SettingsViewModel(
         viewModelScope.launch { eventChannel.send(event) }
     }
 }
+
+private const val LOGOFF_BACKUP_TIMEOUT_MS = 30_000L
 
 fun BackupStatus.isInProgress() = this == BackupStatus.WaitingForNetwork || this == BackupStatus.Running

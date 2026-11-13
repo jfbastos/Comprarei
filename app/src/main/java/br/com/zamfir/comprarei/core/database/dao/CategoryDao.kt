@@ -23,6 +23,9 @@ interface CategoryDao {
     @Query("SELECT * FROM CATEGORIES WHERE id = :id")
     fun getCategoryById(id : Int) : Category?
 
+    @Query("DELETE FROM CATEGORIES")
+    fun deleteAll()
+
     @Update
     fun updateCategory(category: Category)
 

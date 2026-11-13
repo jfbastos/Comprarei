@@ -4,7 +4,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
-import java.util.Locale
+import br.com.zamfir.comprarei.core.util.formatCents
 
 /**
  * Exibe um campo que guarda só os dígitos dos centavos ("1250") como valor monetário ("R$ 12,50").
@@ -35,8 +35,5 @@ class CurrencyVisualTransformation(private val currencySymbol: String) : VisualT
 
         /** Mantém só dígitos, sem zeros à esquerda, limitado a [MAX_DIGITS]. */
         fun sanitize(input: String): String = input.filter(Char::isDigit).trimStart('0').take(MAX_DIGITS)
-
-        fun formatCents(cents: Long, currencySymbol: String): String =
-            "$currencySymbol ${String.format(Locale.getDefault(), "%,.2f", cents / 100.0)}"
     }
 }

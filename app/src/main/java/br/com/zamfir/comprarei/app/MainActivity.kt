@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        splashScreen.setKeepOnScreenCondition { viewModel.isLoggedIn.value == null }
+        splashScreen.setKeepOnScreenCondition { viewModel.startDestination.value == null }
         // Ícones claros na status bar, sobre as barras verdes (o login escurece os seus enquanto aparece).
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
-            val isLoggedIn by viewModel.isLoggedIn.collectAsStateWithLifecycle()
+            val startDestination by viewModel.startDestination.collectAsStateWithLifecycle()
             val darkTheme = when (themeMode) {
                 ThemeMode.System -> isSystemInDarkTheme()
                 ThemeMode.Light -> false
@@ -72,10 +72,11 @@ class MainActivity : ComponentActivity() {
             }
 
             ComprareiTheme(darkTheme = darkTheme) {
-                val loggedIn = isLoggedIn ?: return@ComprareiTheme
+                val start = startDestination ?: return@ComprareiTheme
 
-                LaunchedEffect(Unit) { if (loggedIn) startBackupWorker() }
-                AppNavigation(isLoggedIn = loggedIn, onLoggedIn = ::startBackupWorker)
+                // Com a restauração pendente, o backup só é agendado quando ela terminar (onLoggedIn).
+                LaunchedEffect(Unit) { if (start == StartDestination.Home) startBackupWorker() }
+                AppNavigation(startDestination = start, onLoggedIn = ::startBackupWorker)
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) NotificationPermission()
             }

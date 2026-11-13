@@ -44,6 +44,7 @@ import br.com.zamfir.comprarei.core.designsystem.components.ComprareiConfirmDial
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiTextField
 import br.com.zamfir.comprarei.core.designsystem.theme.ComprareiTheme
 import br.com.zamfir.comprarei.core.presentation.CurrencyVisualTransformation
+import br.com.zamfir.comprarei.core.util.formatCents
 import br.com.zamfir.comprarei.core.presentation.ObserveAsEvents
 
 @Composable
@@ -174,7 +175,7 @@ private fun ProductFormContent(
                 value = fields.priceCents,
                 onValueChange = { onAction(ProductFormAction.OnPriceChange(it)) },
                 label = stringResource(R.string.price),
-                placeholder = CurrencyVisualTransformation.formatCents(0, currencySymbol),
+                placeholder = formatCents(0, currencySymbol),
                 modifier = Modifier.weight(1f),
                 visualTransformation = currencyTransformation,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Next),
@@ -194,7 +195,7 @@ private fun ProductFormContent(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    text = CurrencyVisualTransformation.formatCents(fields.subtotalCents, currencySymbol),
+                    text = formatCents(fields.subtotalCents, currencySymbol),
                     style = MaterialTheme.typography.titleMedium,
                 )
             }

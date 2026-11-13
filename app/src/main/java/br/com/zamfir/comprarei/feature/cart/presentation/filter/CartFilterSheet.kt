@@ -52,6 +52,7 @@ import br.com.zamfir.comprarei.core.designsystem.components.ComprareiColorDot
 import br.com.zamfir.comprarei.core.designsystem.components.ComprareiTextField
 import br.com.zamfir.comprarei.core.designsystem.theme.ComprareiTheme
 import br.com.zamfir.comprarei.core.presentation.CurrencyVisualTransformation
+import br.com.zamfir.comprarei.core.util.formatCents
 import br.com.zamfir.comprarei.core.presentation.ObserveAsEvents
 import java.time.Instant
 import java.time.LocalDate
@@ -307,7 +308,7 @@ private fun ValueFields(
 ) {
     val currencySymbol = stringResource(R.string.moeda_real)
     val transformation = remember(currencySymbol) { CurrencyVisualTransformation(currencySymbol) }
-    val placeholder = CurrencyVisualTransformation.formatCents(0, currencySymbol)
+    val placeholder = formatCents(0, currencySymbol)
     val keyboard = KeyboardOptions(keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Done)
 
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {

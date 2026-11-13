@@ -5,7 +5,7 @@ import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.core.database.dao.CartDao
 import br.com.zamfir.comprarei.core.database.dao.ProductDao
 import br.com.zamfir.comprarei.core.database.entity.Product
-import br.com.zamfir.comprarei.core.util.FormatFrom
+import br.com.zamfir.comprarei.core.util.formatMoney
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
@@ -48,9 +48,13 @@ class ProductRepository(
 
     suspend fun updateOrder(reorderedList: List<Product>) = withContext(dispacher) { productDao.updateOrder(reorderedList) }
 
-    // O total da compra é guardado já formatado (ex.: "R$ 12,50"), como o resto do app espera.
+    /*
+     * O app calcula o total a partir dos produtos (ProductDao.progressByCart) e não lê este campo.
+     * Ele continua sendo gravado só para os documentos do Firestore seguirem compatíveis com
+     * versões antigas do app em outros aparelhos, que exibem esse texto.
+     */
     private fun updateCartTotal(cartId: Int) {
         val total = productDao.getProducts(cartId).sumOf { it.price * it.quantity }
-        cartDao.updateTotal(FormatFrom.doubleToMonetary(context.getString(R.string.moeda_real), total), cartId)
+        cartDao.updateTotal(formatMoney(total, context.getString(R.string.moeda_real)), cartId)
     }
 }

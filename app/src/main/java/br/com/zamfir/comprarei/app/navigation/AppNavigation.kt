@@ -8,6 +8,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import br.com.zamfir.comprarei.app.StartDestination
 import br.com.zamfir.comprarei.feature.auth.presentation.SignInRoute
 import br.com.zamfir.comprarei.feature.auth.presentation.authEntries
 import br.com.zamfir.comprarei.feature.cart.presentation.CartsRoute
@@ -27,10 +28,16 @@ import br.com.zamfir.comprarei.feature.settings.presentation.settingsEntries
  */
 @Composable
 fun AppNavigation(
-    isLoggedIn: Boolean,
+    startDestination: StartDestination,
     onLoggedIn: () -> Unit,
 ) {
-    val backStack = rememberNavBackStack(if (isLoggedIn) CartsRoute else SignInRoute)
+    val backStack = rememberNavBackStack(
+        when (startDestination) {
+            StartDestination.SignIn -> SignInRoute()
+            StartDestination.Restore -> SignInRoute(resumeRestore = true)
+            StartDestination.Home -> CartsRoute
+        },
+    )
     val navigateBack: () -> Unit = { if (backStack.size > 1) backStack.removeLastOrNull() }
 
     NavDisplay(
@@ -58,11 +65,11 @@ fun AppNavigation(
             settingsEntries(
                 onNavigateBack = navigateBack,
                 onOpenProfile = { picture -> backStack.add(ProfileRoute(picture)) },
-                onLoggedOut = { backStack.resetTo(SignInRoute) },
+                onLoggedOut = { backStack.resetTo(SignInRoute()) },
             )
             profileEntries(
                 backStack = backStack,
-                onAccountDeleted = { backStack.resetTo(SignInRoute) },
+                onAccountDeleted = { backStack.resetTo(SignInRoute()) },
             )
         },
     )

@@ -101,6 +101,8 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import br.com.zamfir.comprarei.R
 import br.com.zamfir.comprarei.core.database.dao.CartProgress
+import br.com.zamfir.comprarei.core.util.formatCents
+import br.com.zamfir.comprarei.core.util.toCents
 import br.com.zamfir.comprarei.core.database.entity.Cart
 import br.com.zamfir.comprarei.core.database.entity.Category
 import br.com.zamfir.comprarei.core.database.entity.UserInfo
@@ -151,7 +153,7 @@ fun CartsRoot(
             }
             is CartsEvent.OpenNewCart -> formViewModel.onAction(CartFormAction.OnOpenNew(event.position))
             is CartsEvent.OpenEditCart -> formViewModel.onAction(CartFormAction.OnOpenEdit(event.cart))
-            is CartsEvent.OpenFilter -> filterViewModel.onAction(CartFilterAction.OnOpen(event.filter, event.carts))
+            is CartsEvent.OpenFilter -> filterViewModel.onAction(CartFilterAction.OnOpen(event.filter, event.carts, event.totalCents))
             is CartsEvent.CartsDeleted -> scope.launch {
                 // Uma exclusão nova substitui o aviso anterior (que perde o desfazer).
                 snackbarHostState.currentSnackbarData?.dismiss()
@@ -620,7 +622,7 @@ private fun CartRow(
                 if (showTotal) {
                     Spacer(Modifier.height(6.dp))
                     Text(
-                        text = cart.total,
+                        text = formatCents(progress?.totalValue?.toCents() ?: 0L, stringResource(R.string.moeda_real)),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = colors.primary,
@@ -854,7 +856,7 @@ private val previewCarts = listOf(
 private val previewState = CartsState(
     isLoading = false,
     carts = previewCarts,
-    progress = mapOf(1 to CartProgress(1, 7, 3), 2 to CartProgress(2, 4, 4)),
+    progress = mapOf(1 to CartProgress(1, 7, 3, 124.9), 2 to CartProgress(2, 4, 4, 980.0)),
 )
 
 @Preview(showBackground = true, heightDp = 640)

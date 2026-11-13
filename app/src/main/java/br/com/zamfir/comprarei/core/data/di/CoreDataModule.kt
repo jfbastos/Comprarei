@@ -16,8 +16,8 @@ val coreDataModule = module {
     single(named(Constants.IO_DISPATCHER)) { Dispatchers.IO }
 
     single { ProductRepository(androidContext(), get(), get(), get(named(Constants.IO_DISPATCHER))) }
-    single { UserRepository(androidContext(), get(), get(named(Constants.IO_DISPATCHER))) }
-    single { FirestoreRepository(androidContext(), get(), get(named(Constants.IO_DISPATCHER))) }
+    single { UserRepository(androidContext(), get(), get(), get(), get(named(Constants.IO_DISPATCHER))) }
+    single { FirestoreRepository(androidContext(), get(), get(), get(named(Constants.IO_DISPATCHER))) }
     single { ConfigRepository(androidContext(), get(named(Constants.IO_DISPATCHER))) }
     single { ImageCompressor(androidContext(), get(named(Constants.IO_DISPATCHER))) }
     single { GoogleAuthClient() }
