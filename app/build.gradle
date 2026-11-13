@@ -118,4 +118,5 @@ dependencies {
     testImplementation libs.assertk
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.androidx.test.espresso.core
+    androidTestImplementation libs.androidx.room.testing
 }
