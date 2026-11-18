@@ -77,4 +77,36 @@ Resources (`res/`) are not split by feature. There are no layouts, menus, or nav
 
 The window theme (`Theme.Comprarei` in `values/` and `values-night/themes.xml`) is a plain platform theme that only sets the window background; there is no AppCompat or Material Components dependency. The app draws edge to edge: screens rely on `Scaffold`/`TopAppBar` insets, and fixed bottom bars need `navigationBarsPadding()`.
 
-Money: product prices are `Double` in the DB. Cart totals are never read from the stored `Cart.total` text. They are computed from the products (`ProductDao.progressByCart` → `CartProgress.totalValue`). Compare and filter in cents (`Double.toCents()`) and format only for display with `formatMoney`/`formatCents`, using the `R.string.moeda_real` symbol and the device locale's separators.
+Money: product prices are `Double` in the DB. Cart totals are never read from the stored `Cart.total` text. They are computed from the products (`ProductDao.observeProgressByCart` → `CartProgress.totalValue`). Compare and filter in cents (`Double.toCents()`) and format only for display with `formatMoney`/`formatCents`, using the `R.string.moeda_real` symbol and the device locale's separators.
+
+## Refactor in progress
+
+The app is going through a staged refactor. Stages 1-5 are done and committed (Telegram removal, package-by-feature, build modernization, Compose migration of every screen, backup/money/migration bug fixes, AGP 9); git history has the details. Stage 6 is an architecture review, done one sub-stage at a time, in order:
+
+- 6.1 Profile picture out of the cache and stored in Firestore: done (`e103032`).
+- 6.2 Immutable entities with `id` in the constructor, no `Serializable`: done (`7980e6b`).
+- 6.3 Suspend/`Flow` DAOs and reactive ViewModels (Products, Home, Categories): done (`7980e6b`). `CartForm` and `CartFilter` keep one-shot reads on purpose.
+- **6.4 (next)**: repository interfaces, plus a session/account orchestrator that takes login, logoff, restore and account deletion out of the ViewModels, with ViewModel tests (JUnit 5, Turbine, fake repositories).
+- 6.5 Typed errors with `Result<T, E>` (`android-error-handling` skill) instead of exceptions carrying localized text.
+- 6.6 Shared selection/undo helpers, and split the big screens (`CartsScreen`, `ProductsScreen`).
+- 6.7 Domain models and Firestore DTOs (optional).
+
+Known open points: product search is not accent-insensitive ("cafe" does not find "Café"; offered as an optional improvement). Firestore security rules live only in the Firebase console, not in the repo. The profile picture flow and the backup notification were not verified on the test phone (its account has no photo, and `POST_NOTIFICATIONS` is denied there). Google sign-in on a debug build fails with "[16] Account reauth failed" until the debug keystore SHA-1 is registered in the Firebase console (a configuration issue, not code).
+
+### How to work on the refactor
+
+- One sub-stage at a time; stop for the user's review after each one. For UI changes, propose options and wait for the user's choice before implementing.
+- Never commit without an explicit request from the user.
+
+### Testing on devices
+
+- The user authorized the physical phone motorola edge 30 neo (`adb -s ZF5247H754`). Other zamfir apps are installed on it: never touch other packages. Use `adb install -r`; never uninstall and never run `connectedAndroidTest` there. Fallback emulator: `Medium_Phone_API_36` (no account, good for checking login screens). Don't restart the emulator unless asked.
+- Claude can drive the phone with `adb` plus `uiautomator dump` to reproduce bugs. Don't create or delete the user's data; if a test changes it, put it back as it was.
+- Logoff wipes the local DB, so check login screens on the emulator instead of logging out the phone. A Google login over an existing session mixes the other account's cloud data into the local DB. Never test a real account deletion on the user's account.
+- To test the crash screen: `adb shell am crash br.com.zamfir.comprarei`, and wait about 3 minutes between crashes, or Android stops restarting the app ("crashed quickly").
+- Git Bash on Windows: set `MSYS_NO_PATHCONV=1` for adb paths and pass Windows-style `C:/...` paths to `adb install`. Bash heredocs strip backslashes, so edit Android strings that contain apostrophes with the Edit tool.
+
+### Compose gotchas found so far
+
+- Read strings in Compose with `LocalResources`, not `LocalContext` (lint). Portuguese plurals need both `one` and `many`, with `%d`.
+- Never put a `DateRangePicker` inside a `DatePickerDialog` (it becomes too narrow); use a full-screen `Dialog` (`usePlatformDefaultWidth = false`) with its own top bar.
